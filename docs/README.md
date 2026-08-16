@@ -1,0 +1,23 @@
+# DawnlightCore 网站文档索引
+
+## 总体规划
+
+- [网站整体开发文档](./DawnlightCoreWebsiteDevelopmentPlan.md)
+- [V1 详细实现方案](./DawnlightCoreWebsiteV1ImplementationPlan.md)
+
+## WP0：决策冻结与资产盘点
+
+- [决策登记表](./WP0-DecisionRegister.md)
+- [资产盘点](./WP0-AssetInventory.md)
+- [实现门禁与交接](./WP0-ImplementationGate.md)
+
+## ADR
+
+- [ADR-0001：V1 范围与静态发布](./adr/0001-v1-scope-and-static-publishing.md)
+- [ADR-0002：来源、版本、语言与发布策略](./adr/0002-source-version-locale-and-release-policy.md)
+
+## 机器合同
+
+- `contracts/release-feed-v1.schema.json`：Release Feed v1 JSON Schema；
+- `contracts/dawnlight/preview/contract-lock.json`：当前候选 Core contract lock，状态为 blocked；
+- `contracts/README.md`：合同目录边界。

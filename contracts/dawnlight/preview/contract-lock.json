@@ -1,0 +1,28 @@
+{
+  "contractKind": "dawnlight-developer-contract",
+  "contractVersion": "preview-2026-08-16",
+  "status": "candidate-blocked",
+  "source": {
+    "repository": "https://github.com/EltanceX/DawnlightCore.git",
+    "ref": "dawnlight-upgrade-1.9.2.1-vr",
+    "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e",
+    "exportMode": "commit-tree-only",
+    "workingTreeAtInspection": "dirty",
+    "workingTreeNote": "Local uncommitted ToonLab changes were present; export with git archive or an isolated checkout of the locked commit."
+  },
+  "distributionSource": "https://gitee.com/SC-SPM/SurvivalcraftApi.git",
+  "candidate": {
+    "gameApiTag": "API_1.9.2.1",
+    "manifestVersions": [3],
+    "settingsSchemaVersions": [1],
+    "shaderPackId": "dawnlight:dawnlight_v3_1",
+    "shaderPackVersion": "3.1"
+  },
+  "files": [],
+  "blockingReasons": [
+    "A clean, reproducible contract export has not been generated yet.",
+    "The public JSON Schema and structured CLI output are not locked to this snapshot.",
+    "The preview contract has not passed the website contract validation pipeline."
+  ],
+  "capturedAt": "2026-08-16T00:00:00+08:00"
+}

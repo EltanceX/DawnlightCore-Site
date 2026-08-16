@@ -1,0 +1,20 @@
+node_modules/
+.next/
+out/
+.turbo/
+coverage/
+playwright-report/
+test-results/
+*.log
+.env
+.env.*
+!.env.example
+
+# Local source assets stay outside the publishable website tree until licensing
+# and optimization metadata are complete.
+apps/web/public/media/source/
+
+# Generated website artifacts
+apps/web/public/feeds/releases-v1.json
+apps/web/public/feeds/releases-v1.json.sig
+apps/web/public/search-index/

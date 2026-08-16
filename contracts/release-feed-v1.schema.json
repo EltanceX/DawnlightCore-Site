@@ -1,0 +1,265 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:dawnlight:contracts:release-feed-v1.schema.json",
+  "title": "DawnlightCore Release Feed v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "generatedAt",
+    "releases"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "generatedAt": {
+      "$ref": "#/$defs/dateTime"
+    },
+    "signingKeyId": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "releases": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/release"
+      }
+    }
+  },
+  "$defs": {
+    "nonEmptyString": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$"
+    },
+    "dateTime": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "httpsUrl": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^https://"
+    },
+    "release": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "version",
+        "channel",
+        "status",
+        "publishedAt",
+        "summary",
+        "supportedManifestVersions",
+        "docsVersion",
+        "releaseNotes",
+        "artifacts"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "version": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "channel": {
+          "enum": [
+            "stable",
+            "beta",
+            "nightly"
+          ]
+        },
+        "status": {
+          "enum": [
+            "available",
+            "withdrawn",
+            "archived"
+          ]
+        },
+        "publishedAt": {
+          "$ref": "#/$defs/dateTime"
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024
+        },
+        "coreApiVersion": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "supportedManifestVersions": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "docsVersion": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "releaseNotes": {
+          "type": "string",
+          "pattern": "^[^/].*\\.md$"
+        },
+        "artifacts": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/artifact"
+          }
+        }
+      }
+    },
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "platform",
+        "architecture",
+        "variant",
+        "fileName",
+        "size",
+        "sha256",
+        "graphics",
+        "primary",
+        "mirrors"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "platform": {
+          "enum": [
+            "windows",
+            "android",
+            "linux",
+            "ios",
+            "web"
+          ]
+        },
+        "architecture": {
+          "enum": [
+            "x64",
+            "arm64",
+            "wasm",
+            "universal"
+          ]
+        },
+        "variant": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "fileName": {
+          "type": "string",
+          "pattern": "^[^/\\\\]+$",
+          "minLength": 1,
+          "maxLength": 240
+        },
+        "size": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "graphics": {
+          "$ref": "#/$defs/graphics"
+        },
+        "primary": {
+          "$ref": "#/$defs/location"
+        },
+        "mirrors": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/location"
+          }
+        },
+        "signature": {
+          "$ref": "#/$defs/signature"
+        }
+      }
+    },
+    "graphics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "api",
+        "features"
+      ],
+      "properties": {
+        "api": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "minimumVersion": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "features": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/nonEmptyString"
+          }
+        }
+      }
+    },
+    "location": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "label",
+        "region",
+        "url"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "label": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "region": {
+          "enum": [
+            "global",
+            "china",
+            "other"
+          ]
+        },
+        "url": {
+          "$ref": "#/$defs/httpsUrl"
+        }
+      }
+    },
+    "signature": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "algorithm",
+        "keyId",
+        "url"
+      ],
+      "properties": {
+        "algorithm": {
+          "const": "ed25519"
+        },
+        "keyId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "url": {
+          "$ref": "#/$defs/httpsUrl"
+        }
+      }
+    }
+  }
+}
