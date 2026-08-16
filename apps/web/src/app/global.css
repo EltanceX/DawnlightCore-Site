@@ -245,6 +245,52 @@ body {
   line-height: 1.6;
 }
 
+.dl-verified-code {
+  overflow: hidden;
+  margin: 1rem 0;
+  border: 1px solid var(--dl-line);
+  border-radius: 0.5rem;
+  background: var(--dl-surface-muted);
+}
+
+.dl-verified-code__caption {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem 1rem;
+  border-bottom: 1px solid var(--dl-line);
+  padding: 0.6rem 0.8rem;
+  color: var(--dl-muted);
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 0.72rem;
+}
+
+.dl-verified-code__source,
+.dl-verified-code__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.dl-verified-code__source {
+  color: var(--dl-ink);
+}
+
+.dl-verified-code__status {
+  color: var(--dl-cool);
+}
+
+.dl-verified-code pre {
+  max-height: 30rem;
+  overflow: auto;
+  margin: 0;
+  padding: 1rem;
+  color: var(--dl-ink);
+  font-size: 0.8rem;
+  line-height: 1.65;
+}
+
 .dl-home {
   flex: 1;
 }

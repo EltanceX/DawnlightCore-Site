@@ -9,13 +9,16 @@
     "start": "pnpm --filter @dawnlight/web start",
     "lint": "pnpm --filter @dawnlight/web lint",
     "typecheck": "pnpm --filter @dawnlight/web types:check",
-    "format:check": "prettier --check \"apps/web/src/**/*.{ts,tsx,md,mdx,json,yml,yaml,css}\" \"apps/web/tests/**/*.{ts,tsx}\" \"apps/web/vitest.config.ts\" \"scripts/**/*.{mjs,mts,ts}\" \"package.json\" \"pnpm-workspace.yaml\" \"turbo.json\"",
+    "format:check": "prettier --check \"apps/web/src/**/*.{ts,tsx,md,mdx,json,yml,yaml,css}\" \"apps/web/tests/**/*.{ts,tsx}\" \"apps/web/vitest.config.ts\" \"scripts/**/*.{mjs,mts,ts}\" \"contracts/dawnlight/preview/**/*.json\" \"package.json\" \"pnpm-workspace.yaml\" \"turbo.json\"",
     "test": "pnpm --filter @dawnlight/web test",
     "verify:static": "node scripts/verify-static-output.mjs",
-    "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build && pnpm verify:static"
+    "contract:sync": "node scripts/sync-dawnlight-contract.mjs",
+    "validate:contract": "node scripts/validate-dawnlight-contract.mjs",
+    "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm validate:contract && pnpm build && pnpm verify:static"
   },
   "devDependencies": {
     "prettier": "^3.6.2",
-    "turbo": "^2.5.6"
+    "turbo": "^2.5.6",
+    "zod": "^4.4.3"
   }
 }

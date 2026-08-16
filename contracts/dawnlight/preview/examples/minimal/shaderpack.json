@@ -1,0 +1,90 @@
+{
+  "manifestVersion": 3,
+  "id": "p4_fixture:minimal",
+  "name": "P4 Minimal Factory Fixture",
+  "version": "1",
+  "shaderRoot": "shaders",
+  "options": [],
+  "resources": [
+    {
+      "id": "p4_fixture:color",
+      "kind": "texture2D",
+      "lifetime": "transient",
+      "size": { "mode": "viewport", "scale": [1.0, 1.0] },
+      "format": "rgba8"
+    }
+  ],
+  "programs": [
+    {
+      "id": "p4_fixture:fullscreen_program",
+      "kind": "graphics",
+      "vertex": "fullscreen.vsh",
+      "fragment": "fullscreen.psh"
+    },
+    {
+      "id": "p4_fixture:compute_program",
+      "kind": "compute",
+      "compute": "compute.comp"
+    }
+  ],
+  "passes": [
+    {
+      "id": "p4_fixture:fullscreen_pass",
+      "enabled": false,
+      "stage": {
+        "template": "dawnlight:fullscreen",
+        "version": 1,
+        "target": "afterDraw",
+        "phase": "afterDraw"
+      },
+      "services": [
+        { "id": "dawnlight:frame_uniforms", "version": 1, "mode": "required" }
+      ],
+      "programs": ["p4_fixture:fullscreen_program"],
+      "commands": [
+        {
+          "type": "fullscreen",
+          "program": "p4_fixture:fullscreen_program",
+          "targets": {
+            "colors": [
+              {
+                "location": 0,
+                "resource": "p4_fixture:color",
+                "loadOp": "dontCare",
+                "storeOp": "store"
+              }
+            ]
+          },
+          "viewport": {
+            "source": "target",
+            "restore": "frame",
+            "synchronizeScissor": false
+          }
+        }
+      ],
+      "inputs": [],
+      "outputs": ["p4_fixture:color"]
+    },
+    {
+      "id": "p4_fixture:compute_pass",
+      "enabled": false,
+      "stage": {
+        "template": "dawnlight:compute",
+        "version": 1,
+        "target": "afterDraw",
+        "phase": "afterDraw"
+      },
+      "services": [],
+      "programs": ["p4_fixture:compute_program"],
+      "commands": [
+        {
+          "type": "compute",
+          "program": "p4_fixture:compute_program",
+          "dispatch": { "groups": [2, 1, 1], "barriers": [] }
+        }
+      ],
+      "inputs": [],
+      "outputs": []
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "contractKind": "dawnlight-developer-contract",
+  "contractVersion": "preview-2026-08-16",
+  "status": "preview",
+  "publicApiStatus": "preview-only",
+  "source": {
+    "repository": "https://github.com/EltanceX/DawnlightCore.git",
+    "ref": "dawnlight-upgrade-1.9.2.1-vr",
+    "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e",
+    "exportMode": "commit-tree-only",
+    "capturedAt": "2026-08-16T17:42:48+08:00"
+  },
+  "candidate": {
+    "gameApiTag": "API_1.9.2.1",
+    "manifestVersions": [
+      3
+    ],
+    "settingsSchemaVersions": [
+      1
+    ],
+    "shaderPackId": "dawnlight:dawnlight_v3_1",
+    "shaderPackVersion": "3.1"
+  },
+  "generatedFiles": [
+    "manifest/shaderpack.json",
+    "manifest/settings.json",
+    "examples/minimal/shaderpack.json",
+    "examples/settings-auto/shaderpack.json",
+    "examples/settings-auto/manifest/ui/settings.json",
+    "examples/settings-authored/shaderpack.json",
+    "examples/settings-authored/manifest/ui/settings.json"
+  ],
+  "generatedBy": "scripts/sync-dawnlight-contract.mjs"
+}

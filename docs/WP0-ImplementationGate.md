@@ -25,7 +25,7 @@
 | Hero 截图 | Open | 修复当前渲染伪影后重新采集 |
 | Logo/品牌授权 | Open | 明确可使用的 Logo/icon 或制作新网站 Logo |
 | 镜像策略 | Open | 确认 Gitee/全球/CDN 主次顺序 |
-| Core contract | Preview only | 由干净 commit 生成并验证 Schema/Catalog/diagnostics/examples |
+| Core contract | Preview validated, stable blocked | 由锁定 commit tree 生成并验证 Schema/Catalog/diagnostics/examples；CLI JSON 仍未提供 |
 
 ## 可以立即进入 WP1 的部分
 

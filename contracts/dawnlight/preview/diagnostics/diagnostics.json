@@ -1,0 +1,13 @@
+{
+  "diagnosticVersion": "preview-1",
+  "status": "preview",
+  "sourceCommit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e",
+  "catalog": {
+    "kinds": ["StageTemplate", "Service", "SemanticProvider", "EngineDrawProvider"],
+    "codes": ["DuplicateRegistration", "UnknownIdentifier", "UnsupportedVersion"]
+  },
+  "manifest": {
+    "severities": ["Warning"],
+    "codes": ["OptionalServiceCatalogReferenceUnavailable"]
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "manifestVersion": 3,
+  "id": "p9_fixture:settings_ui",
+  "name": "P9 Settings UI Fixture",
+  "version": "1",
+  "shaderRoot": "shaders",
+  "settings": "manifest/ui/settings.json",
+  "options": [
+    {
+      "id": "p9_fixture:enabled",
+      "type": "boolean",
+      "default": true,
+      "impact": ["program"],
+      "name": "Enabled"
+    },
+    {
+      "id": "p9_fixture:quality",
+      "type": "string",
+      "default": "high",
+      "impact": ["program"],
+      "name": "Quality",
+      "allowed": ["low", "high"]
+    },
+    {
+      "id": "p9_fixture:strength",
+      "type": "number",
+      "default": 0.5,
+      "impact": ["uniform"],
+      "name": "Strength",
+      "min": 0.0,
+      "max": 1.0
+    },
+    {
+      "id": "p9_fixture:internal_mode",
+      "type": "integer",
+      "default": 1,
+      "impact": ["pipeline"],
+      "name": "Internal Mode",
+      "min": 0,
+      "max": 2
+    }
+  ],
+  "resources": [],
+  "passes": [],
+  "programs": []
+}

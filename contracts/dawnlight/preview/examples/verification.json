@@ -1,0 +1,31 @@
+{
+  "verificationVersion": 1,
+  "status": "schema-only",
+  "sourceCommit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e",
+  "runtimeLoader": {
+    "status": "pending",
+    "reason": "The website repository does not execute the C# Loader during static builds."
+  },
+  "examples": [
+    {
+      "id": "minimal",
+      "manifest": "examples/minimal/shaderpack.json",
+      "sourcePath": "Survivalcraft.Pipeline.Tests/Fixtures/P4/Minimal/shaderpack.json",
+      "verification": "manifest-shape-and-source-hash"
+    },
+    {
+      "id": "settings-auto",
+      "manifest": "examples/settings-auto/shaderpack.json",
+      "settings": "examples/settings-auto/manifest/ui/settings.json",
+      "sourcePath": "Survivalcraft.Pipeline.Tests/Fixtures/P9/SettingsUi/Valid",
+      "verification": "manifest-settings-shape-and-source-hash"
+    },
+    {
+      "id": "settings-authored",
+      "manifest": "examples/settings-authored/shaderpack.json",
+      "settings": "examples/settings-authored/manifest/ui/settings.json",
+      "sourcePath": "Survivalcraft/shaderpacks/Dawnlight_v3.1",
+      "verification": "manifest-settings-shape-and-source-hash"
+    }
+  ]
+}

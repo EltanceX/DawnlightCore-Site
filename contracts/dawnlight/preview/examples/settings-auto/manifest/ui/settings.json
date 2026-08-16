@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "defaultLocale": "en-US",
+  "translations": {
+    "en-US": {
+      "page.basic": "Basic",
+      "group.rendering": "Rendering",
+      "option.enabled": "Enabled",
+      "option.quality": "Quality",
+      "option.strength": "Strength",
+      "value.low": "Low",
+      "value.high": "High"
+    },
+    "zh-Hans": {
+      "page.basic": "基础",
+      "option.enabled": "启用"
+    }
+  },
+  "pages": [
+    {
+      "id": "basic",
+      "title": "page.basic",
+      "order": 100,
+      "groups": [
+        {
+          "id": "rendering",
+          "title": "group.rendering",
+          "order": 10,
+          "visibleWhen": [
+            { "option": "p9_fixture:internal_mode", "notEquals": 0 }
+          ],
+          "controls": [
+            {
+              "id": "enabled",
+              "option": "p9_fixture:enabled",
+              "widget": "toggle",
+              "label": "option.enabled"
+            },
+            {
+              "id": "quality",
+              "option": "p9_fixture:quality",
+              "widget": "choice",
+              "label": "option.quality",
+              "values": [
+                { "value": "high", "label": "value.high" },
+                { "value": "low", "label": "value.low" }
+              ],
+              "enabledWhen": [
+                { "option": "p9_fixture:enabled", "equals": true }
+              ]
+            },
+            {
+              "id": "strength",
+              "option": "p9_fixture:strength",
+              "widget": "slider",
+              "label": "option.strength",
+              "unit": "%",
+              "format": "0%",
+              "step": 0.05,
+              "min": 0.1,
+              "max": 0.9,
+              "advanced": true,
+              "visibleWhen": [
+                { "option": "p9_fixture:quality", "in": ["high"] }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "hiddenOptions": [
+    {
+      "option": "p9_fixture:internal_mode",
+      "reason": "Pipeline-only switch with no direct user control."
+    }
+  ]
+}

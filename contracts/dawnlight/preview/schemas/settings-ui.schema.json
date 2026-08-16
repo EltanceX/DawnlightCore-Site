@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:dawnlight:settings-ui:preview",
+  "title": "Dawnlight Settings UI Schema v1 (Preview)",
+  "description": "Preview schema for authored and generated Settings UI documents.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "defaultLocale", "translations", "pages", "hiddenOptions"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "defaultLocale": { "type": "string", "minLength": 2 },
+    "translations": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": { "type": "object", "additionalProperties": { "type": "string" } }
+    },
+    "pages": { "type": "array", "items": { "$ref": "#/$defs/page" } },
+    "hiddenOptions": { "type": "array", "items": { "$ref": "#/$defs/hiddenOption" } }
+  },
+  "$defs": {
+    "page": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["id", "title", "order", "groups"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "title": { "type": "string", "minLength": 1 },
+        "order": { "type": "number" },
+        "groups": { "type": "array", "items": { "$ref": "#/$defs/group" } }
+      }
+    },
+    "group": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["id", "title", "order", "controls"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "title": { "type": "string", "minLength": 1 },
+        "order": { "type": "number" },
+        "controls": { "type": "array", "items": { "$ref": "#/$defs/control" } }
+      }
+    },
+    "control": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["id", "option", "widget", "label"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "option": { "type": "string", "pattern": "^[a-zA-Z0-9._-]+:[a-zA-Z0-9._/-]+$" },
+        "widget": { "enum": ["toggle", "choice", "slider", "text", "color"] },
+        "label": { "type": "string", "minLength": 1 },
+        "values": { "type": "array", "items": { "type": "object" } }
+      }
+    },
+    "hiddenOption": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["option", "reason"],
+      "properties": {
+        "option": { "type": "string", "minLength": 1 },
+        "reason": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

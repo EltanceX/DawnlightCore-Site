@@ -1,0 +1,9 @@
+{
+  "product": "ShaderPackCli",
+  "status": "unavailable",
+  "contractStatus": "preview-only",
+  "sourceCommit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e",
+  "structuredOutput": false,
+  "plannedCommands": ["validate", "catalog", "diagnostics"],
+  "note": "The locked Core snapshot does not contain a public CLI JSON contract. Website examples are schema-checked only until the production CLI is published."
+}

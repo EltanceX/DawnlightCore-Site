@@ -1,0 +1,101 @@
+{
+  "catalogVersion": "preview-1",
+  "status": "preview",
+  "source": {
+    "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e",
+    "files": [
+      "Survivalcraft/Dawnlight/PipeLine/Catalogs/BuiltInPipelineCatalogs.cs",
+      "Survivalcraft/Dawnlight/PipeLine/Catalogs/BuiltInShaderPackCapabilities.cs"
+    ]
+  },
+  "stageTemplates": {
+    "count": 7,
+    "version": 1,
+    "ids": [
+      "dawnlight:fullscreen",
+      "dawnlight:compute",
+      "dawnlight:command_list",
+      "dawnlight:model_shadow",
+      "dawnlight:ocean_fft",
+      "dawnlight:cubemap_capture",
+      "dawnlight:point_lights"
+    ]
+  },
+  "services": {
+    "count": 7,
+    "version": 1,
+    "ids": [
+      "dawnlight:point_lights",
+      "dawnlight:terrain_shadows",
+      "dawnlight:model_shadows",
+      "dawnlight:ocean_wave",
+      "dawnlight:cubemap",
+      "dawnlight:frame_uniforms",
+      "dawnlight:scene_target"
+    ]
+  },
+  "semanticProviders": {
+    "count": 34,
+    "version": 1,
+    "ids": [
+      "dawnlight:frame/view_width",
+      "dawnlight:frame/view_height",
+      "dawnlight:frame/screen_size",
+      "dawnlight:camera/view_inverse_matrix",
+      "dawnlight:camera/projection_inverse_matrix",
+      "dawnlight:camera/position",
+      "dawnlight:frame/game_time",
+      "dawnlight:frame/system_time",
+      "dawnlight:weather/precipitation_proc",
+      "dawnlight:atmosphere/fog_proc",
+      "dawnlight:atmosphere/visibility_range",
+      "dawnlight:atmosphere/season",
+      "dawnlight:atmosphere/time_of_season",
+      "dawnlight:point_lights/cluster_x",
+      "dawnlight:point_lights/cluster_y",
+      "dawnlight:point_lights/cluster_z",
+      "dawnlight:point_lights/total_lights",
+      "dawnlight:atmosphere/skylight",
+      "dawnlight:atmosphere/sun_direction",
+      "dawnlight:shaft/sun_screen_uv",
+      "dawnlight:lighting/handheld_position_radius",
+      "dawnlight:lighting/handheld_color_intensity",
+      "dawnlight:camera/projection_matrix",
+      "dawnlight:camera/view_matrix",
+      "dawnlight:camera/near_plane",
+      "dawnlight:camera/far_plane",
+      "dawnlight:camera/normal_world_to_view_matrix",
+      "dawnlight:camera/direction",
+      "dawnlight:environment/view_underwater_depth",
+      "dawnlight:environment/temperature",
+      "dawnlight:environment/temperature_target",
+      "dawnlight:atmosphere/sun_position",
+      "dawnlight:atmosphere/fog_color",
+      "dawnlight:point_lights/cluster_dimensions"
+    ]
+  },
+  "engineDrawProviders": {
+    "count": 14,
+    "version": 1,
+    "ids": [
+      "dawnlight:shaft/prepare",
+      "dawnlight:shaft/sun",
+      "dawnlight:lighting/handheld_prepare",
+      "dawnlight:terrain/opaque",
+      "dawnlight:terrain/alpha_tested",
+      "dawnlight:terrain/transparent",
+      "dawnlight:terrain/sorted_translucent",
+      "dawnlight:terrain/prepare",
+      "dawnlight:terrain_shadow/layer_0",
+      "dawnlight:terrain_shadow/layer_1",
+      "dawnlight:model_shadow/opaque_instanced",
+      "dawnlight:model_shadow/opaque_skinned",
+      "dawnlight:model_shadow/alpha_tested_instanced",
+      "dawnlight:model_shadow/alpha_tested_skinned"
+    ]
+  },
+  "capabilities": {
+    "count": 2,
+    "ids": ["dawnlight:model_shadow/max_instances", "dawnlight:model_shadow/max_joints"]
+  }
+}

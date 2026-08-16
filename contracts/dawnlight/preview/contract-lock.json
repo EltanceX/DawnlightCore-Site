@@ -1,28 +1,116 @@
 {
   "contractKind": "dawnlight-developer-contract",
   "contractVersion": "preview-2026-08-16",
-  "status": "candidate-blocked",
+  "status": "preview-validated",
+  "publicApiStatus": "preview-only",
   "source": {
     "repository": "https://github.com/EltanceX/DawnlightCore.git",
     "ref": "dawnlight-upgrade-1.9.2.1-vr",
     "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e",
     "exportMode": "commit-tree-only",
     "workingTreeAtInspection": "dirty",
-    "workingTreeNote": "Local uncommitted ToonLab changes were present; export with git archive or an isolated checkout of the locked commit."
+    "workingTreeNote": "The export was read from the locked commit tree with git show; no local working-tree files were read.",
+    "capturedAt": "2026-08-16T17:42:48+08:00"
   },
   "distributionSource": "https://gitee.com/SC-SPM/SurvivalcraftApi.git",
   "candidate": {
     "gameApiTag": "API_1.9.2.1",
-    "manifestVersions": [3],
-    "settingsSchemaVersions": [1],
+    "manifestVersions": [
+      3
+    ],
+    "settingsSchemaVersions": [
+      1
+    ],
     "shaderPackId": "dawnlight:dawnlight_v3_1",
     "shaderPackVersion": "3.1"
   },
-  "files": [],
-  "blockingReasons": [
-    "A clean, reproducible contract export has not been generated yet.",
-    "The public JSON Schema and structured CLI output are not locked to this snapshot.",
-    "The preview contract has not passed the website contract validation pipeline."
+  "files": [
+    {
+      "path": "manifest/shaderpack.json",
+      "bytes": 1502,
+      "sha256": "b054ba402d2eaaa2b785fe59b8a44f8138f882f21ff1b37aad32805d6bfa50d3",
+      "sourcePath": "Survivalcraft/shaderpacks/Dawnlight_v3.1/shaderpack.json"
+    },
+    {
+      "path": "manifest/settings.json",
+      "bytes": 28587,
+      "sha256": "0b22e512e09732979b1c9cbd2a51333469130338129862416aa1305bb72447c1",
+      "sourcePath": "Survivalcraft/shaderpacks/Dawnlight_v3.1/manifest/ui/settings.json"
+    },
+    {
+      "path": "examples/minimal/shaderpack.json",
+      "bytes": 2180,
+      "sha256": "4ccda431356c7eaf2d4ecfa5b670c7f8589380433d968cba9a625bfb13fd7d50",
+      "sourcePath": "Survivalcraft.Pipeline.Tests/Fixtures/P4/Minimal/shaderpack.json"
+    },
+    {
+      "path": "examples/settings-auto/shaderpack.json",
+      "bytes": 962,
+      "sha256": "7f47a680f3995f285364e37ca9105ab68a475186fd2fb5e71051b2a69aad638c",
+      "sourcePath": "Survivalcraft.Pipeline.Tests/Fixtures/P9/SettingsUi/Valid/shaderpack.json"
+    },
+    {
+      "path": "examples/settings-auto/manifest/ui/settings.json",
+      "bytes": 2045,
+      "sha256": "a5a59b73854b5679a3ba0d9ead63ece21ae0bc1bf139fe2b445ab71f4cceb404",
+      "sourcePath": "Survivalcraft.Pipeline.Tests/Fixtures/P9/SettingsUi/Valid/manifest/ui/settings.json"
+    },
+    {
+      "path": "examples/settings-authored/shaderpack.json",
+      "bytes": 1502,
+      "sha256": "b054ba402d2eaaa2b785fe59b8a44f8138f882f21ff1b37aad32805d6bfa50d3",
+      "sourcePath": "Survivalcraft/shaderpacks/Dawnlight_v3.1/shaderpack.json"
+    },
+    {
+      "path": "examples/settings-authored/manifest/ui/settings.json",
+      "bytes": 28587,
+      "sha256": "0b22e512e09732979b1c9cbd2a51333469130338129862416aa1305bb72447c1",
+      "sourcePath": "Survivalcraft/shaderpacks/Dawnlight_v3.1/manifest/ui/settings.json"
+    },
+    {
+      "path": "metadata.json",
+      "bytes": 1045,
+      "sha256": "cdd111295c0d343d586fe28b2d8fa78e92f6d36bf8533e6ae0fcf1e36e27f71f"
+    },
+    {
+      "path": "schemas/shaderpack.schema.json",
+      "bytes": 1726,
+      "sha256": "7b224f97ef42203ad13c2c9c01c6ded5ee0110dff9f787e246dd0eeff30c2fe4"
+    },
+    {
+      "path": "schemas/settings-ui.schema.json",
+      "bytes": 2430,
+      "sha256": "81c85a673bbc95be9df3908c35fead286aaa79dc75e221f36656858e697d9d3f"
+    },
+    {
+      "path": "catalogs/summary.json",
+      "bytes": 3250,
+      "sha256": "56b4febcae653a0c3a72611031817133f042829d527dd9985028bf5d60663edb"
+    },
+    {
+      "path": "diagnostics/diagnostics.json",
+      "bytes": 423,
+      "sha256": "32a5a281e77e23b59a22cc5119238a1c0d40461762a314c01f20fc36c7d7fe8a"
+    },
+    {
+      "path": "cli/metadata.json",
+      "bytes": 411,
+      "sha256": "b32b266a6831499be68c07ac6da618501ebe3609af1d2c36f19640eb8a38df31"
+    },
+    {
+      "path": "examples/verification.json",
+      "bytes": 1145,
+      "sha256": "27ea7903a2239741c754158f20849d4faae55eec4003f61accd6256660bc0207"
+    }
   ],
-  "capturedAt": "2026-08-16T00:00:00+08:00"
+  "validation": {
+    "schema": "website-preview-schema",
+    "examples": "schema-and-source-metadata",
+    "cli": "unavailable"
+  },
+  "blockingReasons": [
+    "The contract is preview-only and is not a stable public ABI.",
+    "A production CLI JSON output contract is not available in this snapshot."
+  ],
+  "capturedAt": "2026-08-16T17:42:48+08:00"
 }

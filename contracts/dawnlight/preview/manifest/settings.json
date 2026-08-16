@@ -1,0 +1,751 @@
+{
+  "schemaVersion": 1,
+  "defaultLocale": "en-US",
+  "translations": {
+    "en-US": {
+      "page.basic": "Basic",
+      "page.shadow": "Shadow",
+      "page.water": "Water",
+      "page.light": "Light",
+      "page.cloud": "Cloud",
+      "page.extra": "Extra",
+      "page.advanced": "Advanced",
+      "group.basic.visual": "Visual",
+      "group.basic.fireflies": "Fireflies",
+      "group.basic.earth": "Earth Effect",
+      "group.shadow.main": "Shadows",
+      "group.water.main": "Water",
+      "group.water.effects": "Surface Effects",
+      "group.light.dynamic": "Dynamic Lighting",
+      "group.light.post": "Post Lighting",
+      "group.cloud.main": "Volumetric Clouds",
+      "group.cloud.sky": "Sky",
+      "group.extra.translucency": "Translucency",
+      "group.advanced.compatibility": "Compatibility",
+      "group.advanced.diagnostics": "Diagnostics",
+      "option.post.tone_mapping": "Tone Mapping",
+      "option.post.dynamic_blur": "Dynamic Blur",
+      "option.terrain.plant_waving": "Plant Waving",
+      "option.terrain.plant_interaction": "Plant Interaction",
+      "option.effects.firefly_mode": "Firefly Mode",
+      "option.effects.firefly_density": "Firefly Density",
+      "option.terrain.earth_effect": "Earth Effect",
+      "option.terrain.earth_effect_strength": "Earth Effect Strength",
+      "option.shadows.mode": "Shadow Mode",
+      "option.shadows.pcf": "Soft Shadows",
+      "option.shadows.refresh_rate": "Shadow Update Spread",
+      "option.post.water_effect": "Water Surface Effect",
+      "option.water.transparency": "Water Transparency",
+      "option.water.fog_density": "Water Fog Density",
+      "option.water.depth_density": "Water Depth Density",
+      "option.water.specular": "Water Highlight Spectrum",
+      "option.water.advanced_wave": "Advanced Wave",
+      "option.water.ripple": "Rain Ripples",
+      "option.terrain.ground_infiltration": "Ground Infiltration",
+      "option.water.puddle_reflection": "Puddle Sky Reflection",
+      "option.screen.density_perturbation": "Density Perturbation",
+      "option.lighting.handheld_mode": "Handheld Light",
+      "option.lighting.rgb_torch": "RGB Torch Light",
+      "option.lighting.point_lights": "Point Lights",
+      "option.lighting.handheld_radius_multiplier": "Handheld Light Radius",
+      "option.lighting.circuit_point_lights": "Circuit Point Lights",
+      "option.lighting.floodlight": "Floodlight",
+      "option.lighting.shaft_enabled": "Shaft Lighting",
+      "option.lighting.shaft_quality": "Shaft Lighting Quality",
+      "option.lighting.moonlight_boost": "Moonlight Boost",
+      "option.lighting.tone": "Lighting Tone",
+      "option.terrain.pbr": "PBR",
+      "option.clouds.enabled": "Volumetric Clouds",
+      "option.clouds.density": "Cloud Density",
+      "option.clouds.moving_speed": "Cloud Moving Speed",
+      "option.clouds.quality": "Cloud Quality",
+      "option.clouds.shadow_quality": "Cloud Shadow Quality",
+      "option.clouds.stepwise_optimization": "Stepwise Optimization",
+      "option.clouds.stars": "Stars",
+      "option.terrain.sorted_translucent": "Sorted Translucency",
+      "option.compatibility.ssbo_disabled": "Compatibility Mode",
+      "option.lighting.force_maximum": "Force Maximum Lighting",
+      "option.screen.point_light_debug": "Point-Light Debug Overlay",
+      "description.effects.firefly_mode": "Controls when fireflies are rendered.",
+      "description.shadows.refresh_rate": "Higher values spread terrain-shadow work across more frames.",
+      "description.water.advanced_wave": "Requires SSBO support and is unavailable in compatibility mode.",
+      "description.lighting.point_lights": "Enables high-cost deferred point lighting.",
+      "description.clouds.enabled": "Enables high-cost volumetric cloud rendering.",
+      "description.terrain.sorted_translucent": "Experimental depth sorting for translucent terrain.",
+      "description.compatibility.ssbo_disabled": "Disables SSBO-dependent effects for unsupported GPUs.",
+      "description.lighting.force_maximum": "Diagnostic override that forces maximum scene lighting.",
+      "description.screen.point_light_debug": "Displays the point-light pressure and debug overlay.",
+      "value.common.disabled": "Disabled",
+      "value.common.low": "Low",
+      "value.common.medium": "Medium",
+      "value.common.high": "High",
+      "value.post.default": "Default",
+      "value.post.vanilla": "Vanilla",
+      "value.post.vivid": "Vivid",
+      "value.post.experimental": "Experimental",
+      "value.post.none": "None",
+      "value.firefly.standard": "Standard",
+      "value.firefly.always": "Always",
+      "value.shadow.terrain_and_entity": "Terrain + Entities",
+      "value.shadow.terrain_only": "Terrain Only",
+      "value.shadow.entity_only": "Entities Only",
+      "value.water.maximum": "Maximum",
+      "value.handheld.on": "On",
+      "value.handheld.always": "Always On",
+      "value.handheld.off": "Off",
+      "value.lighting.cold": "Cold",
+      "value.lighting.basic": "Basic",
+      "value.lighting.warm": "Warm",
+      "value.clouds.standard": "Medium"
+    },
+    "zh-Hans": {
+      "page.basic": "基础",
+      "page.shadow": "阴影",
+      "page.water": "水体",
+      "page.light": "光照",
+      "page.cloud": "云层",
+      "page.extra": "额外",
+      "page.advanced": "高级",
+      "group.basic.visual": "画面",
+      "group.basic.fireflies": "萤火虫",
+      "group.basic.earth": "地球效果",
+      "group.shadow.main": "阴影",
+      "group.water.main": "水体",
+      "group.water.effects": "表面效果",
+      "group.light.dynamic": "动态光照",
+      "group.light.post": "后期光照",
+      "group.cloud.main": "体积云",
+      "group.cloud.sky": "天空",
+      "group.extra.translucency": "半透明",
+      "group.advanced.compatibility": "兼容性",
+      "group.advanced.diagnostics": "诊断",
+      "option.post.tone_mapping": "色调映射",
+      "option.post.dynamic_blur": "动态模糊",
+      "option.terrain.plant_waving": "植物摆动",
+      "option.terrain.plant_interaction": "植物交互",
+      "option.effects.firefly_mode": "萤火虫模式",
+      "option.effects.firefly_density": "萤火虫密度",
+      "option.terrain.earth_effect": "地球效果",
+      "option.terrain.earth_effect_strength": "地球效果强度",
+      "option.shadows.mode": "阴影模式",
+      "option.shadows.pcf": "柔和阴影",
+      "option.shadows.refresh_rate": "阴影分帧数",
+      "option.post.water_effect": "水面效果",
+      "option.water.transparency": "水体透明度",
+      "option.water.fog_density": "水雾密度",
+      "option.water.depth_density": "水深密度",
+      "option.water.specular": "水面高光光谱",
+      "option.water.advanced_wave": "高级波浪",
+      "option.water.ripple": "雨水涟漪",
+      "option.terrain.ground_infiltration": "地表浸润",
+      "option.water.puddle_reflection": "积水天空反射",
+      "option.screen.density_perturbation": "密度扰动",
+      "option.lighting.handheld_mode": "手持光源",
+      "option.lighting.rgb_torch": "RGB 火把光源",
+      "option.lighting.point_lights": "点光源",
+      "option.lighting.handheld_radius_multiplier": "手持光源范围",
+      "option.lighting.circuit_point_lights": "电路点光源",
+      "option.lighting.floodlight": "泛光",
+      "option.lighting.shaft_enabled": "体积光",
+      "option.lighting.shaft_quality": "体积光质量",
+      "option.lighting.moonlight_boost": "月光增益",
+      "option.lighting.tone": "光照色调",
+      "option.terrain.pbr": "PBR",
+      "option.clouds.enabled": "体积云",
+      "option.clouds.density": "云层密度",
+      "option.clouds.moving_speed": "云层移动速度",
+      "option.clouds.quality": "体积云质量",
+      "option.clouds.shadow_quality": "云层阴影质量",
+      "option.clouds.stepwise_optimization": "步进优化",
+      "option.clouds.stars": "星空",
+      "option.terrain.sorted_translucent": "半透明排序",
+      "option.compatibility.ssbo_disabled": "兼容模式",
+      "option.lighting.force_maximum": "强制最大光照",
+      "option.screen.point_light_debug": "点光源调试叠层",
+      "description.effects.firefly_mode": "控制萤火虫的显示时机。",
+      "description.shadows.refresh_rate": "值越高，地形阴影更新会分散到更多帧。",
+      "description.water.advanced_wave": "需要 SSBO 支持，兼容模式下不可用。",
+      "description.lighting.point_lights": "启用高开销的延迟点光照。",
+      "description.clouds.enabled": "启用高开销的体积云渲染。",
+      "description.terrain.sorted_translucent": "对半透明地形启用实验性深度排序。",
+      "description.compatibility.ssbo_disabled": "为不支持的 GPU 禁用依赖 SSBO 的效果。",
+      "description.lighting.force_maximum": "强制场景使用最大光照的诊断覆盖项。",
+      "description.screen.point_light_debug": "显示点光源压力与调试叠层。",
+      "value.common.disabled": "禁用",
+      "value.common.low": "低",
+      "value.common.medium": "中",
+      "value.common.high": "高",
+      "value.post.default": "默认",
+      "value.post.vanilla": "原版",
+      "value.post.vivid": "鲜艳",
+      "value.post.experimental": "实验",
+      "value.post.none": "无",
+      "value.firefly.standard": "标准",
+      "value.firefly.always": "始终显示",
+      "value.shadow.terrain_and_entity": "地形与实体",
+      "value.shadow.terrain_only": "仅地形",
+      "value.shadow.entity_only": "仅实体",
+      "value.water.maximum": "最大",
+      "value.handheld.on": "开启",
+      "value.handheld.always": "始终开启",
+      "value.handheld.off": "关闭",
+      "value.lighting.cold": "冷色",
+      "value.lighting.basic": "基础",
+      "value.lighting.warm": "暖色",
+      "value.clouds.standard": "中"
+    }
+  },
+  "pages": [
+    {
+      "id": "basic",
+      "title": "page.basic",
+      "order": 100,
+      "groups": [
+        {
+          "id": "visual",
+          "title": "group.basic.visual",
+          "order": 100,
+          "controls": [
+            {
+              "id": "tone-mapping",
+              "option": "dawnlight:post/tone_mapping",
+              "widget": "choice",
+              "label": "option.post.tone_mapping",
+              "values": [
+                { "value": "default", "label": "value.post.default" },
+                { "value": "vanilla", "label": "value.post.vanilla" },
+                { "value": "vivid", "label": "value.post.vivid" },
+                { "value": "experimental", "label": "value.post.experimental" },
+                { "value": "none", "label": "value.post.none" }
+              ]
+            },
+            {
+              "id": "dynamic-blur",
+              "option": "dawnlight:post/dynamic_blur",
+              "widget": "toggle",
+              "label": "option.post.dynamic_blur"
+            },
+            {
+              "id": "plant-waving",
+              "option": "dawnlight:terrain/plant_waving",
+              "widget": "toggle",
+              "label": "option.terrain.plant_waving"
+            },
+            {
+              "id": "plant-interaction",
+              "option": "dawnlight:terrain/plant_interaction",
+              "widget": "toggle",
+              "label": "option.terrain.plant_interaction"
+            }
+          ]
+        },
+        {
+          "id": "fireflies",
+          "title": "group.basic.fireflies",
+          "order": 200,
+          "controls": [
+            {
+              "id": "firefly-mode",
+              "option": "dawnlight:effects/firefly_mode",
+              "widget": "choice",
+              "label": "option.effects.firefly_mode",
+              "description": "description.effects.firefly_mode",
+              "values": [
+                { "value": "disabled", "label": "value.common.disabled" },
+                { "value": "standard", "label": "value.firefly.standard" },
+                { "value": "always", "label": "value.firefly.always" }
+              ],
+              "enabledWhen": [
+                { "option": "dawnlight:compatibility/ssbo_disabled", "equals": false }
+              ]
+            },
+            {
+              "id": "firefly-density",
+              "option": "dawnlight:effects/firefly_density",
+              "widget": "slider",
+              "label": "option.effects.firefly_density",
+              "min": 1024,
+              "max": 10240,
+              "step": 512,
+              "enabledWhen": [
+                { "option": "dawnlight:effects/firefly_mode", "notEquals": "disabled" },
+                { "option": "dawnlight:compatibility/ssbo_disabled", "equals": false }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "earth",
+          "title": "group.basic.earth",
+          "order": 300,
+          "controls": [
+            {
+              "id": "earth-effect",
+              "option": "dawnlight:terrain/earth_effect",
+              "widget": "toggle",
+              "label": "option.terrain.earth_effect"
+            },
+            {
+              "id": "earth-effect-strength",
+              "option": "dawnlight:terrain/earth_effect_strength",
+              "widget": "slider",
+              "label": "option.terrain.earth_effect_strength",
+              "min": 0.04,
+              "max": 0.5,
+              "step": 0.02,
+              "enabledWhen": [
+                { "option": "dawnlight:terrain/earth_effect", "equals": true }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shadow",
+      "title": "page.shadow",
+      "order": 200,
+      "groups": [
+        {
+          "id": "main",
+          "title": "group.shadow.main",
+          "order": 100,
+          "controls": [
+            {
+              "id": "shadow-mode",
+              "option": "dawnlight:shadows/mode",
+              "widget": "choice",
+              "label": "option.shadows.mode",
+              "values": [
+                { "value": "terrainAndEntity", "label": "value.shadow.terrain_and_entity" },
+                { "value": "terrainOnly", "label": "value.shadow.terrain_only" },
+                { "value": "entityOnly", "label": "value.shadow.entity_only" },
+                { "value": "disabled", "label": "value.common.disabled" }
+              ]
+            },
+            {
+              "id": "pcf",
+              "option": "dawnlight:shadows/pcf",
+              "widget": "toggle",
+              "label": "option.shadows.pcf",
+              "enabledWhen": [
+                { "option": "dawnlight:shadows/mode", "notEquals": "disabled" }
+              ]
+            },
+            {
+              "id": "refresh-rate",
+              "option": "dawnlight:shadows/refresh_rate",
+              "widget": "slider",
+              "label": "option.shadows.refresh_rate",
+              "description": "description.shadows.refresh_rate",
+              "min": 1,
+              "max": 6,
+              "step": 1,
+              "enabledWhen": [
+                {
+                  "option": "dawnlight:shadows/mode",
+                  "in": ["terrainAndEntity", "terrainOnly"]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "water",
+      "title": "page.water",
+      "order": 300,
+      "groups": [
+        {
+          "id": "main",
+          "title": "group.water.main",
+          "order": 100,
+          "controls": [
+            {
+              "id": "water-effect",
+              "option": "dawnlight:post/water_effect",
+              "widget": "toggle",
+              "label": "option.post.water_effect"
+            },
+            {
+              "id": "transparency",
+              "option": "dawnlight:water/transparency",
+              "widget": "choice",
+              "label": "option.water.transparency",
+              "values": [
+                { "value": "max", "label": "value.water.maximum" },
+                { "value": "high", "label": "value.common.high" },
+                { "value": "medium", "label": "value.common.medium" },
+                { "value": "low", "label": "value.common.low" }
+              ]
+            },
+            {
+              "id": "fog-density",
+              "option": "dawnlight:water/fog_density",
+              "widget": "slider",
+              "label": "option.water.fog_density",
+              "min": 0.01,
+              "max": 0.12,
+              "step": 0.01
+            },
+            {
+              "id": "depth-density",
+              "option": "dawnlight:water/depth_density",
+              "widget": "slider",
+              "label": "option.water.depth_density",
+              "min": 0.01,
+              "max": 0.12,
+              "step": 0.01
+            },
+            {
+              "id": "specular",
+              "option": "dawnlight:water/specular",
+              "widget": "toggle",
+              "label": "option.water.specular"
+            },
+            {
+              "id": "advanced-wave",
+              "option": "dawnlight:water/advanced_wave",
+              "widget": "toggle",
+              "label": "option.water.advanced_wave",
+              "description": "description.water.advanced_wave",
+              "enabledWhen": [
+                { "option": "dawnlight:compatibility/ssbo_disabled", "equals": false }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "effects",
+          "title": "group.water.effects",
+          "order": 200,
+          "controls": [
+            {
+              "id": "ripple",
+              "option": "dawnlight:water/ripple",
+              "widget": "toggle",
+              "label": "option.water.ripple",
+              "enabledWhen": [
+                { "option": "dawnlight:compatibility/ssbo_disabled", "equals": false }
+              ]
+            },
+            {
+              "id": "ground-infiltration",
+              "option": "dawnlight:terrain/ground_infiltration",
+              "widget": "toggle",
+              "label": "option.terrain.ground_infiltration"
+            },
+            {
+              "id": "puddle-reflection",
+              "option": "dawnlight:water/puddle_reflection",
+              "widget": "toggle",
+              "label": "option.water.puddle_reflection"
+            },
+            {
+              "id": "density-perturbation",
+              "option": "dawnlight:screen/density_perturbation",
+              "widget": "toggle",
+              "label": "option.screen.density_perturbation"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "light",
+      "title": "page.light",
+      "order": 400,
+      "groups": [
+        {
+          "id": "dynamic",
+          "title": "group.light.dynamic",
+          "order": 100,
+          "controls": [
+            {
+              "id": "handheld-mode",
+              "option": "dawnlight:lighting/handheld_mode",
+              "widget": "choice",
+              "label": "option.lighting.handheld_mode",
+              "values": [
+                { "value": "on", "label": "value.handheld.on" },
+                { "value": "always", "label": "value.handheld.always" },
+                { "value": "off", "label": "value.handheld.off" }
+              ]
+            },
+            {
+              "id": "rgb-torch",
+              "option": "dawnlight:lighting/rgb_torch",
+              "widget": "toggle",
+              "label": "option.lighting.rgb_torch",
+              "enabledWhen": [
+                { "option": "dawnlight:lighting/handheld_mode", "notEquals": "off" }
+              ]
+            },
+            {
+              "id": "point-lights",
+              "option": "dawnlight:lighting/point_lights",
+              "widget": "toggle",
+              "label": "option.lighting.point_lights",
+              "description": "description.lighting.point_lights",
+              "enabledWhen": [
+                { "option": "dawnlight:compatibility/ssbo_disabled", "equals": false }
+              ]
+            },
+            {
+              "id": "handheld-radius",
+              "option": "dawnlight:lighting/handheld_radius_multiplier",
+              "widget": "slider",
+              "label": "option.lighting.handheld_radius_multiplier",
+              "unit": "x",
+              "min": 0.5,
+              "max": 2.0,
+              "step": 0.05,
+              "enabledWhen": [
+                { "option": "dawnlight:lighting/handheld_mode", "notEquals": "off" }
+              ]
+            },
+            {
+              "id": "circuit-point-lights",
+              "option": "dawnlight:lighting/circuit_point_lights",
+              "widget": "toggle",
+              "label": "option.lighting.circuit_point_lights",
+              "enabledWhen": [
+                { "option": "dawnlight:lighting/point_lights", "equals": true },
+                { "option": "dawnlight:compatibility/ssbo_disabled", "equals": false }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "post",
+          "title": "group.light.post",
+          "order": 200,
+          "controls": [
+            {
+              "id": "floodlight",
+              "option": "dawnlight:lighting/floodlight",
+              "widget": "toggle",
+              "label": "option.lighting.floodlight"
+            },
+            {
+              "id": "shaft-enabled",
+              "option": "dawnlight:lighting/shaft_enabled",
+              "widget": "toggle",
+              "label": "option.lighting.shaft_enabled"
+            },
+            {
+              "id": "shaft-quality",
+              "option": "dawnlight:lighting/shaft_quality",
+              "widget": "choice",
+              "label": "option.lighting.shaft_quality",
+              "values": [
+                { "value": "High", "label": "value.common.high" },
+                { "value": "Medium", "label": "value.common.medium" },
+                { "value": "Low", "label": "value.common.low" }
+              ],
+              "enabledWhen": [
+                { "option": "dawnlight:lighting/shaft_enabled", "equals": true }
+              ]
+            },
+            {
+              "id": "moonlight-boost",
+              "option": "dawnlight:lighting/moonlight_boost",
+              "widget": "toggle",
+              "label": "option.lighting.moonlight_boost"
+            },
+            {
+              "id": "lighting-tone",
+              "option": "dawnlight:lighting/tone",
+              "widget": "choice",
+              "label": "option.lighting.tone",
+              "values": [
+                { "value": "cold", "label": "value.lighting.cold" },
+                { "value": "basic", "label": "value.lighting.basic" },
+                { "value": "warm", "label": "value.lighting.warm" }
+              ]
+            },
+            {
+              "id": "pbr",
+              "option": "dawnlight:terrain/pbr",
+              "widget": "toggle",
+              "label": "option.terrain.pbr"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cloud",
+      "title": "page.cloud",
+      "order": 500,
+      "groups": [
+        {
+          "id": "main",
+          "title": "group.cloud.main",
+          "order": 100,
+          "controls": [
+            {
+              "id": "clouds-enabled",
+              "option": "dawnlight:clouds/enabled",
+              "widget": "toggle",
+              "label": "option.clouds.enabled",
+              "description": "description.clouds.enabled"
+            },
+            {
+              "id": "density",
+              "option": "dawnlight:clouds/density",
+              "widget": "slider",
+              "label": "option.clouds.density",
+              "min": 0.3,
+              "max": 0.6,
+              "step": 0.01,
+              "enabledWhen": [
+                { "option": "dawnlight:clouds/enabled", "equals": true }
+              ]
+            },
+            {
+              "id": "moving-speed",
+              "option": "dawnlight:clouds/moving_speed",
+              "widget": "slider",
+              "label": "option.clouds.moving_speed",
+              "unit": "x",
+              "min": 0.2,
+              "max": 3.0,
+              "step": 0.05,
+              "enabledWhen": [
+                { "option": "dawnlight:clouds/enabled", "equals": true }
+              ]
+            },
+            {
+              "id": "quality",
+              "option": "dawnlight:clouds/quality",
+              "widget": "choice",
+              "label": "option.clouds.quality",
+              "values": [
+                { "value": "low", "label": "value.common.low" },
+                { "value": "standard", "label": "value.clouds.standard" },
+                { "value": "high", "label": "value.common.high" }
+              ],
+              "enabledWhen": [
+                { "option": "dawnlight:clouds/enabled", "equals": true }
+              ]
+            },
+            {
+              "id": "shadow-quality",
+              "option": "dawnlight:clouds/shadow_quality",
+              "widget": "choice",
+              "label": "option.clouds.shadow_quality",
+              "values": [
+                { "value": "low", "label": "value.common.low" },
+                { "value": "medium", "label": "value.common.medium" },
+                { "value": "high", "label": "value.common.high" }
+              ],
+              "enabledWhen": [
+                { "option": "dawnlight:clouds/enabled", "equals": true }
+              ]
+            },
+            {
+              "id": "stepwise-optimization",
+              "option": "dawnlight:clouds/stepwise_optimization",
+              "widget": "toggle",
+              "label": "option.clouds.stepwise_optimization",
+              "enabledWhen": [
+                { "option": "dawnlight:clouds/enabled", "equals": true }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "sky",
+          "title": "group.cloud.sky",
+          "order": 200,
+          "controls": [
+            {
+              "id": "stars",
+              "option": "dawnlight:clouds/stars",
+              "widget": "toggle",
+              "label": "option.clouds.stars",
+              "enabledWhen": [
+                { "option": "dawnlight:clouds/enabled", "equals": true }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "extra",
+      "title": "page.extra",
+      "order": 600,
+      "groups": [
+        {
+          "id": "translucency",
+          "title": "group.extra.translucency",
+          "order": 100,
+          "controls": [
+            {
+              "id": "sorted-translucent",
+              "option": "dawnlight:terrain/sorted_translucent",
+              "widget": "toggle",
+              "label": "option.terrain.sorted_translucent",
+              "description": "description.terrain.sorted_translucent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "advanced",
+      "title": "page.advanced",
+      "order": 700,
+      "groups": [
+        {
+          "id": "compatibility",
+          "title": "group.advanced.compatibility",
+          "order": 100,
+          "controls": [
+            {
+              "id": "compatibility-mode",
+              "option": "dawnlight:compatibility/ssbo_disabled",
+              "widget": "toggle",
+              "label": "option.compatibility.ssbo_disabled",
+              "description": "description.compatibility.ssbo_disabled",
+              "advanced": true
+            }
+          ]
+        },
+        {
+          "id": "diagnostics",
+          "title": "group.advanced.diagnostics",
+          "order": 200,
+          "controls": [
+            {
+              "id": "force-maximum",
+              "option": "dawnlight:lighting/force_maximum",
+              "widget": "toggle",
+              "label": "option.lighting.force_maximum",
+              "description": "description.lighting.force_maximum",
+              "advanced": true,
+              "developerOnly": true
+            },
+            {
+              "id": "point-light-debug",
+              "option": "dawnlight:screen/point_light_debug",
+              "widget": "toggle",
+              "label": "option.screen.point_light_debug",
+              "description": "description.screen.point_light_debug",
+              "advanced": true,
+              "developerOnly": true,
+              "enabledWhen": [
+                { "option": "dawnlight:lighting/point_lights", "equals": true },
+                { "option": "dawnlight:compatibility/ssbo_disabled", "equals": false }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "hiddenOptions": []
+}
