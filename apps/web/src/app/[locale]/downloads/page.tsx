@@ -7,7 +7,10 @@ export function generateStaticParams() {
 
 export default function DownloadsPage() {
   return (
-    <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-6 px-6 py-16">
+    <main
+      id="content-start"
+      className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-6 px-6 py-16"
+    >
       <p className="text-sm font-medium uppercase tracking-[0.18em] text-fd-muted-foreground">
         Downloads
       </p>

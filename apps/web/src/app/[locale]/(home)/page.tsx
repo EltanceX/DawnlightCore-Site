@@ -1,4 +1,13 @@
 import Link from "next/link";
+import {
+  ArrowRight,
+  BookOpen,
+  Download,
+  GitBranch,
+  ShieldCheck,
+} from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { PageContainer } from "@/components/ui/page-container";
 import { siteConfig, supportedLocales } from "@/lib/site";
 
 export function generateStaticParams() {
@@ -7,54 +16,105 @@ export function generateStaticParams() {
 
 export default function HomePage() {
   return (
-    <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col justify-center gap-10 px-6 py-20">
-      <div className="max-w-3xl space-y-5">
-        <p className="text-sm font-medium uppercase tracking-[0.18em] text-fd-muted-foreground">
-          Survivalcraft shader pipeline
-        </p>
-        <h1 className="text-4xl font-semibold tracking-tight sm:text-6xl">
-          {siteConfig.name}
-        </h1>
-        <p className="max-w-2xl text-lg leading-8 text-fd-muted-foreground">
-          面向 Dawnlight 光影开发者的版本化文档、合同快照与官方发布入口。
-        </p>
-      </div>
-      <div className="flex flex-wrap gap-3">
-        <Link
-          href="/zh-CN/docs/preview"
-          className="inline-flex h-10 items-center rounded-md bg-fd-primary px-4 text-sm font-medium text-fd-primary-foreground"
-        >
-          开始阅读文档
-        </Link>
-        <Link
-          href="/zh-CN/downloads"
-          className="inline-flex h-10 items-center rounded-md border border-fd-border px-4 text-sm font-medium"
-        >
-          查看下载
-        </Link>
-      </div>
-      <section
-        className="grid gap-4 border-t border-fd-border pt-8 sm:grid-cols-3"
-        aria-label="当前状态"
-      >
-        <div>
-          <p className="text-sm font-medium">文档版本</p>
-          <p className="mt-1 text-sm text-fd-muted-foreground">
-            Preview · Manifest v3
-          </p>
-        </div>
-        <div>
-          <p className="text-sm font-medium">发布模式</p>
-          <p className="mt-1 text-sm text-fd-muted-foreground">
-            静态站点 · 可校验下载
-          </p>
-        </div>
-        <div>
-          <p className="text-sm font-medium">当前语言</p>
-          <p className="mt-1 text-sm text-fd-muted-foreground">
-            简体中文（zh-CN）
-          </p>
-        </div>
+    <main id="content-start" className="dl-home">
+      <section className="dl-home__hero" aria-labelledby="home-title">
+        <PageContainer className="dl-home__hero-inner">
+          <div className="dl-home__hero-copy">
+            <Badge>Survivalcraft shader pipeline</Badge>
+            <h1 id="home-title">{siteConfig.name}</h1>
+            <p>
+              面向 Dawnlight 光影开发者的版本化文档、合同快照与官方发布入口。
+            </p>
+            <div className="dl-home__actions">
+              <Link
+                className="dl-button dl-button--primary"
+                href="/zh-CN/docs/preview/"
+              >
+                <BookOpen size={16} aria-hidden="true" />
+                开始阅读文档
+                <ArrowRight size={16} aria-hidden="true" />
+              </Link>
+              <Link
+                className="dl-button dl-button--secondary"
+                href="/zh-CN/downloads/"
+              >
+                <Download size={16} aria-hidden="true" />
+                查看下载
+              </Link>
+            </div>
+          </div>
+          <div className="dl-home__signal" aria-label="当前版本状态">
+            <div className="dl-home__signal-line">
+              <span className="dl-home__signal-dot" aria-hidden="true" />
+              Preview channel
+            </div>
+            <p>Manifest v3</p>
+            <span>固定 contract 快照 · 静态发布</span>
+          </div>
+        </PageContainer>
+      </section>
+      <section className="dl-home__status" aria-labelledby="status-title">
+        <PageContainer>
+          <h2 id="status-title" className="sr-only">
+            当前状态
+          </h2>
+          <div className="dl-home__status-grid">
+            <div className="dl-home__status-item">
+              <GitBranch size={17} aria-hidden="true" />
+              <div>
+                <p>文档版本</p>
+                <span>Preview · Manifest v3</span>
+              </div>
+            </div>
+            <div className="dl-home__status-item">
+              <ShieldCheck size={17} aria-hidden="true" />
+              <div>
+                <p>发布模式</p>
+                <span>静态站点 · 可校验下载</span>
+              </div>
+            </div>
+            <div className="dl-home__status-item">
+              <BookOpen size={17} aria-hidden="true" />
+              <div>
+                <p>首发语言</p>
+                <span>简体中文（zh-CN）</span>
+              </div>
+            </div>
+          </div>
+        </PageContainer>
+      </section>
+      <section className="dl-home__next" aria-labelledby="next-title">
+        <PageContainer>
+          <div className="dl-home__next-heading">
+            <div>
+              <p className="dl-eyebrow">Developer path</p>
+              <h2 id="next-title">从最小光影包开始</h2>
+            </div>
+            <Link className="dl-text-link" href="/zh-CN/docs/preview/">
+              查看文档目录 <ArrowRight size={15} aria-hidden="true" />
+            </Link>
+          </div>
+          <div className="dl-home__next-grid">
+            <article>
+              <span className="dl-home__step">01</span>
+              <h3>理解数据边界</h3>
+              <p>了解 JSON、GLSL 与 C# Catalog 在通用管线中的职责。</p>
+            </article>
+            <article>
+              <span className="dl-home__step">02</span>
+              <h3>描述一个 Manifest</h3>
+              <p>
+                从固定的 Manifest v3 结构开始组织 programs、resources 与
+                passes。
+              </p>
+            </article>
+            <article>
+              <span className="dl-home__step">03</span>
+              <h3>用 CLI 验证</h3>
+              <p>让结构化诊断在发布前暴露问题，而不是留给游戏运行时。</p>
+            </article>
+          </div>
+        </PageContainer>
       </section>
     </main>
   );
