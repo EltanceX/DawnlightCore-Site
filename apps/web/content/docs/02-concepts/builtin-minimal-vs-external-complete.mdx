@@ -1,0 +1,50 @@
+---
+title: BuiltIn Minimal 与 External Complete
+description: 对比内置最小光影包和标准外置完整光影包的能力边界、资源来源与扩展方式。
+coreVersion: 3ec28fc
+manifestVersion: v3
+status: preview
+lastVerifiedWith: 3ec28fc
+sourceRefs:
+  - examples/minimal/shaderpack.json
+  - examples/settings-authored/manifest/ui/settings.json
+  - schemas/shaderpack.schema.json
+  - catalogs/summary.json
+searchAliases:
+  - BuiltIn Minimal
+  - External Complete
+  - 内置最小
+  - 外置完整
+---
+
+DawnlightCore 当前有两种使用边界：最小内置包用于验证 Core 固定能力，标准外置完整包在此基础上通过 Manifest 和资源描述扩展管线。两者共享 contract 思路，但不代表内置包可以直接复制成完整外置包。
+
+## 能力对比
+
+| 范围      | BuiltIn Minimal                                   | External Complete                                            |
+| --------- | ------------------------------------------------- | ------------------------------------------------------------ |
+| 位置      | `Survivalcraft/Content/Assets/Shaders` 等内置资源 | `shaderpacks/<pack-id>` 外置包目录                           |
+| 目标      | 提供最小可运行路径和回归基线                      | 通过 JSON、Program、Resource、Pass 和 Settings UI 组织完整包 |
+| 额外纹理  | 不扩展额外纹理集合                                | 可在合同允许范围内声明和使用包内纹理/资源                    |
+| 固定特性  | 可以关闭大部分额外管线特性                        | 可以在最小能力之上请求更多声明式特性                         |
+| Core 边界 | 仍由 C# runtime 和受信 Catalog 提供               | 同样受 C# runtime、Catalog、Graphics API 和生命周期约束      |
+| 当前验证  | `schema-only` 示例和 Core 回归                    | 需要 schema、Loader、资源 hash 和发布记录共同验证            |
+
+“最小”描述的是启用的管线范围，不是一个可以绕过 schema 的特殊格式；“完整”描述的是包的资源和管线覆盖范围，也不意味着 JSON 可以替换 Core 内部实现。
+
+## 从最小包扩展
+
+建议顺序如下：
+
+1. 先让最小 Manifest 通过 schema，并确认 Program/Pass 引用闭合；
+2. 加入必要的 Resource、content 和 binding；
+3. 按目标阶段增加 fullscreen、compute 或受信 EngineDraw Provider Pass；
+4. 增加 drawbuffers、history resource 和窗口重建处理；
+5. 最后加入 Settings UI authored schema、条件和本地化；
+6. 保存 Core commit、包版本、输入文件 hash、诊断码和 Loader 结果。
+
+每一步都要重新验证，不要把 Dawnlight v3.1 的具体 Service、Provider 或纹理集合当成所有外置包的必选项。未知 ID、重复注册和不支持版本必须由 Loader 诊断明确报告。
+
+## 资源与发布边界
+
+内置 shader 源、游戏原版纹理和当前 Debug 输出不是网站可直接分发的 artifact。外置完整包只有在取得明确的发布源、许可证/授权、文件 size、SHA-256、签名和兼容性记录后，才能进入 Release Feed。当前网站的 Preview feed 仍为空，不代表任何一套包已经可下载。

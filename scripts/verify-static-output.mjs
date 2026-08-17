@@ -34,6 +34,15 @@ const searchRegression = [
   ["P9UI203", "/zh-CN/docs/preview/pipeline/overview"],
   ["UnknownIdentifier", "/zh-CN/docs/preview/06-reference/diagnostics"],
   ["schema-only", "/zh-CN/docs/preview/01-getting-started/validate-with-cli"],
+  [
+    "ShaderPackCli",
+    "/zh-CN/docs/preview/01-getting-started/cli-installation-and-verification",
+  ],
+  ["JSON GLSL C#", "/zh-CN/docs/preview/00-overview/format-boundaries"],
+  [
+    "BuiltIn Minimal",
+    "/zh-CN/docs/preview/02-concepts/builtin-minimal-vs-external-complete",
+  ],
   ["history resource", "/zh-CN/docs/preview/05-guides/history-resource"],
 ];
 for (const [term, route] of searchRegression) {

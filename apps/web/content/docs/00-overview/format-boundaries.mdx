@@ -1,0 +1,65 @@
+---
+title: JSON、GLSL 与 C# 的边界
+description: 说明哪些内容由光影包描述，哪些行为仍由 DawnlightCore 的 C# runtime 固定提供。
+coreVersion: 3ec28fc
+manifestVersion: v3
+status: preview
+lastVerifiedWith: 3ec28fc
+sourceRefs:
+  - schemas/shaderpack.schema.json
+  - catalogs/summary.json
+  - metadata.json
+searchAliases:
+  - JSON GLSL C#
+  - runtime boundary
+  - 数据驱动边界
+---
+
+这三个层次不是同一种配置语言。JSON 描述光影包的注册关系和声明式参数，GLSL/compute 源码实现着色器内部算法，C# runtime 负责 Loader、图形 API 生命周期和受信资源提供者。当前页面描述的是 `preview` contract，不是稳定 ABI。
+
+## JSON：声明包和管线关系
+
+`shaderpack.json` 及其 fragments 可以声明：
+
+- 包身份、Manifest 版本、options 和变体；
+- Program、defines、Resources、Pass、drawbuffers 和部分 semantic binding；
+- Settings UI 的页面、分组、控件、条件和本地化键；
+- 对 Core Catalog 中受信 ID 的引用。
+
+JSON 不会自动赋予包新的引擎能力。每个 ID、字段和组合都必须通过当前 schema、Catalog 和目标 Core 版本验证。
+
+## GLSL：实现着色器算法
+
+GLSL 或 compute 源码实现单个 Program 的计算，例如颜色变换、材质处理、光照和后处理。源码可读取由 Pass/Resource 合同提供的输入，并向声明的输出写入结果。
+
+着色器源码不能：
+
+- 创建未在 Manifest 中声明的资源；
+- 绕过 Pass 的输入、输出和执行阶段；
+- 把任意字符串当成 Service、Semantic Provider 或 EngineDraw Provider；
+- 替换 Core 对窗口重建、图形 API 状态和跨帧资源的管理。
+
+具体 GLSL 版本、扩展和可用内建变量必须以目标 Core/Graphics API 合同为准。网站当前只提供语法示例和 schema 关系，不在浏览器中编译或执行 GLSL。
+
+## C#：Core runtime 和受信边界
+
+C# 代码属于 DawnlightCore/Loader runtime，负责：
+
+- 读取并验证 Manifest、fragments 和 Settings UI；
+- 管理图形 API 生命周期、RenderTarget、纹理和跨帧资源；
+- 提供受信 Catalog、Service、Semantic 和 EngineDraw Provider；
+- 调度 Pass、处理窗口重建和跨帧提交；
+- 产生 Loader 诊断并决定失败或降级行为。
+
+光影包 JSON 不能把 C# 私有类型、内部类名或未记录的 factory 当成公共 API。只有进入版本化 schema、Catalog 或诊断合同的标识，才可以在文档和光影包中依赖。
+
+## 判断规则
+
+遇到一个“能否通过 JSON 控制”的问题时，按以下顺序判断：
+
+1. 目标是否存在于当前 schema；
+2. 引用的 ID 是否在当前 Catalog；
+3. 是否需要 runtime 管理图形 API、资源生命周期或引擎绘制阶段；
+4. 是否有对应 Loader 诊断和验证记录。
+
+如果第 1 或第 2 项失败，不能通过拼写或私有 C# 约定绕过；如果第 3 项为真，JSON 只能描述请求，最终行为仍由 Core runtime 决定。

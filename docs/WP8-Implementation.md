@@ -12,6 +12,8 @@ WP8 已建立从源码到不可变静态 artifact 的质量与部署链路：固
 
 这不等于网站已正式上线。当前正式域名、部署 provider、稳定文档版本、首个真实 release artifact 和实机 Hero 尚未冻结；`deploy:validate:production` 必须失败，防止把 Preview 内容误发为 Production。
 
+V1 内容缺口中的格式边界、BuiltIn/External 包型对比和 CLI 验证记录说明已在 WP8 后续维护中补入文档。它们改善作者路径，但不把当前 `schema-only` 记录升级为真实 Loader 验证。
+
 ## 质量门禁
 
 根命令 `pnpm check` 按以下顺序执行：
@@ -32,7 +34,7 @@ format -> lint -> typecheck -> unit tests
 - `config/lighthouse-budgets.json` 与 `scripts/run-lighthouse.mjs`：使用 Lighthouse 官方 desktop config 检查首页、文档首页和下载页；
 - `scripts/scan-static-output.mjs`：扫描静态输出中的 secret 形态、本机绝对路径、`file://`、source map 和危险 HTML/脚本模式。
 
-当前静态上限：总输出 12 MiB，单 JS chunk 320 KiB，CSS/HTML 各 128 KiB，搜索索引 400 KiB，WebP 300 KiB，JPEG 400 KiB，PNG 128 KiB。
+当前静态上限：总输出 12 MiB，单 JS chunk 320 KiB，CSS/HTML 各 128 KiB，搜索索引 512 KiB，WebP 300 KiB，JPEG 400 KiB，PNG 128 KiB。搜索索引预算在补充三页 V1 内容后从 400 KiB 上调至 512 KiB，并继续由 CI 硬失败保护。
 
 Lighthouse 的 Production 阈值为 Performance 0.90、Accessibility 0.95、Best Practices 0.95、SEO 0.95。Preview 有意输出 `noindex` 和 `Disallow: /`，Lighthouse 13 的 `is-crawlable` 会把 SEO 总分压到约 0.63，因此 Preview 单独采用 0.60 的书面例外；Production 不继承该例外。
 

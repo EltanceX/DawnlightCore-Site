@@ -1,12 +1,12 @@
 # WP5：首发文档内容
 
-状态：已完成
+状态：Preview 首发内容已补全；真实 CLI、技术审核和稳定合同仍待完成
 
 日期：2026-08-17
 
 ## 交付内容
 
-- 按 V1 实施方案创建 `00-overview` 至 `07-migration` 首发内容树，共 28 个公开 MDX 页面；
+- 按 V1 实施方案创建 `00-overview` 至 `07-migration` 首发内容树，共 31 个受校验的首发文档 slug；连同首页、pipeline fixture 等共 33 个 MDX 文件；
 - 为每个目录创建 Fumadocs metadata 文件，冻结 authored order 和中文显示名称；
 - 完成“概览 -> 前置条件 -> 最小包 -> 验证 -> Manifest/Settings UI 参考”的新作者路径；
 - 覆盖 Manifest 根对象、options、Programs、defines/variants、Resources、Passes/commands、Semantics/bindings；
@@ -15,6 +15,7 @@
 - 提供 Manifest 字段、command types、diagnostics、limits 和 version policy 参考；
 - 所有页面显示 Core `3ec28fc`、Manifest v3、适用状态和 `lastVerifiedWith`；需要 Settings UI 的页面额外显示 v1-preview；
 - 文章明确区分 preview、experimental、schema-only、Loader 验证和未提供的 CLI JSON contract；
+- 新增 JSON/GLSL/C# 边界、BuiltIn Minimal 与 External Complete 对比、CLI 安装与验证记录格式页面；
 - 内容校验增加首发页面清单，防止目录不完整；静态 smoke 增加中文术语、英文 ID、诊断码和跨主题搜索回归。
 
 ## 内容边界
@@ -51,12 +52,19 @@ pnpm verify:static
 
 内容门禁会检查：
 
-- 28 个首发 slug 是否全部存在；
+- 31 个首发 slug 是否全部存在；
 - frontmatter title 和验证 commit；
 - sourceRefs 是否存在于 contract lock；
 - 绝对本机路径和失效内部链接；
 - 静态输出是否包含代表性页面；
 - 中文术语、英文机器 ID、诊断码和 `schema-only` 是否能命中预期页面。
+
+## 当前未完成
+
+- `ShaderPackCli` 仍没有可发布的稳定二进制、安装渠道或结构化 JSON contract；
+- `schema-only` 示例尚未由同一 Core commit 的真实 Loader 运行结果替换；
+- 内容尚未完成非实现者技术审核、编辑审核和新作者试走；
+- BuiltIn/External、格式边界和验证流程已补齐文档，但稳定版本和生产兼容性声明仍被 Preview contract 门禁限制。
 
 ## 后续工作
 

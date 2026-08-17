@@ -1,4 +1,9 @@
 {
   "title": "开始使用",
-  "pages": ["prerequisites", "first-minimal-pack", "validate-with-cli"]
+  "pages": [
+    "prerequisites",
+    "first-minimal-pack",
+    "validate-with-cli",
+    "cli-installation-and-verification"
+  ]
 }

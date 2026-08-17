@@ -3,6 +3,7 @@
   "pages": [
     "package-model",
     "trusted-catalog-boundary",
-    "generation-and-lifecycle"
+    "generation-and-lifecycle",
+    "builtin-minimal-vs-external-complete"
   ]
 }

@@ -2,7 +2,7 @@
 
 状态：WP0 盘点完成，生产发布门禁未关闭
 
-日期：2026-08-16
+日期：2026-08-17（进度同步）
 
 ## 已完成
 
@@ -15,6 +15,8 @@
 - [x] 现有图像、shaderpack 和构建输出已盘点；
 - [x] 两张候选 hero 截图已目视检查并拒绝；
 - [x] 网站仓库 `.gitignore` 已建立。
+- [x] Preview 文档首发内容已覆盖格式边界、内置/外置包边界和 CLI 验证记录格式；
+- [x] V1 质量门禁、Preview artifact、部署 smoke 和回滚契约已实现；
 
 ## 阻塞项
 
@@ -26,6 +28,10 @@
 | Logo/品牌授权 | Open | 明确可使用的 Logo/icon 或制作新网站 Logo |
 | 镜像策略 | Open | 确认 Gitee/全球/CDN 主次顺序 |
 | Core contract | Preview validated, stable blocked | 由锁定 commit tree 生成并验证 Schema/Catalog/diagnostics/examples；CLI JSON 仍未提供 |
+
+## 进度解释
+
+当前 `WP1` 至 `WP8` 的 Preview 工程路径已经可以构建、搜索、测试和生成静态 artifact。新增文档只补齐了作者理解和记录验证所需的说明，不改变 `preview` contract、空 release feed、概念 Hero 或生产 gate 的事实状态。上表 6 个阻塞/开放项仍然是正式上线前置条件。
 
 ## 可以立即进入 WP1 的部分
 
