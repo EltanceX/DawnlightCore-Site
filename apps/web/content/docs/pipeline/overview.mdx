@@ -1,0 +1,67 @@
+---
+title: 管线数据模型
+description: 用 JSON 描述 Programs、drawbuffers、textures 与历史缓冲区。
+coreVersion: 3ec28fc
+manifestVersion: v3
+settingsSchemaVersion: v1-preview
+status: experimental
+lastVerifiedWith: 3ec28fc
+sourceRefs:
+  - schemas/shaderpack.schema.json
+  - schemas/settings-ui.schema.json
+searchAliases:
+  - 设置菜单
+  - drawbuffers
+  - historyCommit
+  - P9UI203
+---
+
+## 页面合同
+
+本页记录 `preview` 合同中最常用的资源注册方式。`设置菜单` 和 Settings UI 字段仍属于预览能力；发布光影包前，应使用与页面相同的 Core commit 重新验证。
+
+搜索时可以直接使用英文 ID，例如 `drawbuffers`、`historyCommit`，也可以使用诊断码 `P9UI203` 定位设置页面校验错误。
+
+## Drawbuffers 与历史纹理
+
+`drawbuffers` 决定一个 pass 的颜色输出，`historyCommit` 用于声明需要跨帧保留的资源。JSON 只描述注册关系，实际图形 API 生命周期仍由 DawnlightCore 管理。
+
+```json
+{
+  "manifestVersion": 3,
+  "programs": {
+    "composite": {
+      "vertex": "shaders/composite.vert",
+      "fragment": "shaders/composite.frag"
+    }
+  },
+  "passes": [
+    {
+      "name": "composite",
+      "program": "composite",
+      "drawbuffers": ["colortex0"],
+      "historyCommit": ["colortex0"]
+    }
+  ]
+}
+```
+
+## Settings UI 诊断
+
+设置菜单的 authored schema 会在字段不兼容时生成 `P9UI203`。先检查 `settings-ui.schema.json` 的类型，再检查控件 id 是否与 manifest 中的 setting 对齐。
+
+```glsl
+// Keep the history texture stable across frames.
+layout(location = 0) out vec4 colortex0;
+
+void main() {
+  vec3 current = texture(SceneColor, uv).rgb;
+  vec3 history = texture(HistoryColor, uv).rgb;
+  colortex0 = vec4(mix(history, current, 0.12), 1.0);
+}
+```
+
+## 相关页面
+
+- [开始使用 DawnlightCore](/zh-CN/docs/preview/)
+- [下载页面](/zh-CN/downloads/)

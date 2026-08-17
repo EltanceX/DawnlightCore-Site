@@ -530,3 +530,55 @@ html > body[data-scroll-locked] {
   margin-right: 0px !important;
   --removed-body-scroll-bar-size: 0px !important;
 }
+
+.dl-docs-contract {
+  display: grid;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+  border: 1px solid var(--dl-line);
+  border-left: 3px solid var(--dl-cool);
+  background: color-mix(in srgb, var(--dl-cool) 7%, var(--dl-surface));
+  padding: 0.8rem 0.9rem;
+}
+
+.dl-docs-contract__status {
+  display: flex;
+  gap: 0.6rem;
+  color: var(--dl-cool);
+}
+
+.dl-docs-contract__status strong {
+  color: var(--dl-ink);
+  font-size: 0.82rem;
+}
+
+.dl-docs-contract__status p {
+  margin: 0.15rem 0 0;
+  color: var(--dl-muted);
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+.dl-docs-contract__facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem 1rem;
+  margin: 0;
+  color: var(--dl-muted);
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 0.72rem;
+}
+
+.dl-docs-contract__facts div {
+  display: inline-flex;
+  gap: 0.35rem;
+}
+
+.dl-docs-contract__facts dt {
+  color: var(--dl-muted);
+}
+
+.dl-docs-contract__facts dd {
+  margin: 0;
+  color: var(--dl-ink);
+}

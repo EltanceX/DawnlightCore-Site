@@ -1,0 +1,5 @@
+{
+  "title": "开发文档",
+  "description": "DawnlightCore preview 开发者文档",
+  "pages": ["index", "pipeline/overview"]
+}

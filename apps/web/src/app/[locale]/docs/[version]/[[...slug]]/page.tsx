@@ -13,6 +13,7 @@ import { getPageImageUrl, getPageMarkdownUrl, source } from "@/lib/source";
 import { getMDXComponents } from "@/components/mdx";
 import { gitConfig } from "@/lib/shared";
 import { isDocsVersion, isSupportedLocale, supportedLocales } from "@/lib/site";
+import { DocsContractMeta } from "@/components/docs-contract-meta";
 
 type Params = { locale: string; version: string; slug?: string[] };
 
@@ -31,6 +32,13 @@ export default async function Page({ params }: { params: Promise<Params> }) {
 
   return (
     <DocsPage id="content-start" toc={page.data.toc} full={page.data.full}>
+      <DocsContractMeta
+        coreVersion={page.data.coreVersion}
+        manifestVersion={page.data.manifestVersion}
+        settingsSchemaVersion={page.data.settingsSchemaVersion}
+        status={page.data.status}
+        lastVerifiedWith={page.data.lastVerifiedWith}
+      />
       <DocsTitle>{page.data.title}</DocsTitle>
       <DocsDescription className="mb-0">
         {page.data.description}

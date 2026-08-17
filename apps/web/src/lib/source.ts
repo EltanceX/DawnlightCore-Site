@@ -2,11 +2,29 @@ import { loader } from "fumadocs-core/source";
 import { docsContentRoute, docsImageRoute, docsRoute } from "./shared";
 import { defineDocs } from "fumadocs-mdx/macro";
 import { metaSchema, pageSchema } from "fumadocs-core/source/schema";
+import { z } from "zod";
+
+export const docsStatusSchema = z.enum([
+  "preview",
+  "experimental",
+  "stable",
+  "deprecated",
+]);
+
+export const docsPageSchema = pageSchema.extend({
+  coreVersion: z.string().optional(),
+  manifestVersion: z.string().optional(),
+  settingsSchemaVersion: z.string().optional(),
+  status: docsStatusSchema.default("preview"),
+  lastVerifiedWith: z.string().optional(),
+  sourceRefs: z.array(z.string()).default([]),
+  searchAliases: z.array(z.string()).default([]),
+});
 
 const docs = defineDocs({
   dir: "content/docs",
   docs: {
-    schema: pageSchema,
+    schema: docsPageSchema,
     postprocess: {
       includeProcessedMarkdown: true,
     },

@@ -22,13 +22,27 @@ if (!searchIndex.includes("/zh-CN/docs/preview")) {
   process.exit(1);
 }
 
+const searchRegression = [
+  ["设置菜单", "/zh-CN/docs/preview/pipeline/overview"],
+  ["drawbuffers", "/zh-CN/docs/preview/pipeline/overview"],
+  ["historyCommit", "/zh-CN/docs/preview/pipeline/overview"],
+  ["P9UI203", "/zh-CN/docs/preview/pipeline/overview"],
+];
+for (const [term, route] of searchRegression) {
+  if (!searchIndex.includes(term) || !searchIndex.includes(route)) {
+    console.error(`Static search regression failed for ${term}.`);
+    process.exit(1);
+  }
+}
+
 const docsHtml = readFileSync(
   resolve(output, "zh-CN/docs/preview/index.html"),
   "utf8",
 );
 if (
   !docsHtml.includes("examples/minimal/shaderpack.json") ||
-  !docsHtml.includes("3ec28fc9")
+  !docsHtml.includes("3ec28fc9") ||
+  !docsHtml.includes("Preview 合同")
 ) {
   console.error(
     "Static docs output does not contain the verified contract example metadata.",

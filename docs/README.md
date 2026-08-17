@@ -15,6 +15,10 @@
 
 - [实现记录](./WP3-Implementation.md)
 
+## WP4：文档平台与搜索
+
+- [实现记录](./WP4-Implementation.md)
+
 ## ADR
 
 - [ADR-0001：V1 范围与静态发布](./adr/0001-v1-scope-and-static-publishing.md)
