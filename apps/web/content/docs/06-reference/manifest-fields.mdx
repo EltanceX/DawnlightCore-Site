@@ -1,0 +1,21 @@
+---
+title: Manifest 字段参考
+description: 按功能查找 Manifest v3 的根字段、注册表和引用关系。
+coreVersion: 3ec28fc
+manifestVersion: v3
+status: preview
+lastVerifiedWith: 3ec28fc
+sourceRefs:
+  - schemas/shaderpack.schema.json
+  - manifest/shaderpack.json
+searchAliases:
+  - field reference
+  - JSON property
+  - 字段表
+---
+
+字段参考以 `schemas/shaderpack.schema.json` 为准，页面只补充作者需要的语义和失败规则。JSON property 保持原始大小写；`programs`、`resources`、`passes` 等注册表中的 key 是后续引用使用的 ID。
+
+阅读字段时优先确认四件事：类型、是否必填、允许的值范围、和其他字段的关系。一个字段即使 schema 接受，也可能因为 Catalog、stage 或资源生命周期不匹配而被 Loader 拒绝。
+
+本页不会复制整个 JSON Schema；请把 schema 文件作为机器校验来源，把本组 Manifest 页面作为人类阅读入口。

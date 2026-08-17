@@ -1,0 +1,25 @@
+---
+title: 版本策略
+description: 管理 preview 文档、Core commit、Manifest 和 Settings UI 版本之间的关系。
+coreVersion: 3ec28fc
+manifestVersion: v3
+settingsSchemaVersion: v1-preview
+status: preview
+lastVerifiedWith: 3ec28fc
+sourceRefs:
+  - contract-lock.json
+  - metadata.json
+  - schemas/shaderpack.schema.json
+searchAliases:
+  - version policy
+  - migration
+  - 版本迁移
+---
+
+网站 URL 使用 `/zh-CN/docs/preview` 表示当前候选合同。Preview 页面会显示 Core commit、Manifest v3、Settings UI v1-preview 和验证状态；这些值不能被省略成一个模糊的“最新版”。
+
+当 Core 合同发布新快照时，先生成新的 lock 和 sourceRefs，再复制或迁移文档树。旧 preview URL 的语义不能原地改成稳定版本；需要新版本目录和明确的迁移说明。
+
+作者升级时建议按顺序执行：锁定新 commit、重新校验 schema、运行最小包和 Settings UI 示例、比较诊断变化、检查 Catalog ID、最后更新包的兼容性声明。
+
+稳定版本尚未冻结，因此当前文档中的 `stable` 只代表未来可用的状态值，不代表本网站已经发布稳定合同。

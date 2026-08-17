@@ -1,0 +1,22 @@
+---
+title: 受信 Catalog 边界
+description: 区分 JSON 可引用的公共 ID 与 Core 内部实现。
+coreVersion: 3ec28fc
+manifestVersion: v3
+status: preview
+lastVerifiedWith: 3ec28fc
+sourceRefs:
+  - catalogs/summary.json
+  - diagnostics/diagnostics.json
+searchAliases:
+  - catalog
+  - StageTemplate
+  - SemanticProvider
+  - EngineDrawProvider
+---
+
+当前 preview Catalog 包含 Stage Template、Service、Semantic Provider 和 EngineDraw Provider 四类 ID。它们是 Core 提供的受信边界，不是任意 C# 类型名的字符串映射。
+
+例如 `dawnlight:fullscreen` 是一个 Stage Template ID，而 `dawnlight:frame/view_width` 是 Semantic Provider ID。使用前应在与页面相同的 Catalog commit 中确认 ID 存在。
+
+未知 ID 会产生 `UnknownIdentifier`；同一作用域重复注册会产生 `DuplicateRegistration`。Catalog 摘要只说明公共标识和版本，不承诺内部类名或渲染 API 永久不变。

@@ -1,0 +1,22 @@
+---
+title: Pages、groups 与 controls
+description: 设计 Settings UI 的页面层级、分组和控件字段。
+coreVersion: 3ec28fc
+manifestVersion: v3
+settingsSchemaVersion: v1-preview
+status: experimental
+lastVerifiedWith: 3ec28fc
+sourceRefs:
+  - schemas/settings-ui.schema.json
+  - examples/settings-authored/manifest/ui/settings.json
+searchAliases:
+  - controls
+  - groups
+  - authored settings
+---
+
+页面用于切换较大的设置主题，group 用于把同一渲染阶段的控件放在一起，control 才是用户实际编辑的参数。每一层都应有稳定 id，避免只用显示文本作为引用。
+
+控件的数值范围、枚举选项和默认值必须与 Manifest 参数一致。过宽的 UI 范围会让 shader 收到未测试的组合；过窄的范围则应在页面描述中明确这是作者选择，而不是 Core 限制。
+
+先让一个控件完成“显示、保存、传递到 Program”的闭环，再复制到同一 group。发生 `P9UI203` 时，优先检查控件字段和 schema 版本。

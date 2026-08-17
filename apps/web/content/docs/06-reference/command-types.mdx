@@ -1,0 +1,22 @@
+---
+title: Command types
+description: 了解 draw、dispatch、copy、clear 和资源访问命令的适用范围。
+coreVersion: 3ec28fc
+manifestVersion: v3
+status: preview
+lastVerifiedWith: 3ec28fc
+sourceRefs:
+  - schemas/shaderpack.schema.json
+  - catalogs/summary.json
+searchAliases:
+  - command list
+  - draw
+  - dispatch
+  - copy
+---
+
+Command 的具体集合由 Manifest schema 和 stage template 共同决定。常见类别包括 fullscreen draw、compute dispatch、资源 copy/clear、绑定更新和引擎 provider 调用。
+
+同一种 command 在不同 scope 可能有不同限制：compute 需要 compute Program 和合法 dispatch，draw 需要可用的 render target，engine provider 只能引用受信 Catalog ID。不要从字段名称推断任意 command 都能在任意 Pass 使用。
+
+当 command 失败时，先缩小到一个 Pass 和一个资源，再逐步恢复批量命令。机器诊断应与包版本一起保存。

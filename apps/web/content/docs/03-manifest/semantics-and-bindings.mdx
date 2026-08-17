@@ -1,0 +1,22 @@
+---
+title: Semantics 与 bindings
+description: 将 Core 提供的帧、相机、天气和灯光语义绑定到 shader 输入。
+coreVersion: 3ec28fc
+manifestVersion: v3
+status: experimental
+lastVerifiedWith: 3ec28fc
+sourceRefs:
+  - catalogs/summary.json
+  - schemas/shaderpack.schema.json
+searchAliases:
+  - semantic provider
+  - bindings
+  - frame_uniforms
+  - view_width
+---
+
+Semantic Provider 是 Core 维护的运行时数据来源。当前快照包含 `dawnlight:frame/view_width`、`dawnlight:camera/view_matrix`、`dawnlight:atmosphere/fog_color` 等 ID。
+
+绑定时保留 provider ID 的原始大小写和命名空间，并为 shader 端变量提供明确类型。provider 不存在、类型不匹配或作用域不允许时，应记录机器诊断而不是静默使用零值。
+
+语义列表属于 `catalogVersion: preview-1`。在新 Core commit 中重新检查列表，尤其是天气、灯光和矩阵类 provider。

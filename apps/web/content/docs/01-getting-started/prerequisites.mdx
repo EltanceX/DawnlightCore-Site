@@ -1,0 +1,27 @@
+---
+title: 前置条件
+description: 创建和验证 Dawnlight 光影包前需要准备的版本、目录和工具。
+coreVersion: 3ec28fc
+manifestVersion: v3
+status: preview
+lastVerifiedWith: 3ec28fc
+sourceRefs:
+  - metadata.json
+  - schemas/shaderpack.schema.json
+searchAliases:
+  - 安装要求
+  - API_1.9.2.1
+---
+
+## 你需要准备
+
+- Survivalcraft API `API_1.9.2.1` 对应的 DawnlightCore 构建；
+- 一个独立的 shader pack 目录和 UTF-8 JSON 编辑器；
+- 本网站标记的 `preview-2026-08-16` contract 快照；
+- 能运行 Core 验证命令的开发环境。当前网站没有发布 CLI 二进制，命令名称和参数应以你的 Core 构建为准。
+
+不要把网站仓库的 `contracts/dawnlight/preview` 当成游戏安装目录。它是带 hash 的文档合同快照，用于阅读和回归检查。
+
+## 版本核对
+
+开始工作前，在包 README 或提交记录中记录 Core commit `3ec28fc`、Manifest v3 和 Settings UI v1-preview。任何升级都应重新运行 schema、示例和 Loader 验证。

@@ -1,0 +1,23 @@
+---
+title: Diagnostics
+description: 读取 Catalog、Manifest 和 Settings UI 诊断，并建立可定位的报告。
+coreVersion: 3ec28fc
+manifestVersion: v3
+settingsSchemaVersion: v1-preview
+status: preview
+lastVerifiedWith: 3ec28fc
+sourceRefs:
+  - diagnostics/diagnostics.json
+  - cli/metadata.json
+searchAliases:
+  - diagnostics
+  - UnknownIdentifier
+  - DuplicateRegistration
+  - UnsupportedVersion
+---
+
+当前快照定义的 Catalog 诊断包括 `DuplicateRegistration`、`UnknownIdentifier` 和 `UnsupportedVersion`；Manifest 还可能产生 `OptionalServiceCatalogReferenceUnavailable` 警告。
+
+报告诊断时至少保留 code、severity、文件路径、JSON pointer（如果工具提供）和 Core commit。不要只截图一段本地化文本，因为文本可能随版本变化。
+
+Settings UI 的 authored 校验仍属于实验能力。`P9UI203` 等页面中出现的诊断码应与目标 Loader 输出对照，网站页面本身不执行 C# 验证。

@@ -1,0 +1,21 @@
+---
+title: 生成与资源生命周期
+description: 从包加载到 Pass 执行，理解资源和历史缓冲区的生命周期。
+coreVersion: 3ec28fc
+manifestVersion: v3
+status: experimental
+lastVerifiedWith: 3ec28fc
+sourceRefs:
+  - schemas/shaderpack.schema.json
+  - manifest/shaderpack.json
+searchAliases:
+  - resource lifetime
+  - historyCommit
+  - 跨帧资源
+---
+
+Core 通常按“读取 Manifest、解析引用、建立资源、创建程序、排列 Pass、执行帧循环”的顺序处理包。JSON 描述的是声明关系，实际 GPU 资源创建和释放由 Core 管理。
+
+跨帧资源需要明确的 history 语义。`historyCommit` 表示作者希望下一帧继续读取的逻辑资源；它不等于手动管理一个 GPU handle，也不应在每帧重复创建纹理。
+
+当窗口尺寸、渲染目标或能力发生变化时，Core 可能重建资源。Pass 不应依赖资源对象的永久身份，而应依赖 Manifest 中稳定的资源 ID。

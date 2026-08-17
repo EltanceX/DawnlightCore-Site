@@ -1,0 +1,21 @@
+---
+title: 使用 history resource
+description: 为跨帧效果声明历史纹理，并处理重建和首次帧。
+coreVersion: 3ec28fc
+manifestVersion: v3
+status: experimental
+lastVerifiedWith: 3ec28fc
+sourceRefs:
+  - schemas/shaderpack.schema.json
+  - manifest/shaderpack.json
+searchAliases:
+  - history resource
+  - historyCommit
+  - TAA
+---
+
+历史资源需要三个明确决定：当前帧写入哪个逻辑资源、下一帧读取哪个历史版本、何时提交 `historyCommit`。第一次运行、窗口尺寸改变和包重载时，历史内容可能无效，应在 shader 中提供初始化路径。
+
+`historyCommit` 是逻辑声明，不是手动交换纹理句柄。资源格式和尺寸变化时让 Core 重建，避免把上一帧的 GPU 对象当作永久对象。
+
+建议用可视化颜色或调试输出确认 history 是否真的被读取，再加入复杂的 reprojection 或 temporal weighting。

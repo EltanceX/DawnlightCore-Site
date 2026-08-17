@@ -1,0 +1,4 @@
+{
+  "title": "Settings UI",
+  "pages": ["overview", "pages-groups-controls", "conditions", "localization"]
+}

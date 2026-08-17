@@ -1,0 +1,27 @@
+---
+title: 已知限制
+description: 当前 preview contract 的边界、未提供能力和迁移风险。
+coreVersion: 3ec28fc
+manifestVersion: v3
+settingsSchemaVersion: v1-preview
+status: preview
+lastVerifiedWith: 3ec28fc
+sourceRefs:
+  - contract-lock.json
+  - cli/metadata.json
+  - catalogs/summary.json
+searchAliases:
+  - limitations
+  - unsupported
+  - 稳定 ABI
+---
+
+## 当前限制
+
+- contract 是 `preview-only`，不能作为稳定 ABI 或社区上传兼容性证明；
+- 网站只消费 commit-tree 快照，不会在构建期间调用本地 Core；
+- 当前没有可用的生产 CLI JSON contract；
+- Catalog、Settings UI 和部分资源生命周期仍可能在后续 commit 调整；
+- 引擎绘制 provider、受信 factory 和图形 API 生命周期不能完全由 JSON 替换。
+
+遇到限制时，优先记录不可配置部分并把可配置部分缩小到最小示例。不要通过未记录的内部 C# 类型或私有字段绕过合同。

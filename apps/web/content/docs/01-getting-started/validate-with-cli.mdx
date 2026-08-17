@@ -1,0 +1,32 @@
+---
+title: 使用 CLI 验证
+description: 组织 schema、Loader 和诊断验证，并记录可复现的结果。
+coreVersion: 3ec28fc
+manifestVersion: v3
+status: preview
+lastVerifiedWith: 3ec28fc
+sourceRefs:
+  - cli/metadata.json
+  - diagnostics/diagnostics.json
+  - examples/verification.json
+searchAliases:
+  - validate
+  - loader verification
+  - schema-only
+---
+
+## 当前 CLI 边界
+
+当前 contract 明确记录 CLI `unavailable`，网站不会伪造一个不存在的命令或 JSON 输出。你如果使用 Core 分支中的本地验证工具，应把完整命令、Core commit、退出码和诊断输出保存到包的验证记录中。
+
+## 建议的验证顺序
+
+1. 对 `shaderpack.json` 执行 schema 校验；
+2. 对引用的 Settings UI 文件执行对应 schema 校验；
+3. 使用同一 Core commit 运行 Loader smoke test；
+4. 保存 `UnknownIdentifier`、`DuplicateRegistration`、`UnsupportedVersion` 等机器诊断码；
+5. 在发布说明中标注是否为 `schema-only`，不要把它写成 Loader 已通过。
+
+## 可复现记录
+
+最少记录以下字段：`contractVersion`、`coreCommit`、包版本、命令版本、退出码、诊断码和输入文件 hash。当前网站的 `examples/verification.json` 只提供快照级验证记录。

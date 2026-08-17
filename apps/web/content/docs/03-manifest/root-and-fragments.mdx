@@ -1,0 +1,21 @@
+---
+title: 根对象与 fragments
+description: 组织 Manifest 根字段、文件引用和可维护的片段结构。
+coreVersion: 3ec28fc
+manifestVersion: v3
+status: preview
+lastVerifiedWith: 3ec28fc
+sourceRefs:
+  - schemas/shaderpack.schema.json
+  - manifest/shaderpack.json
+searchAliases:
+  - root manifest
+  - fragments
+  - Manifest 根对象
+---
+
+根对象至少应能让 Loader 确认 Manifest 版本和包的注册入口。字段名、大小写和嵌套层级必须严格按照 `shaderpack.schema.json`。
+
+当包变大时，可以按 Programs、Resources、Passes 和 Settings UI 拆分文件，再由支持该能力的版本加载 fragments。不要把“网站文档建议的目录拆分”误写成所有 Loader 都支持的 `$ref` 语法；先以 schema 和 Core 版本为准。
+
+推荐先保持一个可验证的根文件，再逐步提取片段。每次提取后重新检查相对路径和重复 ID。

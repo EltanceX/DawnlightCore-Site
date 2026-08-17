@@ -1,5 +1,16 @@
 {
   "title": "开发文档",
   "description": "DawnlightCore preview 开发者文档",
-  "pages": ["index", "pipeline/overview"]
+  "pages": [
+    "index",
+    "00-overview",
+    "01-getting-started",
+    "02-concepts",
+    "03-manifest",
+    "04-settings-ui",
+    "05-guides",
+    "06-reference",
+    "07-migration",
+    "pipeline/overview"
+  ]
 }

@@ -19,6 +19,11 @@
 
 - [实现记录](./WP4-Implementation.md)
 
+## WP5：首发文档内容
+
+- 首发内容树位于 `apps/web/content/docs/00-overview` 至 `07-migration`；
+- [实现记录](./WP5-Implementation.md)
+
 ## ADR
 
 - [ADR-0001：V1 范围与静态发布](./adr/0001-v1-scope-and-static-publishing.md)
@@ -27,5 +32,5 @@
 ## 机器合同
 
 - `contracts/release-feed-v1.schema.json`：Release Feed v1 JSON Schema；
-- `contracts/dawnlight/preview/contract-lock.json`：当前候选 Core contract lock，状态为 blocked；
+- `contracts/dawnlight/preview/contract-lock.json`：当前候选 Core contract lock，状态为 preview-validated；稳定 ABI 仍被阻塞；
 - `contracts/README.md`：合同目录边界。

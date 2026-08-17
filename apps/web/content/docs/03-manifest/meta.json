@@ -1,0 +1,12 @@
+{
+  "title": "Manifest 参考",
+  "pages": [
+    "root-and-fragments",
+    "options",
+    "programs",
+    "defines-and-variants",
+    "resources",
+    "passes-and-commands",
+    "semantics-and-bindings"
+  ]
+}

@@ -1,0 +1,37 @@
+---
+title: 创建第一个最小光影包
+description: 用最少的 Manifest 字段创建一个可验证的 Dawnlight 光影包。
+coreVersion: 3ec28fc
+manifestVersion: v3
+status: preview
+lastVerifiedWith: 3ec28fc
+sourceRefs:
+  - examples/minimal/shaderpack.json
+  - schemas/shaderpack.schema.json
+searchAliases:
+  - minimal shaderpack
+  - 最小包
+  - shaderpack.json
+---
+
+## 完成结果
+
+完成本页后，你应得到一个包含 `shaderpack.json` 的独立目录，并能把它交给同一 commit 的 Loader 或 schema 校验器。
+
+## 目录
+
+```text
+my-pack/
+└─ shaderpack.json
+```
+
+最小示例来自 contract 快照中的 `examples/minimal/shaderpack.json`。页面上的已验证示例由网站读取快照；你复制到自己的目录后仍需使用本地 Core 重新验证。
+
+## 常见失败
+
+- Manifest 根对象缺少 `manifestVersion`；
+- Program 或 Pass 引用了不存在的 ID；
+- 资源路径超出包目录；
+- 把实验性 Settings UI 字段复制到没有对应 schema 版本的包中。
+
+下一步阅读 [CLI 验证](/zh-CN/docs/preview/01-getting-started/validate-with-cli)，再进入 [根对象与 fragments](/zh-CN/docs/preview/03-manifest/root-and-fragments)。

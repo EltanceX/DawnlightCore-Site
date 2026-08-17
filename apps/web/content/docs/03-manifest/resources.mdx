@@ -1,0 +1,22 @@
+---
+title: Resources
+description: 声明纹理、缓冲区、采样方式和资源内容来源。
+coreVersion: 3ec28fc
+manifestVersion: v3
+status: preview
+lastVerifiedWith: 3ec28fc
+sourceRefs:
+  - schemas/shaderpack.schema.json
+  - manifest/shaderpack.json
+searchAliases:
+  - textures
+  - buffers
+  - content
+  - binding
+---
+
+Resource descriptor 描述逻辑资源的类型、尺寸、格式、binding 和 lifetime；content 描述资源初始数据从哪里来。二者不要混写，也不要把受信 factory/service 当成普通文件路径。
+
+资源 ID 在包内应稳定且有语义，例如 `SceneColor`、`HistoryColor`。Pass 只通过 ID 读写资源，Core 可以据此检查读写冲突、尺寸变化和跨帧需求。
+
+纹理文件、内置 content 和 Core service 的可用范围取决于 schema 与 Catalog。遇到资源创建失败时，先检查类型/格式，再检查 content provider 是否属于当前合同。

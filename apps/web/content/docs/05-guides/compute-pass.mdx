@@ -1,0 +1,21 @@
+---
+title: 编写 compute pass
+description: 使用 compute Program 和 dispatch 参数处理结构化或纹理数据。
+coreVersion: 3ec28fc
+manifestVersion: v3
+status: experimental
+lastVerifiedWith: 3ec28fc
+sourceRefs:
+  - catalogs/summary.json
+  - schemas/shaderpack.schema.json
+searchAliases:
+  - compute
+  - dispatch
+  - workgroup
+---
+
+compute pass 的重点是 Program 阶段、资源读写权限和 dispatch 尺寸。先用固定尺寸验证资源绑定，再根据 view size 或 capability 调整 dispatch，避免在初次调试中引入多个变量。
+
+线程组尺寸必须与 shader 中的 local size 和目标资源边界一致。Core 是否允许某个 compute stage、buffer 类型或 barrier 组合，以当前 catalog 和 schema 为准。
+
+当 compute 结果被后续 fullscreen pass 读取时，记录二者之间的资源依赖；不要依赖文件顺序推断 GPU 同步。

@@ -6,6 +6,9 @@ const required = [
   "index.html",
   "zh-CN/index.html",
   "zh-CN/docs/preview/index.html",
+  "zh-CN/docs/preview/00-overview/introduction/index.html",
+  "zh-CN/docs/preview/01-getting-started/first-minimal-pack/index.html",
+  "zh-CN/docs/preview/06-reference/diagnostics/index.html",
   "zh-CN/downloads/index.html",
   "api/search",
 ];
@@ -27,6 +30,9 @@ const searchRegression = [
   ["drawbuffers", "/zh-CN/docs/preview/pipeline/overview"],
   ["historyCommit", "/zh-CN/docs/preview/pipeline/overview"],
   ["P9UI203", "/zh-CN/docs/preview/pipeline/overview"],
+  ["UnknownIdentifier", "/zh-CN/docs/preview/06-reference/diagnostics"],
+  ["schema-only", "/zh-CN/docs/preview/01-getting-started/validate-with-cli"],
+  ["history resource", "/zh-CN/docs/preview/05-guides/history-resource"],
 ];
 for (const [term, route] of searchRegression) {
   if (!searchIndex.includes(term) || !searchIndex.includes(route)) {

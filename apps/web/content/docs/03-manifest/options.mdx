@@ -1,0 +1,20 @@
+---
+title: Manifest options
+description: 配置可选字段、默认值和版本特定行为时的判断方法。
+coreVersion: 3ec28fc
+manifestVersion: v3
+status: preview
+lastVerifiedWith: 3ec28fc
+sourceRefs:
+  - schemas/shaderpack.schema.json
+searchAliases:
+  - options
+  - defaults
+  - 可选字段
+---
+
+可选字段没有出现时，使用 schema 或 Core 文档定义的默认行为；不要用 `null` 代替省略，除非 schema 明确允许 `null`。
+
+写 options 时区分三种情况：字段缺失、字段为空对象、字段存在但值无效。它们可能产生不同诊断，尤其是数组和注册表字段。发布前应把默认值写进示例验证记录，避免不同 Core 版本产生隐式差异。
+
+如果字段属于 experimental 或 version-specific，页面和包 README 都应标注版本，不要让下游作者只看到一个无上下文的 JSON 片段。

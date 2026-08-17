@@ -1,0 +1,21 @@
+---
+title: Defines 与 variants
+description: 管理 literal、option 和 capability define，避免无边界的程序组合。
+coreVersion: 3ec28fc
+manifestVersion: v3
+status: experimental
+lastVerifiedWith: 3ec28fc
+sourceRefs:
+  - schemas/shaderpack.schema.json
+  - catalogs/summary.json
+searchAliases:
+  - defines
+  - variants
+  - fingerprint
+---
+
+Define 可以来自固定 literal、用户 option 或 Core capability。三者的生命周期不同：literal 随包固定，option 随 Settings UI 改变，capability 由运行环境决定。
+
+每个 variant 都会增加编译和缓存成本。优先把影响分支行为的值放入有限枚举，避免把连续浮点参数编码成 define。Program fingerprint 应包含真正影响编译结果的 define 集合，不能只用文件名作为缓存键。
+
+当前 Catalog capability 数量有限，未知 capability 不会自动降级为普通字符串。请先阅读 [受信 Catalog 边界](/zh-CN/docs/preview/02-concepts/trusted-catalog-boundary)。

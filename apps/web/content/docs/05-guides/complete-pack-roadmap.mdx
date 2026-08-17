@@ -1,0 +1,28 @@
+---
+title: 完整光影包路线图
+description: 从最小包逐步扩展到包含资源、Pass、Settings UI 和验证记录的完整包。
+coreVersion: 3ec28fc
+manifestVersion: v3
+settingsSchemaVersion: v1-preview
+status: preview
+lastVerifiedWith: 3ec28fc
+sourceRefs:
+  - examples/minimal/shaderpack.json
+  - examples/settings-authored/manifest/ui/settings.json
+  - catalogs/summary.json
+searchAliases:
+  - complete shader pack
+  - Dawnlight v3.1
+  - 完整光影包
+---
+
+建议按以下里程碑推进：
+
+1. 最小 Manifest 和一个可显示的 Program；
+2. 场景颜色、深度和语义资源；
+3. fullscreen、compute 或引擎 draw provider Pass；
+4. history resource 和窗口重建处理；
+5. Settings UI authored schema；
+6. schema、Loader、诊断和 hash 验证记录。
+
+Dawnlight v3.1 快照适合作为纵向参考，但其中的服务和 provider 选择不自动构成所有光影包的通用要求。每加入一个 catalog ID，都要记录来源和兼容版本。

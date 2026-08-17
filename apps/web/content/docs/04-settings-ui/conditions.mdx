@@ -1,0 +1,22 @@
+---
+title: Conditions 与覆盖规则
+description: 让设置项根据环境、选项或能力显示，并避免互相覆盖。
+coreVersion: 3ec28fc
+manifestVersion: v3
+settingsSchemaVersion: v1-preview
+status: experimental
+lastVerifiedWith: 3ec28fc
+sourceRefs:
+  - schemas/settings-ui.schema.json
+  - diagnostics/diagnostics.json
+searchAliases:
+  - condition
+  - visibility
+  - P9UI203
+---
+
+Condition 只应控制显示或可编辑状态，不应偷偷改变另一个控件的默认值。多个条件同时命中时，要定义明确的优先级，并在文档中说明覆盖关系。
+
+不要把 GPU capability、引擎 provider 和用户 option 混为同一种条件来源。前者由 Core 决定，后两者可能在运行期间或页面交互中改变。
+
+当前 authored schema 的错误可能映射到 `P9UI203` 等诊断码。网站快照不执行 UI Loader，必须在目标 Core 构建中验证真实条件行为。

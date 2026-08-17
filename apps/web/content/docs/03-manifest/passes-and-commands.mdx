@@ -1,0 +1,29 @@
+---
+title: Passes 与 commands
+description: 组织 Pass 的执行范围、drawbuffers、资源访问和命令列表。
+coreVersion: 3ec28fc
+manifestVersion: v3
+status: preview
+lastVerifiedWith: 3ec28fc
+sourceRefs:
+  - schemas/shaderpack.schema.json
+  - manifest/shaderpack.json
+searchAliases:
+  - passes
+  - commands
+  - drawbuffers
+  - dispatch
+---
+
+Pass 是管线的执行单元。它通常关联一个 stage/template、一个 Program、输入输出资源和 commands。`drawbuffers` 指定颜色输出槽位；它不是任意纹理名列表，必须与当前 Pass 和资源声明相容。
+
+```json
+{
+  "name": "composite",
+  "program": "composite",
+  "drawbuffers": ["colortex0"],
+  "historyCommit": ["colortex0"]
+}
+```
+
+命令类型、作用域和资源访问规则见 [Command types](/zh-CN/docs/preview/06-reference/command-types)。不要假定命令列表顺序可以越过 Core 固定的阶段边界；JSON 描述的是允许的工作，而不是替换引擎调度器。

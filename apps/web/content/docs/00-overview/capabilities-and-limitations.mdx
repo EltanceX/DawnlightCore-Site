@@ -1,0 +1,37 @@
+---
+title: 能力与限制
+description: 当前 preview contract 可配置的范围、固定边界和已知限制。
+coreVersion: 3ec28fc
+manifestVersion: v3
+status: preview
+lastVerifiedWith: 3ec28fc
+sourceRefs:
+  - catalogs/summary.json
+  - diagnostics/diagnostics.json
+  - cli/metadata.json
+searchAliases:
+  - capability matrix
+  - UnknownIdentifier
+  - CLI JSON
+---
+
+## 当前可以配置什么
+
+当前合同允许光影包通过 JSON 注册程序、资源、Pass、drawbuffers、部分语义绑定和 Settings UI。Core 仍负责图形 API 生命周期、引擎绘制 provider、受信 catalog 和跨帧资源提交。
+
+| 范围                          | 状态         | 说明                               |
+| ----------------------------- | ------------ | ---------------------------------- |
+| Manifest v3 基础结构          | Preview      | 使用 `shaderpack.schema.json` 校验 |
+| Programs / Resources / Passes | Preview      | 字段可驱动，执行顺序受管线约束     |
+| Catalog ID                    | Preview      | 只能引用快照中的受信标识           |
+| Settings UI v1                | Experimental | authored schema 仍在迭代           |
+| CLI 结构化 JSON               | 未提供       | 当前快照没有可消费的生产 CLI       |
+
+## 当前不能假设的行为
+
+- 任意字符串都不是合法的 Service、Semantic Provider 或 EngineDraw Provider；未知 ID 会触发 `UnknownIdentifier`。
+- JSON 不能替换 Core 内部的引擎绘制阶段，也不能任意改变受信资源 factory 的实现。
+- `preview` 快照只代表锁定 commit 的行为，不代表未来稳定版本兼容。
+- 网站静态构建不会执行 C# Loader；页面中的示例验证状态来自 contract 快照，而不是浏览器运行时验证。
+
+完整的限制入口见 [限制参考](/zh-CN/docs/preview/06-reference/limits)，版本变化规则见 [版本策略](/zh-CN/docs/preview/07-migration/version-policy)。

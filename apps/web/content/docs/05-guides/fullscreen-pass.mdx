@@ -1,0 +1,21 @@
+---
+title: 编写 fullscreen pass
+description: 使用 fullscreen stage 和一个复合 Program 创建全屏后处理 Pass。
+coreVersion: 3ec28fc
+manifestVersion: v3
+status: experimental
+lastVerifiedWith: 3ec28fc
+sourceRefs:
+  - catalogs/summary.json
+  - examples/minimal/shaderpack.json
+searchAliases:
+  - fullscreen
+  - post process
+  - 全屏后处理
+---
+
+fullscreen pass 通常读取场景颜色和帧语义，再写入一个 drawbuffer。先确认 `dawnlight:fullscreen` stage template 在目标 Catalog 中存在，再绑定 Program 和输出资源。
+
+教程产物应包括：一个 vertex/fragment Program、一个 Pass、一个明确的 `drawbuffers` 列表，以及一次 schema/Loader 验证记录。不要在第一个 pass 中同时加入 history、compute 和 Settings UI，便于隔离错误。
+
+完成后可把输出连接到 [Resources](/zh-CN/docs/preview/03-manifest/resources) 和 [Passes](/zh-CN/docs/preview/03-manifest/passes-and-commands) 参考。

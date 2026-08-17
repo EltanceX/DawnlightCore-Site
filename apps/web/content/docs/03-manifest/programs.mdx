@@ -1,0 +1,31 @@
+---
+title: Programs
+description: 注册 vertex、fragment 和 compute 程序，并把它们绑定到 Pass。
+coreVersion: 3ec28fc
+manifestVersion: v3
+status: preview
+lastVerifiedWith: 3ec28fc
+sourceRefs:
+  - schemas/shaderpack.schema.json
+  - manifest/shaderpack.json
+searchAliases:
+  - shader program
+  - vertex
+  - fragment
+  - compute
+---
+
+Program 是着色器入口和编译选项的逻辑注册。一个 Pass 通过 Program ID 使用它，而不是直接把文件路径写进每一条执行命令。
+
+```json
+{
+  "programs": {
+    "composite": {
+      "vertex": "shaders/composite.vert",
+      "fragment": "shaders/composite.frag"
+    }
+  }
+}
+```
+
+文件路径必须是包内路径，Program ID 在其作用域内唯一。编译失败、阶段缺失或引用不存在的 define 时，应回到 Program 注册和对应的诊断输出排查。

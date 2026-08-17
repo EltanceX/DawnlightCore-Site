@@ -1,0 +1,31 @@
+---
+title: DawnlightCore 开发者文档
+description: 从最小光影包开始，理解 DawnlightCore 的数据驱动渲染管线。
+coreVersion: 3ec28fc
+manifestVersion: v3
+status: preview
+lastVerifiedWith: 3ec28fc
+sourceRefs:
+  - metadata.json
+searchAliases:
+  - Dawnlight Core
+  - 光影管线
+---
+
+本套文档面向希望编写 Dawnlight 光影包的开发者。你将从一个可验证的最小 Manifest 开始，逐步注册 Program、Resource、Pass 和 Settings UI。
+
+## 推荐阅读路径
+
+1. 先阅读 [前置条件](/zh-CN/docs/preview/01-getting-started/prerequisites)，确认游戏版本和合同版本。
+2. 按 [最小光影包](/zh-CN/docs/preview/01-getting-started/first-minimal-pack) 创建第一个包。
+3. 使用 [CLI 验证](/zh-CN/docs/preview/01-getting-started/validate-with-cli) 检查 schema 和诊断。
+4. 再进入 [Manifest 参考](/zh-CN/docs/preview/03-manifest/root-and-fragments) 扩展管线。
+
+当前所有页面均对应 `preview` contract。Preview 字段可以变化，不应当当作稳定 ABI 发布给第三方。
+
+## 术语约定
+
+- **Manifest**：描述包身份、Program、Resource、Pass 和 UI 入口的 JSON 文件。
+- **Catalog**：由 Core 提供的受信 ID 列表，例如 Stage Template、Service 和 Semantic Provider。
+- **Pass**：一次有明确输入、输出和执行阶段的管线工作。
+- **诊断码**：机器可读的错误或警告 ID，例如 `UnknownIdentifier`。

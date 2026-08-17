@@ -1,0 +1,22 @@
+---
+title: Settings UI 概览
+description: 为光影包建立可维护的设置菜单，并与 Manifest 参数连接。
+coreVersion: 3ec28fc
+manifestVersion: v3
+settingsSchemaVersion: v1-preview
+status: experimental
+lastVerifiedWith: 3ec28fc
+sourceRefs:
+  - schemas/settings-ui.schema.json
+  - examples/settings-authored/manifest/ui/settings.json
+searchAliases:
+  - 设置菜单
+  - Settings UI
+  - settings schema
+---
+
+Settings UI 是独立于渲染 Pass 的作者配置层。它负责页面、分组、控件、默认值、条件和本地化键；实际参数是否被 shader 使用，仍由 Manifest 和 Program 定义决定。
+
+当前 schema 版本为 v1-preview。建议先从 `examples/settings-auto` 观察自动生成形式，再使用 authored 文件明确控制菜单顺序和显示文案。
+
+设置菜单发生变化时，必须同时检查控件 id、参数类型和默认值。不要仅依赖 UI 截图证明设置已经被渲染管线消费。
