@@ -9,13 +9,15 @@
     "start": "pnpm --filter @dawnlight/web start",
     "lint": "pnpm --filter @dawnlight/web lint",
     "typecheck": "pnpm --filter @dawnlight/web types:check",
-    "format:check": "prettier --check \"apps/web/src/**/*.{ts,tsx,md,mdx,json,yml,yaml,css}\" \"apps/web/tests/**/*.{ts,tsx}\" \"apps/web/vitest.config.ts\" \"scripts/**/*.{mjs,mts,ts}\" \"contracts/dawnlight/preview/**/*.json\" \"package.json\" \"pnpm-workspace.yaml\" \"turbo.json\"",
+    "format:check": "prettier --check \"apps/web/src/**/*.{ts,tsx,md,mdx,json,yml,yaml,css}\" \"apps/web/tests/**/*.{ts,tsx}\" \"apps/web/vitest.config.ts\" \"scripts/**/*.{mjs,mts,ts}\" \"contracts/dawnlight/preview/**/*.json\" \"content/releases/**/*.json\" \"apps/web/public/feeds/**/*.json\" \"package.json\" \"pnpm-workspace.yaml\" \"turbo.json\"",
     "test": "pnpm --filter @dawnlight/web test",
     "verify:static": "node scripts/verify-static-output.mjs",
     "validate:content": "node scripts/validate-docs.mjs",
+    "validate:releases": "node scripts/validate-releases.mjs",
+    "releases:generate": "node scripts/generate-release-feed.mjs",
     "contract:sync": "node scripts/sync-dawnlight-contract.mjs",
     "validate:contract": "node scripts/validate-dawnlight-contract.mjs",
-    "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm validate:contract && pnpm validate:content && pnpm build && pnpm verify:static"
+    "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm validate:contract && pnpm validate:content && pnpm validate:releases && pnpm build && pnpm verify:static"
   },
   "devDependencies": {
     "prettier": "^3.6.2",

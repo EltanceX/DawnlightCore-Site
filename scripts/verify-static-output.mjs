@@ -10,7 +10,9 @@ const required = [
   "zh-CN/docs/preview/01-getting-started/first-minimal-pack/index.html",
   "zh-CN/docs/preview/06-reference/diagnostics/index.html",
   "zh-CN/downloads/index.html",
+  "zh-CN/downloads/releases/index.html",
   "api/search",
+  "feeds/releases-v1.json",
 ];
 
 const missing = required.filter((file) => !existsSync(resolve(output, file)));
@@ -52,6 +54,20 @@ if (
 ) {
   console.error(
     "Static docs output does not contain the verified contract example metadata.",
+  );
+  process.exit(1);
+}
+
+const downloadsHtml = readFileSync(
+  resolve(output, "zh-CN/downloads/index.html"),
+  "utf8",
+);
+if (
+  !downloadsHtml.includes("Preview feed") ||
+  !downloadsHtml.includes("releases-v1.json")
+) {
+  console.error(
+    "Static download output does not contain the preview feed state.",
   );
   process.exit(1);
 }

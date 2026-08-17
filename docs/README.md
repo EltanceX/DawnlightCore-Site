@@ -24,6 +24,10 @@
 - 首发内容树位于 `apps/web/content/docs/00-overview` 至 `07-migration`；
 - [实现记录](./WP5-Implementation.md)
 
+## WP6：Release Feed 与下载体验
+
+- [实现记录](./WP6-Implementation.md)
+
 ## ADR
 
 - [ADR-0001：V1 范围与静态发布](./adr/0001-v1-scope-and-static-publishing.md)

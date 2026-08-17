@@ -582,3 +582,356 @@ html > body[data-scroll-locked] {
   margin: 0;
   color: var(--dl-ink);
 }
+
+.dl-download-page,
+.dl-release-page {
+  flex: 1;
+  padding-block: 3.5rem 5rem;
+}
+
+.dl-download-page h1,
+.dl-release-page h1 {
+  margin: 0.55rem 0 0;
+  color: var(--dl-ink);
+  font-size: clamp(2.1rem, 5vw, 3.8rem);
+  font-weight: 750;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+.dl-download-page__intro,
+.dl-release-page__intro {
+  max-width: 45rem;
+  margin: 1.2rem 0 0;
+  color: var(--dl-muted);
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+.dl-download-experience {
+  display: grid;
+  gap: 1rem;
+  margin-top: 2.25rem;
+}
+
+.dl-download-query-warning {
+  margin: 0;
+  border-left: 3px solid var(--dl-accent);
+  background: color-mix(in srgb, var(--dl-accent) 8%, var(--dl-surface));
+  padding: 0.65rem 0.8rem;
+  color: var(--dl-accent-strong);
+  font-size: 0.8rem;
+}
+
+.dl-download-controls {
+  display: grid;
+  gap: 1rem;
+  border-block: 1px solid var(--dl-line);
+  padding-block: 1rem;
+}
+
+.dl-download-controls fieldset,
+.dl-download-controls label {
+  display: grid;
+  gap: 0.45rem;
+  min-width: 0;
+  margin: 0;
+  border: 0;
+  padding: 0;
+  color: var(--dl-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.dl-download-controls select {
+  min-height: 2.5rem;
+  border: 1px solid var(--dl-line);
+  border-radius: 0.45rem;
+  background: var(--dl-surface);
+  color: var(--dl-ink);
+  padding-inline: 0.7rem;
+  font: inherit;
+  font-weight: 500;
+}
+
+.dl-segmented-control {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.dl-segmented-control button {
+  min-height: 2.35rem;
+  border: 1px solid var(--dl-line);
+  border-radius: 0.4rem;
+  background: var(--dl-surface);
+  color: var(--dl-muted);
+  padding-inline: 0.8rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.dl-segmented-control button:hover,
+.dl-segmented-control button[aria-pressed="true"] {
+  border-color: var(--dl-cool);
+  background: color-mix(in srgb, var(--dl-cool) 10%, var(--dl-surface));
+  color: var(--dl-cool);
+}
+
+.dl-artifact-panel {
+  border-top: 3px solid var(--dl-accent);
+  border-bottom: 1px solid var(--dl-line);
+  padding-block: 1.25rem 1.5rem;
+}
+
+.dl-artifact-panel h2 {
+  margin: 0.5rem 0 0;
+  color: var(--dl-ink);
+  font-size: 1.6rem;
+}
+
+.dl-artifact-panel > p:not(.dl-eyebrow),
+.dl-download-empty {
+  margin: 0.55rem 0 0;
+  color: var(--dl-muted);
+  line-height: 1.6;
+}
+
+.dl-artifact-facts {
+  display: grid;
+  gap: 0.55rem;
+  margin: 1.25rem 0 0;
+}
+
+.dl-artifact-facts div {
+  display: grid;
+  grid-template-columns: 6rem minmax(0, 1fr);
+  gap: 0.7rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--dl-line) 70%, transparent);
+  padding-bottom: 0.55rem;
+  font-size: 0.8rem;
+}
+
+.dl-artifact-facts dt {
+  color: var(--dl-muted);
+  font-weight: 650;
+}
+
+.dl-artifact-facts dd {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+  color: var(--dl-ink);
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+}
+
+.dl-artifact-actions,
+.dl-download-page__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin-top: 1.25rem;
+}
+
+.dl-artifact-source,
+.dl-release-row__date,
+.dl-release-detail-heading > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--dl-muted);
+  font-size: 0.78rem;
+}
+
+.dl-artifact-source {
+  margin: 0.8rem 0 0;
+}
+
+.dl-release-meta {
+  margin: 0;
+  color: var(--dl-muted);
+  font-size: 0.8rem;
+}
+
+.dl-download-status {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 2rem;
+  border-left: 3px solid var(--dl-cool);
+  background: color-mix(in srgb, var(--dl-cool) 8%, var(--dl-surface));
+  padding: 1rem;
+  color: var(--dl-cool);
+}
+
+.dl-download-status h2 {
+  margin: 0;
+  color: var(--dl-ink);
+  font-size: 1rem;
+}
+
+.dl-download-status p {
+  max-width: 42rem;
+  margin: 0.35rem 0 0;
+  color: var(--dl-muted);
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+.dl-download-status a {
+  display: inline-flex;
+  margin-top: 0.65rem;
+  color: var(--dl-cool);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.dl-download-page__links {
+  border-top: 1px solid var(--dl-line);
+  padding-top: 1.25rem;
+}
+
+.dl-download-page__links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--dl-cool);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.dl-release-list {
+  margin-top: 2rem;
+  border-top: 1px solid var(--dl-line);
+}
+
+.dl-release-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  border-bottom: 1px solid var(--dl-line);
+  padding-block: 1.2rem;
+}
+
+.dl-release-row h2 {
+  margin: 0;
+  color: var(--dl-ink);
+  font-size: 1.15rem;
+}
+
+.dl-release-row p {
+  max-width: 46rem;
+  margin: 0.4rem 0;
+  color: var(--dl-muted);
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+.dl-release-row__count {
+  flex: 0 0 auto;
+  color: var(--dl-muted);
+  font-size: 0.75rem;
+}
+
+.dl-release-row__heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.dl-release-channel,
+.dl-release-status {
+  display: inline-flex;
+  min-height: 1.45rem;
+  align-items: center;
+  border: 1px solid var(--dl-line);
+  border-radius: 999px;
+  padding-inline: 0.5rem;
+  color: var(--dl-muted);
+  font-size: 0.68rem;
+  font-weight: 750;
+  text-transform: uppercase;
+}
+
+.dl-release-status--available {
+  border-color: color-mix(in srgb, var(--dl-cool) 40%, var(--dl-line));
+  color: var(--dl-cool);
+}
+
+.dl-release-status--withdrawn {
+  border-color: color-mix(in srgb, var(--dl-accent) 45%, var(--dl-line));
+  color: var(--dl-accent-strong);
+}
+
+.dl-release-detail-heading {
+  margin-top: 2rem;
+  border-bottom: 1px solid var(--dl-line);
+  padding-bottom: 1.5rem;
+}
+
+.dl-release-detail-heading p:not(.dl-eyebrow) {
+  max-width: 44rem;
+  margin: 1rem 0;
+  color: var(--dl-muted);
+  line-height: 1.7;
+}
+
+.dl-release-detail-section {
+  padding-top: 1.5rem;
+}
+
+.dl-release-detail-section h2 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.dl-release-artifacts {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.dl-release-artifact {
+  display: grid;
+  gap: 0.35rem;
+  border-bottom: 1px solid var(--dl-line);
+  padding-bottom: 0.85rem;
+}
+
+.dl-release-artifact strong {
+  color: var(--dl-ink);
+  font-size: 0.9rem;
+}
+
+.dl-release-artifact span,
+.dl-release-artifact code {
+  overflow-wrap: anywhere;
+  color: var(--dl-muted);
+  font-size: 0.75rem;
+}
+
+.dl-release-artifact code {
+  color: var(--dl-ink);
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+}
+
+@media (min-width: 700px) {
+  .dl-download-controls {
+    grid-template-columns: minmax(14rem, 1fr) minmax(10rem, 0.65fr) minmax(
+        10rem,
+        0.65fr
+      );
+    align-items: end;
+  }
+
+  .dl-download-controls fieldset {
+    grid-column: 1 / -1;
+  }
+
+  .dl-artifact-facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 1.5rem;
+  }
+}
