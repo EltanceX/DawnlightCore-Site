@@ -1,0 +1,60 @@
+name: Deploy Production
+
+on:
+  workflow_dispatch:
+    inputs:
+      site_origin:
+        description: Canonical HTTPS origin without a trailing path
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dawnlight-core-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    environment: production
+    env:
+      NEXT_PUBLIC_SITE_MODE: production
+      NEXT_PUBLIC_SITE_ORIGIN: ${{ inputs.site_origin }}
+      DEPLOY_PROVIDER: cloudflare-pages
+      PRODUCTION_DOCS_VERSION: ${{ vars.PRODUCTION_DOCS_VERSION }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.19.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 26.7.0
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm deploy:validate:production
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm check
+      - run: pnpm deploy:prepare:production
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dawnlight-core-production-${{ github.sha }}
+          path: apps/web/out/
+          if-no-files-found: error
+          retention-days: 90
+      - id: deploy
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: >-
+            pages deploy apps/web/out
+            --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT }}
+            --branch=main
+      - env:
+          SMOKE_ORIGIN: ${{ steps.deploy.outputs.deployment-url }}
+          EXPECT_DEPLOY_HEADERS: "1"
+        run: node scripts/smoke-deployment.mjs --mode production

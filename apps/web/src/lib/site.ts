@@ -1,8 +1,12 @@
+const previewMode = process.env.NEXT_PUBLIC_SITE_MODE !== "production";
+
 export const siteConfig = {
   name: "DawnlightCore",
   description: "面向 Survivalcraft Dawnlight 光影开发者的文档与发布门户。",
-  canonicalOrigin: "https://dawnlightcore.example.invalid",
-  previewMode: true,
+  canonicalOrigin:
+    process.env.NEXT_PUBLIC_SITE_ORIGIN ??
+    "https://dawnlightcore.example.invalid",
+  previewMode,
   defaultLocale: "zh-CN",
   defaultDocsVersion: "preview",
   docsVersions: [

@@ -1,0 +1,13 @@
+{
+  "routes": ["/zh-CN/", "/zh-CN/docs/preview/", "/zh-CN/downloads/"],
+  "thresholds": {
+    "performance": 0.9,
+    "accessibility": 0.95,
+    "best-practices": 0.95,
+    "seo": 0.95
+  },
+  "previewThresholds": {
+    "seo": 0.6
+  },
+  "previewSeoException": "Preview builds intentionally emit noindex and Disallow: /, which caps Lighthouse 13 SEO near 0.63; production keeps the 0.95 threshold."
+}

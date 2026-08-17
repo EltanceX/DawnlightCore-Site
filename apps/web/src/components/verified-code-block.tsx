@@ -33,7 +33,7 @@ export function VerifiedCodeBlock({
           {developerContract.lock.source.commit.slice(0, 8)}
         </span>
       </figcaption>
-      <pre>
+      <pre tabIndex={0} aria-label={`${sourcePath} 代码`}>
         <code data-language={language}>{code}</code>
       </pre>
     </figure>

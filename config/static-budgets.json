@@ -1,0 +1,12 @@
+{
+  "totalBytes": 12582912,
+  "limits": {
+    "javascriptChunkBytes": 327680,
+    "stylesheetBytes": 131072,
+    "htmlDocumentBytes": 131072,
+    "searchIndexBytes": 409600,
+    "webpImageBytes": 307200,
+    "jpegImageBytes": 409600,
+    "pngImageBytes": 131072
+  }
+}

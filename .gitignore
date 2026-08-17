@@ -5,6 +5,8 @@ out/
 coverage/
 playwright-report/
 test-results/
+reports/
+dist/
 *.log
 .env
 .env.*

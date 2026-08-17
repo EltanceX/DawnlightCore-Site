@@ -6,6 +6,8 @@
     "build": "node ../../scripts/generate-release-feed.mjs && next build",
     "dev": "next dev",
     "start": "serve out",
+    "start:test": "serve out -l tcp://127.0.0.1:4173 --no-clipboard",
+    "start:lighthouse": "serve out -l tcp://127.0.0.1:4174 --no-clipboard",
     "types:check": "next typegen && tsc --noEmit",
     "lint": "eslint",
     "test": "vitest run"

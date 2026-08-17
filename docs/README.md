@@ -32,10 +32,16 @@
 
 - [实现记录](./WP7-Implementation.md)
 
+## WP8：质量、安全与部署
+
+- [实现记录](./WP8-Implementation.md)
+- [部署运行手册](./DeploymentRunbook.md)
+
 ## ADR
 
 - [ADR-0001：V1 范围与静态发布](./adr/0001-v1-scope-and-static-publishing.md)
 - [ADR-0002：来源、版本、语言与发布策略](./adr/0002-source-version-locale-and-release-policy.md)
+- [ADR-0003：静态部署与回滚契约](./adr/0003-deployment-contract.md)
 
 ## 机器合同
 

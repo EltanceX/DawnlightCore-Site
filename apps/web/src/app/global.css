@@ -10,14 +10,15 @@ html {
 
 :root {
   --dl-ink: #191a1c;
-  --dl-muted: #687078;
+  --dl-muted: #5f6870;
   --dl-line: #dedfdd;
   --dl-surface: #ffffff;
   --dl-surface-muted: #f0f1ef;
-  --dl-accent: #c25b2a;
+  --dl-accent: #b64d20;
   --dl-accent-strong: #9e3f19;
   --dl-cool: #176d78;
   --dl-focus: #0b7285;
+  --color-fd-muted-foreground: #666666;
 }
 
 .dark {

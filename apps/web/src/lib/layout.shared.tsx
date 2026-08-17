@@ -1,5 +1,5 @@
 import type { BaseLayoutProps } from "fumadocs-ui/layouts/shared";
-import { BookOpen, Download } from "lucide-react";
+import { BookOpen, Download, GitFork } from "lucide-react";
 import { BrandMark } from "@/components/brand-mark";
 import { gitConfig } from "./shared";
 
@@ -22,7 +22,14 @@ export function baseOptions(): BaseLayoutProps {
         url: "/zh-CN/downloads/",
         icon: <Download size={16} aria-hidden="true" />,
       },
+      {
+        type: "icon",
+        text: "GitHub",
+        label: "GitHub",
+        url: `https://github.com/${gitConfig.user}/${gitConfig.repo}`,
+        external: true,
+        icon: <GitFork aria-hidden="true" />,
+      },
     ],
-    githubUrl: `https://github.com/${gitConfig.user}/${gitConfig.repo}`,
   };
 }
