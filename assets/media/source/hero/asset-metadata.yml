@@ -1,0 +1,94 @@
+schemaVersion: 1
+assetSetId: dawnlight-preview-hero-2026-08-17
+title: DawnlightCore Preview Hero concept renders
+generatedPreview: true
+notGameScreenshot: true
+productionEligible: false
+disclosureText: "Preview 概念图，非 Dawnlight 实机截图"
+generatedAt: 2026-08-17
+generator:
+  mode: fallback-cli
+  model: gpt-image-2
+  script: imagegen/scripts/image_gen.py
+rights:
+  source: project-directed AI generation
+  licenseStatus: project-preview-only-pending-production-review
+  allowedUse: DawnlightCore developer portal preview
+  forbiddenClaims:
+    - real Dawnlight gameplay capture
+    - renderer output comparison evidence
+    - stable production marketing asset
+sourceAssets:
+  - id: dawnlight-preview-wide-source
+    path: dawnlight-preview-wide.png
+    requestedSize: 2048x1152
+    actualSize: 1672x941
+    colorMode: RGB
+    bytes: 2631557
+    sha256: bdaa8e8f00b1fca6d7e624e6739899f6c0ddec87b8cded0e0c305f762f298d0c
+  - id: dawnlight-preview-mobile-source
+    path: dawnlight-preview-mobile.png
+    requestedSize: 1024x1536
+    actualSize: 1024x1536
+    colorMode: RGB
+    bytes: 2514308
+    sha256: c2edda89367a1cb71f31fc456c2ca71b9a3a7e479edfc79c0245f2215773b8b1
+derivatives:
+  - path: ../../../../apps/web/public/media/hero/dawnlight-preview-wide.webp
+    source: dawnlight-preview-wide-source
+    size: 1600x900
+    format: webp
+    bytes: 253232
+    sha256: 98de160bdc96aad3c15282c3e44e370e4334bdd618804317a5420a80d6334279
+  - path: ../../../../apps/web/public/media/hero/dawnlight-preview-wide.jpg
+    source: dawnlight-preview-wide-source
+    size: 1600x900
+    format: jpeg
+    bytes: 351457
+    sha256: 4efed810b7d8b7c50da8eec7d6da1b4458fb3385b399b3c04c67a5172c5015b5
+  - path: ../../../../apps/web/public/media/hero/dawnlight-preview-mobile.webp
+    source: dawnlight-preview-mobile-source
+    size: 900x1350
+    format: webp
+    bytes: 184866
+    sha256: d7e9ad4edc5677004bc771664d722e881a2c914bd6c7f773018c14f3d94929cd
+  - path: ../../../../apps/web/public/media/hero/dawnlight-preview-mobile.jpg
+    source: dawnlight-preview-mobile-source
+    size: 900x1350
+    format: jpeg
+    bytes: 262157
+    sha256: 380dc95ea00db4713ad2a132c76961e64433bab050fb4703332e33c1e5b2ddc3
+prompts:
+  wide: >-
+    Use case: stylized-concept. Asset type: wide landing-page hero. An original
+    block-based survival sandbox landscape rendered through a sophisticated
+    modern shader pipeline: a clear river curving through a green forest valley,
+    rocky voxel cliffs, detailed water reflections, soft atmospheric depth,
+    physically plausible sunlight and shadows, and visible terrain and foliage
+    material detail. High-end real-time environment render, wide 16:9 framing,
+    darker foliage on the left third for overlay copy, bright open valley on the
+    right, balanced greens, blue water, gray rock and warm sunlight. No text,
+    logo, watermark, HUD, characters, weapons or buildings; no copyrighted game
+    UI or branding; no copied game textures; no heavy fog, crushed shadows,
+    oversaturation, noise, floating geometry or visual glitches.
+  mobile: >-
+    Use case: stylized-concept. Asset type: mobile landing-page hero. An original
+    block-based survival sandbox landscape rendered through a sophisticated
+    modern shader pipeline: a clear stream descending from rocky voxel hills into
+    a forest clearing, detailed water reflections, soft atmospheric depth,
+    physically plausible sunlight and shadows, and visible terrain and foliage
+    material detail. High-end real-time environment render, vertical 2:3 framing,
+    depth from foreground stream to distant ridge, quiet upper area for overlay
+    copy, balanced greens, blue water, gray rock and warm sunlight. No text, logo,
+    watermark, HUD, characters, weapons or buildings; no copyrighted game UI or
+    branding; no copied game textures; no heavy fog, crushed shadows,
+    oversaturation, noise, floating geometry or visual glitches.
+review:
+  visualInspection: passed-for-preview
+  checks:
+    - no visible text, logo, watermark or HUD
+    - no characters, weapons or buildings
+    - no obvious broken geometry or rendering artifacts
+    - wide composition preserves a dark copy area on the left
+    - mobile composition requires a restrained dark overlay over the bright sky
+  remainingGate: Replace with versioned Dawnlight runtime captures before production.

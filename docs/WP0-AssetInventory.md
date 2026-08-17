@@ -1,6 +1,6 @@
 # WP0 资产盘点
 
-状态：初次盘点完成，网站资产尚未复制
+状态：初次盘点完成，Preview 概念 Hero 已生成；正式资产门禁仍未关闭
 
 盘点日期：2026-08-16
 
@@ -17,6 +17,8 @@
 - 官方原版纹理、游戏 UI、Survivalcraft icon 和 shaderpack 内资源的公开授权尚未确认；
 - 不能从 `bin/Debug`、`obj`、`output` 或本地构建目录生成稳定网站资产。
 
+2026-08-17 补充：为 Preview 开发者门户生成了两张原创方块世界概念渲染，并制作 WebP/JPEG 衍生图。它们不是 Dawnlight 实机截图，不得用于证明渲染效果，也不关闭正式 Hero 截图门禁。
+
 ## 2. 已识别资产
 
 | Asset ID | Core 相对路径 | 尺寸 | 大小 | SHA-256 | 当前结论 |
@@ -28,6 +30,17 @@
 | `dawnlight-button-clicked` | `Survivalcraft/Content/Assets/Textures/Gui/DawnlightClicked.png` | 70×63 | 3,184 | `d06b43b2c3c83ec9892aabf30a317cc9c4c3b19f22aa4bd50ae06bbe8b74f89f` | Reference：游戏内 Dawnlight 按钮，分辨率过低，不作为 hero |
 | `survivalcraft-app-icon` | `Survivalcraft/icon.png` | 144×144 | 31,648 | `9a63b350cbbc8ffab6948e26a564532dd5d3dab75a6e9112ef16e35ba0cb8f12` | Hold：游戏 App icon，需授权确认 |
 | `engine-icon` | `Engine/Resources/icon.png` | 64×64 | 9,520 | `2e417352379ecf651349a52af02eb342fd8d8dbe95c1c61efac4b6125dc5a087` | Reference：引擎图标，分辨率过低且品牌归属不明 |
+
+## 2.1 Preview 概念 Hero
+
+| Asset ID | 网站相对路径 | 尺寸 | 大小 | SHA-256 | 当前结论 |
+|---|---|---:|---:|---|---|
+| `preview-hero-wide-webp` | `apps/web/public/media/hero/dawnlight-preview-wide.webp` | 1600×900 | 253,232 | `98de160bdc96aad3c15282c3e44e370e4334bdd618804317a5420a80d6334279` | Preview only：宽屏 Hero 首选格式，非实机截图 |
+| `preview-hero-wide-jpeg` | `apps/web/public/media/hero/dawnlight-preview-wide.jpg` | 1600×900 | 351,457 | `4efed810b7d8b7c50da8eec7d6da1b4458fb3385b399b3c04c67a5172c5015b5` | Preview only：宽屏 fallback，非实机截图 |
+| `preview-hero-mobile-webp` | `apps/web/public/media/hero/dawnlight-preview-mobile.webp` | 900×1350 | 184,866 | `d7e9ad4edc5677004bc771664d722e881a2c914bd6c7f773018c14f3d94929cd` | Preview only：移动 Hero 首选格式，非实机截图 |
+| `preview-hero-mobile-jpeg` | `apps/web/public/media/hero/dawnlight-preview-mobile.jpg` | 900×1350 | 262,157 | `380dc95ea00db4713ad2a132c76961e64433bab050fb4703332e33c1e5b2ddc3` | Preview only：移动 fallback，非实机截图 |
+
+原始 PNG、完整 Prompt、模型、实际尺寸、使用边界和校验信息位于 `assets/media/source/hero/asset-metadata.yml`。网页不直接加载 2.5 MiB 级原图。当前环境没有 AVIF encoder，因此 Preview 先提供 WebP 与 JPEG；正式图片流水线仍需补齐 AVIF 和内容 hash 文件名。
 
 ## 3. 光影包和内置资源盘点
 
@@ -81,6 +94,7 @@
 - [x] 现有截图已查看并标记为不可发布；
 - [x] 现有 Logo/icon 已分类并标记授权状态；
 - [x] Core、shaderpack、发行和文档来源已记录；
+- [x] Preview 概念 Hero 原图、衍生图和可追溯 metadata 已入库；
 - [ ] 正式 hero 截图重新采集；
 - [ ] 网站 Logo/品牌资产授权确认；
 - [ ] 正式 artifact 和发布源确认；
