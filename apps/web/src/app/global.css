@@ -296,15 +296,54 @@ body {
 }
 
 .dl-home__hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: 34rem;
   border-bottom: 1px solid var(--dl-line);
-  background: var(--dl-surface);
+  background: #172323;
+  color: #fff;
+}
+
+.dl-home__hero::before,
+.dl-home__hero::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+}
+
+.dl-home__hero::before {
+  z-index: -2;
+  background-image: url("/media/hero/dawnlight-preview-wide.jpg");
+  background-image: image-set(
+    url("/media/hero/dawnlight-preview-wide.webp") type("image/webp"),
+    url("/media/hero/dawnlight-preview-wide.jpg") type("image/jpeg")
+  );
+  background-position: center;
+  background-size: cover;
+}
+
+.dl-home__hero::after {
+  z-index: -1;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(3, 8, 8, 0.9) 0%,
+      rgba(3, 8, 8, 0.68) 38%,
+      rgba(3, 8, 8, 0.2) 78%
+    ),
+    linear-gradient(0deg, rgba(3, 8, 8, 0.42), transparent 60%);
 }
 
 .dl-home__hero-inner {
+  position: relative;
+  z-index: 1;
   display: grid;
   gap: 2.5rem;
   align-items: end;
-  padding-block: clamp(4rem, 10vw, 8rem) clamp(3rem, 8vw, 6rem);
+  min-height: 34rem;
+  box-sizing: border-box;
+  padding-block: 4rem 3.5rem;
 }
 
 .dl-home__hero-copy {
@@ -313,19 +352,32 @@ body {
 
 .dl-home__hero h1 {
   margin: 1.25rem 0 0;
-  color: var(--dl-ink);
-  font-size: clamp(2.75rem, 7vw, 5.5rem);
+  color: #fff;
+  font-size: 3.25rem;
   font-weight: 750;
-  letter-spacing: -0.045em;
+  letter-spacing: 0;
   line-height: 0.98;
 }
 
 .dl-home__hero-copy > p {
   max-width: 39rem;
   margin: 1.5rem 0 0;
-  color: var(--dl-muted);
-  font-size: clamp(1.05rem, 2vw, 1.3rem);
+  color: rgba(255, 255, 255, 0.86);
+  font-size: 1.15rem;
   line-height: 1.65;
+}
+
+.dl-home__hero .dl-badge {
+  border-color: rgba(255, 255, 255, 0.35);
+  background: rgba(4, 12, 12, 0.38);
+  color: #e8ffff;
+}
+
+.dl-home__hero-disclosure {
+  margin: 1rem 0 0;
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 0.75rem;
+  line-height: 1.5;
 }
 
 .dl-home__actions {
@@ -338,7 +390,7 @@ body {
 .dl-home__signal {
   width: min(100%, 20rem);
   border-top: 3px solid var(--dl-accent);
-  border-bottom: 1px solid var(--dl-line);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.35);
   padding-block: 1rem 1.15rem;
 }
 
@@ -346,7 +398,7 @@ body {
   display: flex;
   align-items: center;
   gap: 0.45rem;
-  color: var(--dl-muted);
+  color: rgba(255, 255, 255, 0.75);
   font-size: 0.72rem;
   font-weight: 750;
   letter-spacing: 0.12em;
@@ -363,15 +415,26 @@ body {
 
 .dl-home__signal p {
   margin: 0.75rem 0 0.25rem;
-  color: var(--dl-ink);
+  color: #fff;
   font-size: 1.5rem;
   font-weight: 700;
-  letter-spacing: -0.02em;
+  letter-spacing: 0;
 }
 
 .dl-home__signal > span {
-  color: var(--dl-muted);
+  color: rgba(255, 255, 255, 0.72);
   font-size: 0.8rem;
+}
+
+.dl-home__hero .dl-button--secondary {
+  border-color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.92);
+  color: #191a1c;
+}
+
+.dl-home__hero .dl-button--secondary:hover {
+  border-color: #fff;
+  background: #fff;
 }
 
 .dl-home__status {
@@ -463,6 +526,90 @@ body {
   padding: 0.5rem 0 1.25rem;
 }
 
+.dl-home__next-grid article > svg,
+.dl-home__capability-grid > div > svg {
+  color: var(--dl-cool);
+}
+
+.dl-home__next-grid h3 a:hover {
+  color: var(--dl-accent-strong);
+}
+
+.dl-home__capabilities,
+.dl-home__releases {
+  border-top: 1px solid var(--dl-line);
+  background: var(--dl-surface-muted);
+  padding-block: 3.25rem 4.5rem;
+}
+
+.dl-home__capability-grid,
+.dl-home__release-list {
+  display: grid;
+  gap: 1rem;
+  padding-top: 1.25rem;
+}
+
+.dl-home__capability-grid > div,
+.dl-home__release-list > div {
+  border-bottom: 1px solid var(--dl-line);
+  padding: 0.5rem 0 1.1rem;
+}
+
+.dl-home__capability-grid h3,
+.dl-home__release-list strong {
+  display: block;
+  margin: 0.55rem 0 0;
+  color: var(--dl-ink);
+  font-size: 0.95rem;
+}
+
+.dl-home__capability-grid p,
+.dl-home__release-list p {
+  margin: 0.45rem 0 0;
+  color: var(--dl-muted);
+  font-size: 0.84rem;
+  line-height: 1.6;
+}
+
+.dl-home__release-list span {
+  display: block;
+  margin-top: 0.2rem;
+  color: var(--dl-cool);
+  font-size: 0.72rem;
+}
+
+.dl-not-found {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  padding-block: 4rem;
+}
+
+.dl-not-found__inner > svg {
+  color: var(--dl-cool);
+}
+
+.dl-not-found h1 {
+  margin: 0.8rem 0 0;
+  color: var(--dl-ink);
+  font-size: clamp(2rem, 6vw, 3.5rem);
+  letter-spacing: -0.04em;
+}
+
+.dl-not-found__inner > p:not(.dl-eyebrow) {
+  max-width: 38rem;
+  margin: 1rem 0 0;
+  color: var(--dl-muted);
+  line-height: 1.7;
+}
+
+.dl-not-found nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin-top: 1.5rem;
+}
+
 .dl-home__step {
   color: var(--dl-accent-strong);
   font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
@@ -496,9 +643,14 @@ body {
     grid-column: 1 / -1;
   }
 
-  .dl-home__status-grid,
-  .dl-home__next-grid {
+  .dl-home__status-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .dl-home__next-grid,
+  .dl-home__capability-grid,
+  .dl-home__release-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .dl-home__next-grid article {
@@ -511,11 +663,63 @@ body {
     border-left: 0;
     padding-left: 0;
   }
+
+  .dl-home__capability-grid > div,
+  .dl-home__release-list > div {
+    border-bottom: 0;
+    border-left: 1px solid var(--dl-line);
+    padding-inline: 1rem;
+  }
+
+  .dl-home__capability-grid > div:first-child,
+  .dl-home__release-list > div:first-child {
+    border-left: 0;
+    padding-left: 0;
+  }
 }
 
 @media (min-width: 900px) {
   .dl-home__hero-inner {
     grid-template-columns: minmax(0, 1fr) 20rem;
+    min-height: 36rem;
+    padding-block: 5rem 4rem;
+  }
+
+  .dl-home__hero h1 {
+    font-size: 4.5rem;
+  }
+}
+
+@media (max-width: 639px) {
+  .dl-home__hero::before {
+    background-image: url("/media/hero/dawnlight-preview-mobile.jpg");
+    background-image: image-set(
+      url("/media/hero/dawnlight-preview-mobile.webp") type("image/webp"),
+      url("/media/hero/dawnlight-preview-mobile.jpg") type("image/jpeg")
+    );
+    background-position: center;
+  }
+
+  .dl-home__hero::after {
+    background:
+      linear-gradient(
+        180deg,
+        rgba(3, 8, 8, 0.46) 0%,
+        rgba(3, 8, 8, 0.18) 42%,
+        rgba(3, 8, 8, 0.88) 100%
+      ),
+      linear-gradient(90deg, rgba(3, 8, 8, 0.2), transparent 80%);
+  }
+}
+
+@media (min-width: 1080px) {
+  .dl-home__next-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .dl-home__capability-grid,
+  .dl-home__release-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 

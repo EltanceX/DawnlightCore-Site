@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { CalendarDays, Package } from "lucide-react";
 import { formatDate, releaseFeed } from "@/lib/releases";
 import { supportedLocales } from "@/lib/site";
@@ -6,6 +7,11 @@ import { supportedLocales } from "@/lib/site";
 export function generateStaticParams() {
   return supportedLocales.map((locale) => ({ locale }));
 }
+
+export const metadata: Metadata = {
+  title: "发布记录",
+  description: "DawnlightCore 官方版本、artifact、兼容性和更新记录。",
+};
 
 export default function ReleasesPage() {
   const releases = [...releaseFeed.releases].sort((a, b) =>

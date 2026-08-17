@@ -11,6 +11,23 @@ export const metadata = {
     template: `%s | ${siteConfig.name}`,
   },
   description: siteConfig.description,
+  applicationName: siteConfig.name,
+  category: "developer documentation",
+  robots: siteConfig.previewMode
+    ? { index: false, follow: true, nocache: true }
+    : { index: true, follow: true },
+  openGraph: {
+    type: "website",
+    locale: "zh_CN",
+    siteName: siteConfig.name,
+    title: siteConfig.name,
+    description: siteConfig.description,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: siteConfig.name,
+    description: siteConfig.description,
+  },
 };
 
 export default function Layout({ children }: LayoutProps<"/">) {

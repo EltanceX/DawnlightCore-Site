@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { Download, FileJson, History } from "lucide-react";
 import { DownloadExperience } from "@/components/download-experience";
 import { releaseFeed } from "@/lib/releases";
@@ -7,6 +8,12 @@ import { supportedLocales } from "@/lib/site";
 export function generateStaticParams() {
   return supportedLocales.map((locale) => ({ locale }));
 }
+
+export const metadata: Metadata = {
+  title: "下载",
+  description:
+    "选择 DawnlightCore 官方 artifact，核对平台、架构、图形要求与 SHA-256。",
+};
 
 export default function DownloadsPage() {
   return (

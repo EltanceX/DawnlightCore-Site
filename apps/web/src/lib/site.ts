@@ -2,6 +2,7 @@ export const siteConfig = {
   name: "DawnlightCore",
   description: "面向 Survivalcraft Dawnlight 光影开发者的文档与发布门户。",
   canonicalOrigin: "https://dawnlightcore.example.invalid",
+  previewMode: true,
   defaultLocale: "zh-CN",
   defaultDocsVersion: "preview",
   docsVersions: [

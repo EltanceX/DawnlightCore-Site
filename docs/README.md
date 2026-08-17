@@ -28,6 +28,10 @@
 
 - [实现记录](./WP6-Implementation.md)
 
+## WP7：首页、SEO 与错误页
+
+- [实现记录](./WP7-Implementation.md)
+
 ## ADR
 
 - [ADR-0001：V1 范围与静态发布](./adr/0001-v1-scope-and-static-publishing.md)

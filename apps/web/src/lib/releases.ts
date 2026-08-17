@@ -84,7 +84,7 @@ export type Recommendation = {
   state: "available" | "no-release" | "no-match";
 };
 
-function latestAvailableRelease(feed: ReleaseFeed, channel?: Channel) {
+export function latestAvailableRelease(feed: ReleaseFeed, channel?: Channel) {
   return feed.releases
     .filter(
       (release) =>
