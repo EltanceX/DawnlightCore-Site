@@ -5,6 +5,7 @@
 - [网站整体开发文档](./DawnlightCoreWebsiteDevelopmentPlan.md)
 - [V1 详细实现方案](./DawnlightCoreWebsiteV1ImplementationPlan.md)
 - [V1 当前进度与剩余项](./V1-Progress.md)
+- [V2 详细实现方案](./DawnlightCoreWebsiteV2ImplementationPlan.md)
 
 ## WP0：决策冻结与资产盘点
 
