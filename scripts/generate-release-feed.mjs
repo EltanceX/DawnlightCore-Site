@@ -1,8 +1,10 @@
 import { readFileSync, writeFileSync } from "node:fs";
-import { resolve } from "node:path";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
-const sourcePath = resolve("content/releases/releases.json");
-const outputPath = resolve("apps/web/public/feeds/releases-v1.json");
+const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const sourcePath = resolve(root, "content/releases/releases.json");
+const outputPath = resolve(root, "apps/web/public/feeds/releases-v1.json");
 const source = JSON.parse(readFileSync(sourcePath, "utf8"));
 const sorted = {
   ...source,
