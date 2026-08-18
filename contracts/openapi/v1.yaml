@@ -577,6 +577,75 @@ paths:
         '401': { $ref: '#/components/responses/ApiError' }
         '403': { $ref: '#/components/responses/ApiError' }
         '413': { $ref: '#/components/responses/ApiError' }
+  /api/v1/author/projects/{projectId}/versions/{versionId}/workflow:
+    get:
+      operationId: getAuthorVersionWorkflow
+      security: [{ sessionCookie: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/ProjectId' }
+        - { $ref: '#/components/parameters/AuthorVersionId' }
+      responses:
+        '200':
+          description: Private Loader validation and latest review state.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/VersionWorkflow' }
+        '401': { $ref: '#/components/responses/ApiError' }
+        '403': { $ref: '#/components/responses/ApiError' }
+  /api/v1/author/projects/{projectId}/versions/{versionId}/submit:
+    post:
+      operationId: submitAuthorVersionForReview
+      security: [{ sessionCookie: [] }, { csrfToken: [] }, { idempotencyKey: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/ProjectId' }
+        - { $ref: '#/components/parameters/AuthorVersionId' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [uploadId]
+              properties:
+                uploadId: { type: string, format: uuid }
+      responses:
+        '201':
+          description: Immutable revision submitted after a real Loader pass.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/ReviewSubmission' }
+        '401': { $ref: '#/components/responses/ApiError' }
+        '403': { $ref: '#/components/responses/ApiError' }
+        '409': { $ref: '#/components/responses/ApiError' }
+  /api/v1/author/projects/{projectId}/versions/{versionId}/withdraw:
+    post:
+      operationId: withdrawPublishedAuthorVersion
+      security: [{ sessionCookie: [] }, { csrfToken: [] }, { idempotencyKey: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/ProjectId' }
+        - { $ref: '#/components/parameters/AuthorVersionId' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [reason]
+              properties:
+                reason: { type: string, minLength: 3, maxLength: 4000 }
+      responses:
+        '200': { description: Artifact withdrawn without deleting immutable history. }
+        '401': { $ref: '#/components/responses/ApiError' }
+        '403': { $ref: '#/components/responses/ApiError' }
+        '409': { $ref: '#/components/responses/ApiError' }
   /api/v1/author/uploads/{uploadId}:
     get:
       operationId: getAuthorUpload
@@ -704,6 +773,50 @@ paths:
                     items: { $ref: '#/components/schemas/AuditEventSummary' }
         '401': { $ref: '#/components/responses/ApiError' }
         '403': { $ref: '#/components/responses/ApiError' }
+  /api/v1/reviewer/submissions:
+    get:
+      operationId: listReviewSubmissions
+      security: [{ sessionCookie: [] }]
+      responses:
+        '200':
+          description: Awaiting-review submissions visible to independent reviewers.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/ReviewSubmission' }
+        '401': { $ref: '#/components/responses/ApiError' }
+  /api/v1/reviewer/submissions/{submissionId}/decision:
+    post:
+      operationId: decideReviewSubmission
+      security: [{ sessionCookie: [] }, { csrfToken: [] }, { idempotencyKey: [] }]
+      parameters:
+        - name: submissionId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ReviewDecisionInput' }
+      responses:
+        '200':
+          description: Append-only decision recorded; approval queues immutable publication.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/ReviewSubmission' }
+        '401': { $ref: '#/components/responses/ApiError' }
+        '403': { $ref: '#/components/responses/ApiError' }
+        '409': { $ref: '#/components/responses/ApiError' }
 components:
   securitySchemes:
     sessionCookie:
@@ -1129,7 +1242,9 @@ components:
         projectId: { type: string, format: uuid }
         version: { type: string }
         channel: { type: string, enum: [preview, alpha, beta, stable] }
-        status: { type: string, enum: [draft, changes-requested] }
+        status:
+          type: string
+          enum: [draft, validating, loader-failed, awaiting-review, changes-requested, rejected, approved, publishing, publish-failed, published, withdrawn]
         changelog: { type: string }
         licenseSpdx: { type: [string, 'null'] }
         compatibility:
@@ -1269,6 +1384,84 @@ components:
         uploadId: { type: string, format: uuid }
         status: { type: string, enum: [queued] }
         objectSize: { type: integer }
+    ValidationSection:
+      type: object
+      required: [status, summary]
+      properties:
+        status: { type: string, enum: [passed, failed, declared, unavailable] }
+        summary: { type: string }
+        details: { type: object, additionalProperties: true }
+    LoaderValidationSections:
+      type: object
+      required: [schema, loader, security, resource, compatibility]
+      properties:
+        schema: { $ref: '#/components/schemas/ValidationSection' }
+        loader: { $ref: '#/components/schemas/ValidationSection' }
+        security: { $ref: '#/components/schemas/ValidationSection' }
+        resource: { $ref: '#/components/schemas/ValidationSection' }
+        compatibility: { $ref: '#/components/schemas/ValidationSection' }
+    LoaderValidationReport:
+      type: object
+      required: [status, exitCode, sections, logSummary]
+      properties:
+        status:
+          type: string
+          enum: [loader-passed, loader-failed, security-failed, timed-out, infrastructure-error]
+        exitCode: { type: [integer, 'null'] }
+        sections: { $ref: '#/components/schemas/LoaderValidationSections' }
+        logSummary: { type: string }
+    ReviewValidationSummary:
+      type: object
+      required: [status, coreCommit, cliVersion, validatorImage, inputSha256, sections]
+      properties:
+        status:
+          type: string
+          enum: [queued, running, loader-passed, loader-failed, security-failed, timed-out, infrastructure-error]
+        coreCommit: { type: string, pattern: '^[0-9a-f]{40}$' }
+        cliVersion: { type: string }
+        validatorImage: { type: string }
+        inputSha256: { type: string, pattern: '^[0-9a-f]{64}$' }
+        sections: { $ref: '#/components/schemas/LoaderValidationSections' }
+    ReviewSubmission:
+      type: object
+      required: [id, projectId, projectSlug, projectName, versionId, version, channel, revision, status, uploadId, validationRunId, submittedBy, submittedAt, frozenMetadata, validation]
+      properties:
+        id: { type: string, format: uuid }
+        projectId: { type: string, format: uuid }
+        projectSlug: { type: string }
+        projectName: { type: string }
+        versionId: { type: string, format: uuid }
+        version: { type: string }
+        channel: { type: string, enum: [preview, alpha, beta, stable] }
+        revision: { type: integer, minimum: 1 }
+        status:
+          type: string
+          enum: [awaiting-review, changes-requested, rejected, approved, publishing, publish-failed, published, withdrawn]
+        uploadId: { type: string, format: uuid }
+        validationRunId: { type: string, format: uuid }
+        submittedBy: { type: string, format: uuid }
+        submittedAt: { type: string, format: date-time }
+        frozenMetadata: { type: object, additionalProperties: true }
+        validation: { $ref: '#/components/schemas/ReviewValidationSummary' }
+    VersionWorkflow:
+      type: object
+      required: [uploadId, validation, submission]
+      properties:
+        uploadId: { type: [string, 'null'], format: uuid }
+        validation:
+          oneOf:
+            - { $ref: '#/components/schemas/LoaderValidationReport' }
+            - { type: 'null' }
+        submission:
+          oneOf:
+            - { $ref: '#/components/schemas/ReviewSubmission' }
+            - { type: 'null' }
+    ReviewDecisionInput:
+      type: object
+      required: [decision, reason]
+      properties:
+        decision: { type: string, enum: [approve, reject, request-changes] }
+        reason: { type: string, minLength: 3, maxLength: 4000 }
     InvitationWithToken:
       type: object
       required: [id, email, expiresAt, token]

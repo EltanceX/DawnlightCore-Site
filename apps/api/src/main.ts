@@ -7,6 +7,8 @@ import {
   createDatabasePool,
   createPostgresContractDataService,
   createPostgresUploadDataService,
+  createPostgresPublishingDataService,
+  createPostgresDirectoryDataService,
 } from "@dawnlight/database";
 import {
   createContractDataService,
@@ -79,6 +81,7 @@ const app = await createApp(env, {
   checkObjectStorage: quarantine.check,
   authoring: createPostgresAuthoringDataService(database),
   uploads,
+  publishing: createPostgresPublishingDataService(database),
   quarantine,
   preflightQueue,
   oidc: env.OIDC_ENABLED
@@ -90,14 +93,17 @@ const app = await createApp(env, {
       })
     : undefined,
   contracts,
-  directory: createDirectoryDataService(
-    JSON.parse(
-      readFileSync(
-        resolve(env.CONTRACT_FIXTURE_ROOT, "directory-fixture.json"),
-        "utf8",
-      ),
-    ),
-  ),
+  directory:
+    env.CONTRACT_DATA_SOURCE === "database"
+      ? createPostgresDirectoryDataService(database)
+      : createDirectoryDataService(
+          JSON.parse(
+            readFileSync(
+              resolve(env.CONTRACT_FIXTURE_ROOT, "directory-fixture.json"),
+              "utf8",
+            ),
+          ),
+        ),
 });
 
 const close = async () => {

@@ -12,6 +12,8 @@ import type {
   CompleteLoginInput,
   LoginTransaction,
   SessionPrincipal,
+  PublishingDataService,
+  ReviewSubmission,
 } from "@dawnlight/database";
 import type { OidcClient } from "../src/oidc.js";
 
@@ -182,7 +184,8 @@ describe("API health shell", () => {
       OIDC_REDIRECT_URI: "http://127.0.0.1:4100/api/v1/auth/oidc/callback",
       CORS_ORIGIN: "http://127.0.0.1:3000",
     });
-    const app = await createApp(authEnv, { authoring, oidc });
+    const publishing = createPublishingFixture();
+    const app = await createApp(authEnv, { authoring, oidc, publishing });
     apps.push(app);
 
     const formStart = await app.inject({
@@ -262,6 +265,50 @@ describe("API health shell", () => {
       slug: "test-pack",
       role: "owner",
     });
+
+    const workflow = await app.inject({
+      method: "GET",
+      url: "/api/v1/author/projects/11111111-1111-4111-8111-111111111111/versions/22222222-2222-4222-8222-222222222222/workflow",
+      headers: { cookie: sessionCookie },
+    });
+    expect(workflow.statusCode).toBe(200);
+    expect(workflow.headers["cache-control"]).toBe("private, no-store");
+    expect(workflow.json().data.validation.status).toBe("loader-passed");
+
+    const missingOrigin = await app.inject({
+      method: "POST",
+      url: "/api/v1/author/projects/11111111-1111-4111-8111-111111111111/versions/22222222-2222-4222-8222-222222222222/submit",
+      headers: {
+        cookie: sessionCookie,
+        "x-csrf-token": session.json().data.csrfToken,
+        "idempotency-key": "version-submit-1",
+      },
+      payload: { uploadId: "33333333-3333-4333-8333-333333333333" },
+    });
+    expect(missingOrigin.statusCode).toBe(403);
+    expect(missingOrigin.json().error.code).toBe("OriginRejected");
+
+    const submitted = await app.inject({
+      method: "POST",
+      url: "/api/v1/author/projects/11111111-1111-4111-8111-111111111111/versions/22222222-2222-4222-8222-222222222222/submit",
+      headers: {
+        cookie: sessionCookie,
+        origin: "http://127.0.0.1:3000",
+        "x-csrf-token": session.json().data.csrfToken,
+        "idempotency-key": "version-submit-2",
+      },
+      payload: { uploadId: "33333333-3333-4333-8333-333333333333" },
+    });
+    expect(submitted.statusCode).toBe(201);
+    expect(submitted.json().data.status).toBe("awaiting-review");
+
+    const reviewQueue = await app.inject({
+      method: "GET",
+      url: "/api/v1/reviewer/submissions",
+      headers: { cookie: sessionCookie },
+    });
+    expect(reviewQueue.statusCode).toBe(200);
+    expect(reviewQueue.json().data).toHaveLength(1);
   });
 });
 
@@ -323,6 +370,63 @@ function createAuthoringFixture(
     revokeProjectInvitation: unsupported,
     async listAuditEvents() {
       return [];
+    },
+  };
+}
+
+function createPublishingFixture(): PublishingDataService {
+  const submission: ReviewSubmission = {
+    id: "44444444-4444-4444-8444-444444444444",
+    projectId: "11111111-1111-4111-8111-111111111111",
+    projectSlug: "test-pack",
+    projectName: "Test Pack",
+    versionId: "22222222-2222-4222-8222-222222222222",
+    version: "1.0.0",
+    channel: "preview",
+    revision: 1,
+    status: "awaiting-review",
+    uploadId: "33333333-3333-4333-8333-333333333333",
+    validationRunId: "55555555-5555-4555-8555-555555555555",
+    submittedBy: "66666666-6666-4666-8666-666666666666",
+    submittedAt: new Date(0).toISOString(),
+    frozenMetadata: {},
+    validation: {
+      status: "loader-passed",
+      coreCommit: "de780e826a1a8537cf120600caf68e9d890737ac",
+      cliVersion: "ShaderPackCli/de780e8",
+      validatorImage: `validator@sha256:${"a".repeat(64)}`,
+      inputSha256: "b".repeat(64),
+      sections: {
+        schema: { status: "passed", summary: "schema passed" },
+        loader: { status: "passed", summary: "Loader passed" },
+        security: { status: "passed", summary: "preflight passed" },
+        resource: { status: "passed", summary: "limits passed" },
+        compatibility: { status: "declared", summary: "author declaration" },
+      },
+    },
+  };
+  return {
+    async submitVersion() {
+      return submission;
+    },
+    async listReviewQueue() {
+      return [submission];
+    },
+    async decideReview() {
+      return { ...submission, status: "approved" };
+    },
+    async withdrawVersion() {},
+    async getVersionWorkflow() {
+      return {
+        uploadId: submission.uploadId,
+        validation: {
+          status: "loader-passed",
+          exitCode: 0,
+          sections: submission.validation.sections,
+          logSummary: "valid=true",
+        },
+        submission: null,
+      };
     },
   };
 }

@@ -77,6 +77,10 @@ function storage(buffer: Buffer): WorkerQuarantineStorage {
       })();
     },
     async delete() {},
+    async copyToPublished() {},
+    async headPublished() {
+      return { size: buffer.length, etag: null, sha256: null };
+    },
     async check() {},
   };
 }
@@ -128,6 +132,20 @@ describe("quarantine preflight", () => {
       "shaders/main.glsl",
       "textures/white.png",
     ]);
+  });
+
+  it("accepts safe explicit directory entries without counting them as files", async () => {
+    const buffer = rawZip([
+      ["shaders/", ""],
+      ["shaders/main.glsl", "void main() {}"],
+    ]);
+    const report = await runPreflight(
+      upload(buffer),
+      storage(buffer),
+      baseEnv(),
+    );
+    expect(report.fileCount).toBe(1);
+    expect(report.manifest[0]?.path).toBe("shaders/main.glsl");
   });
 
   it.each([

@@ -15,7 +15,9 @@ import type {
   AuthorUploadCreateResponse,
   AuthorUploadCompleteResponse,
   InvitationWithToken,
+  ReviewSubmission,
   SessionPrincipal,
+  VersionWorkflow,
 } from "@dawnlight/api-client";
 import {
   LogIn,
@@ -56,6 +58,10 @@ export function AuthorWorkspace() {
   );
   const [audit, setAudit] = useState<AuditEventSummary[]>([]);
   const [uploads, setUploads] = useState<Record<string, AuthorUpload>>({});
+  const [workflows, setWorkflows] = useState<Record<string, VersionWorkflow>>(
+    {},
+  );
+  const [reviewQueue, setReviewQueue] = useState<ReviewSubmission[]>([]);
 
   const apiRequest = useCallback(
     async <T,>(path: string, init?: RequestInit): Promise<T> => {
@@ -188,6 +194,20 @@ export function AuthorWorkspace() {
       );
     }
     setUploads((current) => ({ ...current, [version.id]: status }));
+    if (status.status === "passed") {
+      for (let attempt = 0; attempt < 120; attempt++) {
+        const workflow = await apiRequest<VersionWorkflow>(
+          `/api/v1/author/projects/${version.projectId}/versions/${version.id}/workflow`,
+        );
+        setWorkflows((current) => ({ ...current, [version.id]: workflow }));
+        if (
+          workflow.validation &&
+          !["queued", "running"].includes(workflow.validation.status)
+        )
+          break;
+        await new Promise((resolve) => window.setTimeout(resolve, 1000));
+      }
+    }
   };
 
   if (status === "unconfigured") {
@@ -387,8 +407,75 @@ export function AuthorWorkspace() {
           onUpload={(version, file) =>
             runMutation(() => uploadFile(version, file))
           }
+          workflows={workflows}
+          onWorkflow={(version) =>
+            runMutation(async () => {
+              const workflow = await apiRequest<VersionWorkflow>(
+                `/api/v1/author/projects/${selected.id}/versions/${version.id}/workflow`,
+              );
+              setWorkflows((current) => ({
+                ...current,
+                [version.id]: workflow,
+              }));
+            })
+          }
+          onSubmitReview={(version, uploadId) =>
+            runMutation(async () => {
+              const submission = await mutate<ReviewSubmission>(
+                `/api/v1/author/projects/${selected.id}/versions/${version.id}/submit`,
+                "POST",
+                { uploadId },
+              );
+              setWorkflows((current) => ({
+                ...current,
+                [version.id]: {
+                  ...(current[version.id] ?? {
+                    uploadId,
+                    validation: null,
+                  }),
+                  submission,
+                },
+              }));
+              await loadWorkspace();
+            })
+          }
+          onWithdraw={(version, reason) =>
+            runMutation(async () => {
+              await mutate(
+                `/api/v1/author/projects/${selected.id}/versions/${version.id}/withdraw`,
+                "POST",
+                { reason },
+              );
+              await loadWorkspace();
+            })
+          }
         />
       )}
+
+      <ReviewQueuePanel
+        submissions={reviewQueue}
+        onLoad={() =>
+          runMutation(async () => {
+            setReviewQueue(
+              await apiRequest<ReviewSubmission[]>(
+                "/api/v1/reviewer/submissions",
+              ),
+            );
+          })
+        }
+        onDecision={(submission, decision, reason) =>
+          runMutation(async () => {
+            const updated = await mutate<ReviewSubmission>(
+              `/api/v1/reviewer/submissions/${submission.id}/decision`,
+              "POST",
+              { decision, reason },
+            );
+            setReviewQueue((current) =>
+              current.filter((item) => item.id !== updated.id),
+            );
+          })
+        }
+      />
 
       <section className="dl-author-section dl-author-grid">
         <InviteAcceptanceForm
@@ -478,6 +565,10 @@ function ProjectEditor({
   audit,
   uploadStatuses,
   onUpload,
+  workflows,
+  onWorkflow,
+  onSubmitReview,
+  onWithdraw,
 }: {
   project: AuthorProject;
   onVersion: (body: object) => Promise<void>;
@@ -487,6 +578,10 @@ function ProjectEditor({
   audit: AuditEventSummary[];
   uploadStatuses: Record<string, AuthorUpload>;
   onUpload: (version: AuthorVersion, file: File) => Promise<void>;
+  workflows: Record<string, VersionWorkflow>;
+  onWorkflow: (version: AuthorVersion) => Promise<void>;
+  onSubmitReview: (version: AuthorVersion, uploadId: string) => Promise<void>;
+  onWithdraw: (version: AuthorVersion, reason: string) => Promise<void>;
 }) {
   const writable = project.role === "owner" || project.role === "maintainer";
   const submitVersion = async (event: FormEvent<HTMLFormElement>) => {
@@ -642,6 +737,14 @@ function ProjectEditor({
                       upload={uploadStatuses[version.id] ?? null}
                     />
                   )}
+                  <WorkflowPanel
+                    canSubmit={writable}
+                    canWithdraw={project.role === "owner"}
+                    onRefresh={() => onWorkflow(version)}
+                    onSubmit={(uploadId) => onSubmitReview(version, uploadId)}
+                    onWithdraw={(reason) => onWithdraw(version, reason)}
+                    workflow={workflows[version.id] ?? null}
+                  />
                 </article>
               ))
             )}
@@ -770,6 +873,190 @@ function UploadPanel({
         </div>
       )}
     </div>
+  );
+}
+
+function WorkflowPanel({
+  workflow,
+  canSubmit,
+  canWithdraw,
+  onRefresh,
+  onSubmit,
+  onWithdraw,
+}: {
+  workflow: VersionWorkflow | null;
+  canSubmit: boolean;
+  canWithdraw: boolean;
+  onRefresh: () => Promise<void>;
+  onSubmit: (uploadId: string) => Promise<void>;
+  onWithdraw: (reason: string) => Promise<void>;
+}) {
+  const validation = workflow?.validation;
+  const submission = workflow?.submission;
+  const withdraw = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const reason = String(
+      new FormData(event.currentTarget).get("reason") ?? "",
+    ).trim();
+    if (!window.confirm("确认撤回此已发布版本？历史记录和哈希仍会保留。"))
+      return;
+    await onWithdraw(reason);
+  };
+  return (
+    <div className="dl-author-upload-status">
+      <div className="dl-author-inline">
+        <strong>Loader / 审核</strong>
+        <Button onClick={() => void onRefresh()} type="button" variant="quiet">
+          刷新状态
+        </Button>
+      </div>
+      {!workflow && <small>刷新后可恢复 Loader 验证和审核状态。</small>}
+      {validation && (
+        <div>
+          <StatusBadge status={validation.status} />
+          <ul>
+            {Object.entries(validation.sections).map(([name, section]) => (
+              <li key={name}>
+                <strong>{name}</strong> · {section.status}：{section.summary}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {submission && (
+        <p>
+          审核：
+          <StatusBadge status={submission.status} /> · revision{" "}
+          {submission.revision}
+        </p>
+      )}
+      {canSubmit &&
+        workflow?.uploadId &&
+        validation?.status === "loader-passed" &&
+        (!submission ||
+          ["changes-requested", "rejected"].includes(submission.status)) && (
+          <Button
+            onClick={() => void onSubmit(workflow.uploadId!)}
+            type="button"
+            variant="secondary"
+          >
+            提交独立审核
+          </Button>
+        )}
+      {canWithdraw && submission?.status === "published" && (
+        <form onSubmit={(event) => void withdraw(event)}>
+          <label>
+            <span>撤回原因</span>
+            <input minLength={3} name="reason" required />
+          </label>
+          <Button type="submit" variant="secondary">
+            撤回版本
+          </Button>
+        </form>
+      )}
+    </div>
+  );
+}
+
+function ReviewQueuePanel({
+  submissions,
+  onLoad,
+  onDecision,
+}: {
+  submissions: ReviewSubmission[];
+  onLoad: () => Promise<void>;
+  onDecision: (
+    submission: ReviewSubmission,
+    decision: "approve" | "reject" | "request-changes",
+    reason: string,
+  ) => Promise<void>;
+}) {
+  const decide = async (
+    event: FormEvent<HTMLFormElement>,
+    submission: ReviewSubmission,
+  ) => {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    const submitter = event.nativeEvent as SubmitEvent;
+    const decision = (submitter.submitter as HTMLButtonElement | null)
+      ?.value as "approve" | "reject" | "request-changes";
+    const reason = String(form.get("reason") ?? "").trim();
+    if (!decision) return;
+    if (
+      !window.confirm(
+        decision === "approve"
+          ? "确认批准并进入不可变发布队列？"
+          : "确认记录此审核决定？",
+      )
+    )
+      return;
+    await onDecision(submission, decision, reason);
+  };
+  return (
+    <section className="dl-author-section">
+      <div className="dl-author-section__heading">
+        <div>
+          <span>Reviewer</span>
+          <h2>独立审核队列</h2>
+        </div>
+        <Button onClick={() => void onLoad()} type="button" variant="quiet">
+          读取队列
+        </Button>
+      </div>
+      <p>只有项目 reviewer 或 platform-admin 能看到待审项；提交者不能自审。</p>
+      <div className="dl-author-grid">
+        {submissions.map((submission) => (
+          <article className="dl-author-panel" key={submission.id}>
+            <h3>
+              {submission.projectName} {submission.version}
+            </h3>
+            <p>
+              {submission.channel} · revision {submission.revision} ·{" "}
+              {submission.validation.cliVersion}
+            </p>
+            <code>{submission.validation.inputSha256}</code>
+            <ul>
+              {Object.entries(submission.validation.sections).map(
+                ([name, section]) => (
+                  <li key={name}>
+                    <strong>{name}</strong> · {section.status}：
+                    {section.summary}
+                  </li>
+                ),
+              )}
+            </ul>
+            <form onSubmit={(event) => void decide(event, submission)}>
+              <label>
+                <span>审核理由（写入不可变决定）</span>
+                <textarea minLength={3} name="reason" required />
+              </label>
+              <div className="dl-author-inline">
+                <Button name="decision" type="submit" value="approve">
+                  批准
+                </Button>
+                <Button
+                  name="decision"
+                  type="submit"
+                  value="request-changes"
+                  variant="secondary"
+                >
+                  要求修改
+                </Button>
+                <Button
+                  name="decision"
+                  type="submit"
+                  value="reject"
+                  variant="quiet"
+                >
+                  拒绝
+                </Button>
+              </div>
+            </form>
+          </article>
+        ))}
+        {submissions.length === 0 && <p>尚未读取，或当前没有可见的待审项。</p>}
+      </div>
+    </section>
   );
 }
 

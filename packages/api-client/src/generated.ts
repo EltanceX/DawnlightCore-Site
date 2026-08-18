@@ -437,6 +437,54 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/author/projects/{projectId}/versions/{versionId}/workflow": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations["getAuthorVersionWorkflow"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/author/projects/{projectId}/versions/{versionId}/submit": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations["submitAuthorVersionForReview"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/author/projects/{projectId}/versions/{versionId}/withdraw": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations["withdrawPublishedAuthorVersion"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/v1/author/uploads/{uploadId}": {
     parameters: {
       query?: never;
@@ -527,6 +575,38 @@ export interface paths {
     get: operations["listProjectAuditEvents"];
     put?: never;
     post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/reviewer/submissions": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations["listReviewSubmissions"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/reviewer/submissions/{submissionId}/decision": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations["decideReviewSubmission"];
     delete?: never;
     options?: never;
     head?: never;
@@ -792,7 +872,18 @@ export interface components {
       /** @enum {string} */
       channel: "preview" | "alpha" | "beta" | "stable";
       /** @enum {string} */
-      status: "draft" | "changes-requested";
+      status:
+        | "draft"
+        | "validating"
+        | "loader-failed"
+        | "awaiting-review"
+        | "changes-requested"
+        | "rejected"
+        | "approved"
+        | "publishing"
+        | "publish-failed"
+        | "published"
+        | "withdrawn";
       changelog: string;
       licenseSpdx: string | null;
       compatibility: components["schemas"]["AuthorCompatibilityDraft"][];
@@ -921,6 +1012,96 @@ export interface components {
       /** @enum {string} */
       status: "queued";
       objectSize: number;
+    };
+    ValidationSection: {
+      /** @enum {string} */
+      status: "passed" | "failed" | "declared" | "unavailable";
+      summary: string;
+      details?: {
+        [key: string]: unknown;
+      };
+    };
+    LoaderValidationSections: {
+      schema: components["schemas"]["ValidationSection"];
+      loader: components["schemas"]["ValidationSection"];
+      security: components["schemas"]["ValidationSection"];
+      resource: components["schemas"]["ValidationSection"];
+      compatibility: components["schemas"]["ValidationSection"];
+    };
+    LoaderValidationReport: {
+      /** @enum {string} */
+      status:
+        | "loader-passed"
+        | "loader-failed"
+        | "security-failed"
+        | "timed-out"
+        | "infrastructure-error";
+      exitCode: number | null;
+      sections: components["schemas"]["LoaderValidationSections"];
+      logSummary: string;
+    };
+    ReviewValidationSummary: {
+      /** @enum {string} */
+      status:
+        | "queued"
+        | "running"
+        | "loader-passed"
+        | "loader-failed"
+        | "security-failed"
+        | "timed-out"
+        | "infrastructure-error";
+      coreCommit: string;
+      cliVersion: string;
+      validatorImage: string;
+      inputSha256: string;
+      sections: components["schemas"]["LoaderValidationSections"];
+    };
+    ReviewSubmission: {
+      /** Format: uuid */
+      id: string;
+      /** Format: uuid */
+      projectId: string;
+      projectSlug: string;
+      projectName: string;
+      /** Format: uuid */
+      versionId: string;
+      version: string;
+      /** @enum {string} */
+      channel: "preview" | "alpha" | "beta" | "stable";
+      revision: number;
+      /** @enum {string} */
+      status:
+        | "awaiting-review"
+        | "changes-requested"
+        | "rejected"
+        | "approved"
+        | "publishing"
+        | "publish-failed"
+        | "published"
+        | "withdrawn";
+      /** Format: uuid */
+      uploadId: string;
+      /** Format: uuid */
+      validationRunId: string;
+      /** Format: uuid */
+      submittedBy: string;
+      /** Format: date-time */
+      submittedAt: string;
+      frozenMetadata: {
+        [key: string]: unknown;
+      };
+      validation: components["schemas"]["ReviewValidationSummary"];
+    };
+    VersionWorkflow: {
+      /** Format: uuid */
+      uploadId: string | null;
+      validation: components["schemas"]["LoaderValidationReport"] | null;
+      submission: components["schemas"]["ReviewSubmission"] | null;
+    };
+    ReviewDecisionInput: {
+      /** @enum {string} */
+      decision: "approve" | "reject" | "request-changes";
+      reason: string;
     };
     InvitationWithToken: {
       /** Format: uuid */
@@ -1786,6 +1967,98 @@ export interface operations {
       413: components["responses"]["ApiError"];
     };
   };
+  getAuthorVersionWorkflow: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        projectId: components["parameters"]["ProjectId"];
+        versionId: components["parameters"]["AuthorVersionId"];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Private Loader validation and latest review state. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            data: components["schemas"]["VersionWorkflow"];
+          };
+        };
+      };
+      401: components["responses"]["ApiError"];
+      403: components["responses"]["ApiError"];
+    };
+  };
+  submitAuthorVersionForReview: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        projectId: components["parameters"]["ProjectId"];
+        versionId: components["parameters"]["AuthorVersionId"];
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          /** Format: uuid */
+          uploadId: string;
+        };
+      };
+    };
+    responses: {
+      /** @description Immutable revision submitted after a real Loader pass. */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            data: components["schemas"]["ReviewSubmission"];
+          };
+        };
+      };
+      401: components["responses"]["ApiError"];
+      403: components["responses"]["ApiError"];
+      409: components["responses"]["ApiError"];
+    };
+  };
+  withdrawPublishedAuthorVersion: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        projectId: components["parameters"]["ProjectId"];
+        versionId: components["parameters"]["AuthorVersionId"];
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          reason: string;
+        };
+      };
+    };
+    responses: {
+      /** @description Artifact withdrawn without deleting immutable history. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      401: components["responses"]["ApiError"];
+      403: components["responses"]["ApiError"];
+      409: components["responses"]["ApiError"];
+    };
+  };
   getAuthorUpload: {
     parameters: {
       query?: never;
@@ -1954,6 +2227,60 @@ export interface operations {
       };
       401: components["responses"]["ApiError"];
       403: components["responses"]["ApiError"];
+    };
+  };
+  listReviewSubmissions: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Awaiting-review submissions visible to independent reviewers. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            data: components["schemas"]["ReviewSubmission"][];
+          };
+        };
+      };
+      401: components["responses"]["ApiError"];
+    };
+  };
+  decideReviewSubmission: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        submissionId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ReviewDecisionInput"];
+      };
+    };
+    responses: {
+      /** @description Append-only decision recorded; approval queues immutable publication. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            data: components["schemas"]["ReviewSubmission"];
+          };
+        };
+      };
+      401: components["responses"]["ApiError"];
+      403: components["responses"]["ApiError"];
+      409: components["responses"]["ApiError"];
     };
   };
 }

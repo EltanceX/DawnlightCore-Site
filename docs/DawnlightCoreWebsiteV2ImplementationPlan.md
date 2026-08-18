@@ -8,6 +8,8 @@
 
 当前基线：[V1 当前进度与剩余项](./V1-Progress.md)
 
+实现进度：V2-WP0～WP6 已完成，V2-WP7 的 Loader/审核/发布代码已完成并在 arch-vm 验证真实 CLI 隔离运行；生产 Validator 镜像 provenance、Registry digest 和 staging 端到端发布仍是未完成门禁，详见 [V2-WP7 实现记录](./V2-WP7-Implementation.md)。
+
 适用范围：从静态 Preview 开发者门户演进为受控的开发工具、光影目录和邀请制发布平台
 
 ## 1. 结论与版本定位
@@ -574,4 +576,3 @@ V2.2 是否启动由独立决策记录决定，不得把“V2.1 Beta 通过”�
 10. 最后才接入真实 CLI container、审核和 published bucket。
 
 这十项完成前不应开放真实第三方上传，也不应在导航中承诺“社区投稿已开放”。
-

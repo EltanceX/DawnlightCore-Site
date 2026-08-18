@@ -3,7 +3,18 @@ import type { Pool, PoolClient } from "pg";
 export type UserStatus = "active" | "disabled" | "deletion-requested";
 export type ProjectRole = "owner" | "maintainer" | "reviewer";
 export type AuthorProjectStatus = "draft" | "archived";
-export type DraftVersionStatus = "draft" | "changes-requested";
+export type DraftVersionStatus =
+  | "draft"
+  | "validating"
+  | "loader-failed"
+  | "awaiting-review"
+  | "changes-requested"
+  | "rejected"
+  | "approved"
+  | "publishing"
+  | "publish-failed"
+  | "published"
+  | "withdrawn";
 
 export type AuthUser = {
   id: string;
@@ -718,6 +729,13 @@ export class PostgresAuthoringDataService implements AuthoringDataService {
       const row = current.rows[0];
       if (!row)
         throw new AuthoringError("VersionNotFound", "草稿版本不存在。", 404);
+      if (row.status !== "draft" && row.status !== "changes-requested") {
+        throw new AuthoringError(
+          "VersionFrozen",
+          "版本已进入验证或审核流程，不能直接修改；需要修改时请等待审核要求变更。",
+          409,
+        );
+      }
       if (row.revision !== patch.expectedRevision) {
         throw new AuthoringError(
           "DraftRevisionConflict",

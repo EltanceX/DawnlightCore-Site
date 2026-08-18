@@ -42,6 +42,14 @@ export type AuthorUploadCompleteResponse =
 export type PreflightDiagnostic = components["schemas"]["PreflightDiagnostic"];
 export type PreflightManifestEntry =
   components["schemas"]["PreflightManifestEntry"];
+export type ValidationSection = components["schemas"]["ValidationSection"];
+export type LoaderValidationSections =
+  components["schemas"]["LoaderValidationSections"];
+export type LoaderValidationReport =
+  components["schemas"]["LoaderValidationReport"];
+export type ReviewSubmission = components["schemas"]["ReviewSubmission"];
+export type VersionWorkflow = components["schemas"]["VersionWorkflow"];
+export type ReviewDecisionInput = components["schemas"]["ReviewDecisionInput"];
 export type ApiError = components["schemas"]["ApiError"];
 
 export type { components, operations, paths } from "./generated.js";

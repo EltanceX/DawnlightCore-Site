@@ -10,6 +10,13 @@ export const quarantineCleanupQueueName =
   "dawnlight.quarantine.cleanup.v1" as const;
 export const preflightDeadLetterQueueName =
   "dawnlight.preflight.dead-letter.v1" as const;
+export const loaderValidationQueueName =
+  "dawnlight.loader-validation.v1" as const;
+export const loaderValidationDeadLetterQueueName =
+  "dawnlight.loader-validation.dead-letter.v1" as const;
+export const publicationQueueName = "dawnlight.publication.v1" as const;
+export const publicationDeadLetterQueueName =
+  "dawnlight.publication.dead-letter.v1" as const;
 
 export type UploadStatus =
   | "created"
@@ -450,6 +457,20 @@ export class PostgresUploadDataService
           updated_at = now() where id = $1`,
         [uploadId, status, failedRetentionSeconds],
       );
+      if (accepted) {
+        await client.query(
+          `insert into loader_job_outbox(upload_id) values ($1)
+           on conflict (upload_id) do update set dispatched_at = null`,
+          [uploadId],
+        );
+        await client.query(
+          `update author_project_versions v set status = 'validating', updated_at = now()
+           from upload_sessions u
+           where u.id = $1 and v.id = u.project_version_id
+             and v.status in ('draft', 'changes-requested', 'loader-failed')`,
+          [uploadId],
+        );
+      }
       await client.query("commit");
     } catch (error) {
       await client.query("rollback");

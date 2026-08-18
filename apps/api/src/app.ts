@@ -37,6 +37,7 @@ export type ApiDependencies = {
   uploads?: import("@dawnlight/database").UploadDataService;
   quarantine?: QuarantineStorage;
   preflightQueue?: PreflightQueue;
+  publishing?: import("@dawnlight/database").PublishingDataService;
 };
 
 const apiVersion = "0.1.0";
@@ -160,6 +161,7 @@ export async function createApp(
       dependencies.uploads,
       dependencies.quarantine,
       dependencies.preflightQueue,
+      dependencies.publishing,
     );
   }
 

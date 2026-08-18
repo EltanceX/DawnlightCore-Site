@@ -55,7 +55,7 @@ function diagnostic(
   return { code, path, message, severity };
 }
 
-function normalizeEntryPath(raw: string): string {
+export function normalizeEntryPath(raw: string): string {
   if (
     !raw ||
     raw.includes("\0") ||
@@ -78,7 +78,7 @@ function normalizeEntryPath(raw: string): string {
   return normalized;
 }
 
-function isLinkOrDevice(entry: Entry): boolean {
+export function isLinkOrDevice(entry: Entry): boolean {
   const platform = entry.versionMadeBy >> 8;
   if (platform !== 3) return false;
   const mode = (entry.externalFileAttributes >>> 16) & 0xffff;
@@ -196,6 +196,7 @@ async function inspectZip(
 }> {
   const file = await openZip(zipPath);
   const seen = new Set<string>();
+  const seenDirectories = new Set<string>();
   const manifest: PreflightManifestEntry[] = [];
   const diagnostics: PreflightDiagnostic[] = [];
   let fileCount = 0;
@@ -216,6 +217,29 @@ async function inspectZip(
     file.on("entry", async (entry) => {
       if (settled) return;
       try {
+        if (entry.fileName.endsWith("/")) {
+          let directoryPath: string;
+          try {
+            directoryPath = normalizeEntryPath(entry.fileName.slice(0, -1));
+          } catch (error) {
+            fail("PathUnsafe", entry.fileName, (error as Error).message);
+          }
+          if (isLinkOrDevice(entry))
+            fail(
+              "LinkOrDevice",
+              directoryPath!,
+              "symbolic links and device entries are not allowed",
+            );
+          const canonicalDirectory = directoryPath!.toLocaleLowerCase("en-US");
+          if (
+            seen.has(canonicalDirectory) ||
+            seenDirectories.has(canonicalDirectory)
+          )
+            fail("DuplicatePath", directoryPath!, "duplicate canonical path");
+          seenDirectories.add(canonicalDirectory);
+          file.readEntry();
+          return;
+        }
         let path: string;
         try {
           path = normalizeEntryPath(entry.fileName);
@@ -229,7 +253,7 @@ async function inspectZip(
             "symbolic links and device entries are not allowed",
           );
         const canonical = path!.toLocaleLowerCase("en-US");
-        if (seen.has(canonical))
+        if (seen.has(canonical) || seenDirectories.has(canonical))
           fail("DuplicatePath", path!, "duplicate canonical path");
         seen.add(canonical);
         fileCount++;

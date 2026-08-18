@@ -1,0 +1,16 @@
+# syntax=docker/dockerfile:1.7
+# Build context must contain a trusted `dotnet publish` output produced by Core CI.
+FROM mcr.microsoft.com/dotnet/runtime:10.0-noble-chiseled
+ARG CORE_COMMIT
+ARG PUBLISH_SHA256
+LABEL org.opencontainers.image.title="Dawnlight ShaderPackCli Validator" \
+      org.opencontainers.image.revision="$CORE_COMMIT" \
+      org.opencontainers.image.source="DawnlightCore" \
+      io.dawnlight.validator.publish-sha256="$PUBLISH_SHA256"
+ENV DOTNET_EnableDiagnostics=0 \
+    DOTNET_CLI_TELEMETRY_OPTOUT=1 \
+    DOTNET_NOLOGO=1
+WORKDIR /validator
+COPY --chown=65532:65532 . ./
+USER 65532:65532
+ENTRYPOINT ["dotnet", "/validator/shaderpack.dll"]

@@ -21,3 +21,5 @@ export {
 } from "./contracts.js";
 export * from "./authoring.js";
 export * from "./uploads.js";
+export * from "./publishing.js";
+export * from "./directory.js";

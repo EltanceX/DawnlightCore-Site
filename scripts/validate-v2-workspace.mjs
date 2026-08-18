@@ -16,6 +16,7 @@ const requiredFiles = [
   "packages/database/migrations/0003_directory.sql",
   "packages/database/migrations/0004_authoring.sql",
   "packages/database/migrations/0005_upload_preflight.sql",
+  "packages/database/migrations/0006_loader_review_publish.sql",
   "packages/database/scripts/seed-directory.mjs",
   "packages/database/scripts/seed-authoring.mjs",
   "packages/api-client/src/index.ts",
@@ -46,6 +47,15 @@ const requiredFiles = [
   "apps/worker/src/preflight.ts",
   "apps/worker/src/storage.ts",
   "apps/worker/src/preflight.test.ts",
+  "apps/worker/src/validator.ts",
+  "apps/worker/src/validator.test.ts",
+  "apps/worker/src/publication.ts",
+  "apps/worker/src/publication.test.ts",
+  "packages/database/src/publishing.ts",
+  "packages/database/src/directory.ts",
+  "infra/validator/Dockerfile",
+  "infra/validator/Dockerfile.prepublished",
+  "infra/validator/README.md",
 ];
 
 const missing = requiredFiles.filter((file) => !existsSync(resolve(file)));
@@ -97,7 +107,11 @@ const openapi = parseYaml(
 if (
   !openapi?.paths?.["/health/live"] ||
   !openapi?.paths?.["/health/ready"] ||
-  !openapi?.paths?.["/api/v1/author/uploads/{uploadId}/complete"]
+  !openapi?.paths?.["/api/v1/author/uploads/{uploadId}/complete"] ||
+  !openapi?.paths?.[
+    "/api/v1/author/projects/{projectId}/versions/{versionId}/submit"
+  ] ||
+  !openapi?.paths?.["/api/v1/reviewer/submissions/{submissionId}/decision"]
 ) {
   console.error(
     "V2 OpenAPI bootstrap must define live and ready health paths.",
@@ -117,6 +131,12 @@ for (const key of [
   "UPLOAD_MAX_BYTES",
   "PREFLIGHT_MAX_EXTRACTED_BYTES",
   "PREFLIGHT_RETRY_LIMIT",
+  "LOADER_VALIDATOR_ENABLED",
+  "LOADER_CORE_COMMIT",
+  "PUBLISHED_PUBLIC_BASE_URL",
+  "RELEASE_FEED_SIGNING_KEY_ID",
+  "PUBLICATION_RETRY_LIMIT",
+  "PUBLICATION_TIMEOUT_SECONDS",
 ]) {
   if (!envExample.includes(`${key}=`)) {
     console.error(`.env.example is missing ${key}.`);
@@ -124,6 +144,20 @@ for (const key of [
   }
 }
 
+const validatorDockerfile = readFileSync(
+  resolve("infra/validator/Dockerfile"),
+  "utf8",
+);
+for (const boundary of [
+  "USER 65532:65532",
+  'ENTRYPOINT ["dotnet", "/validator/shaderpack.dll"]',
+]) {
+  if (!validatorDockerfile.includes(boundary)) {
+    console.error(`Validator image is missing boundary: ${boundary}`);
+    process.exit(1);
+  }
+}
+
 console.log(
-  "V2 workspace validation passed through WP6 (quarantine upload and preflight worker).",
+  "V2 workspace validation passed through WP7 (isolated Loader, review and immutable publication).",
 );

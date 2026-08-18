@@ -8,6 +8,7 @@ import {
   type MutationContext,
   type SessionPrincipal,
   type UploadDataService,
+  type PublishingDataService,
 } from "@dawnlight/database";
 import type { OidcClient } from "./oidc.js";
 import type { QuarantineStorage } from "./storage.js";
@@ -178,6 +179,7 @@ export function registerAuthoringRoutes(
   uploads?: UploadDataService,
   quarantine?: QuarantineStorage,
   preflightQueue?: PreflightQueue,
+  publishing?: PublishingDataService,
 ): void {
   const secureCookies =
     env.APP_ENV === "staging" || env.APP_ENV === "production";
@@ -504,6 +506,94 @@ export function registerAuthoringRoutes(
             objectSize: completed.objectSize,
           },
         });
+      },
+    );
+  }
+
+  if (publishing) {
+    app.get<{ Params: { projectId: string; versionId: string } }>(
+      "/api/v1/author/projects/:projectId/versions/:versionId/workflow",
+      async (request, reply) => {
+        const principal = await requireSession(request);
+        const workflow = await publishing.getVersionWorkflow(
+          principal.user.id,
+          request.params.projectId,
+          request.params.versionId,
+        );
+        return reply
+          .header("cache-control", "private, no-store")
+          .send({ data: workflow });
+      },
+    );
+
+    app.post<{ Params: { projectId: string; versionId: string } }>(
+      "/api/v1/author/projects/:projectId/versions/:versionId/submit",
+      async (request, reply) => {
+        const principal = await requireMutation(request);
+        const body = parseBody(
+          z.object({ uploadId: z.string().uuid() }),
+          request.body,
+        );
+        const submission = await publishing.submitVersion(
+          requestMutationContext(request, principal),
+          request.params.projectId,
+          request.params.versionId,
+          body.uploadId,
+        );
+        return reply
+          .header("cache-control", "private, no-store")
+          .code(201)
+          .send({ data: submission });
+      },
+    );
+
+    app.get("/api/v1/reviewer/submissions", async (request, reply) => {
+      const principal = await requireSession(request);
+      return reply.header("cache-control", "private, no-store").send({
+        data: await publishing.listReviewQueue(principal.user.id),
+      });
+    });
+
+    app.post<{ Params: { submissionId: string } }>(
+      "/api/v1/reviewer/submissions/:submissionId/decision",
+      async (request, reply) => {
+        const principal = await requireMutation(request);
+        const body = parseBody(
+          z.object({
+            decision: z.enum(["approve", "reject", "request-changes"]),
+            reason: z.string().trim().min(3).max(4000),
+          }),
+          request.body,
+        );
+        const submission = await publishing.decideReview(
+          requestMutationContext(request, principal),
+          request.params.submissionId,
+          body.decision,
+          body.reason,
+        );
+        return reply
+          .header("cache-control", "private, no-store")
+          .send({ data: submission });
+      },
+    );
+
+    app.post<{ Params: { projectId: string; versionId: string } }>(
+      "/api/v1/author/projects/:projectId/versions/:versionId/withdraw",
+      async (request, reply) => {
+        const principal = await requireMutation(request);
+        const body = parseBody(
+          z.object({ reason: z.string().trim().min(3).max(4000) }),
+          request.body,
+        );
+        await publishing.withdrawVersion(
+          requestMutationContext(request, principal),
+          request.params.projectId,
+          request.params.versionId,
+          body.reason,
+        );
+        return reply
+          .header("cache-control", "private, no-store")
+          .send({ data: { withdrawn: true } });
       },
     );
   }
