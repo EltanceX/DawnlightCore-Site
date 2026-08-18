@@ -35,7 +35,7 @@ services:
       retries: 10
 
   minio-init:
-    image: minio/mc:RELEASE.2024-06-13T19-24-21Z
+    image: minio/mc:RELEASE.2024-11-21T17-21-54Z
     depends_on:
       minio:
         condition: service_healthy

@@ -65,6 +65,18 @@ CPU、内存、无网络、非 root、只读根文件系统属于 Worker 容器/
 
 API 现有 WP5 测试继续验证未配置作者依赖时的静态健康与鉴权；端点合同同步至 `contracts/openapi/v1.yaml` 并重新生成 `packages/api-client/src/generated.ts`。在具备 Compose 的环境还应补跑 MinIO HEAD/PUT、PostgreSQL migration、pg-boss retry/dead-letter 和真实 bucket policy smoke。
 
+### arch-vm Docker 演练（2026-08-18）
+
+已在 `192.168.137.202`（Docker 29.5.2、Compose 5.1.4）使用隔离项目名 `dawnlight-wp6-test` 完成基础设施 smoke：
+
+* `docker compose ... config --quiet` 通过；由于 VM 上已有服务占用默认端口，演练临时将宿主端口映射为 `65000`（MinIO API）、`65001`（MinIO Console）、`65002`（OIDC）、`65032`（PostgreSQL），未触碰原有项目；
+* PostgreSQL 16.4、MinIO、mock OIDC 均启动，MinIO health 为 HTTP 200，OIDC discovery 为 HTTP 200；
+* `0001`–`0005` migration 全部执行成功，`upload_sessions` 与 `preflight_runs` 表可查询；
+* `minio-init` 以退出码 0 创建 `dawnlight-quarantine`、`dawnlight-published`、`dawnlight-derived`，并将三者 anonymous policy 设置为 `private`；匿名访问 quarantine 对象返回 HTTP 403；
+* `minio/mc` sidecar 固定为可用的 `RELEASE.2024-11-21T17-21-54Z` 标签（原 `2024-06-13` 标签不存在）。
+
+本次只验证依赖容器、迁移和 bucket 安全边界；API/Worker 应用容器未纳入该开发 Compose，真实 S3 直传、pg-boss 消费和 Loader 隔离仍需在带应用镜像的 staging 演练中验收。
+
 ## 变更清单
 
 * 配置：上传 URL/session TTL、大小/解压/文件数/JSON/图片/压缩比/超时/重试/回收上限；
@@ -83,5 +95,4 @@ API 现有 WP5 测试继续验证未配置作者依赖时的静态健康与鉴�
 | 正常包生成可重复报告 | 已由 Worker Vitest 覆盖 |
 | API 不接收大文件 body | API 仅 JSON 创建/完成；正文直传对象存储 |
 | quarantine 不产生公开 URL | 公开目录/DTO 不读取上传 object key；bucket 初始化为 `anonymous none` |
-| 真实 Compose 演练 | 待在 Docker CLI 环境执行 |
-
+| 真实 Compose 演练 | arch-vm 基础设施 smoke 已通过；应用镜像级 staging 演练待后续 |
