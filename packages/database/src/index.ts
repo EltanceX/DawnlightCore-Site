@@ -20,3 +20,4 @@ export {
   type ContractIngestResult,
 } from "./contracts.js";
 export * from "./authoring.js";
+export * from "./uploads.js";

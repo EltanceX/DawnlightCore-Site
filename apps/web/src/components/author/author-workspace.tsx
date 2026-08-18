@@ -11,6 +11,9 @@ import type {
   AuditEventSummary,
   AuthorProject,
   AuthorVersion,
+  AuthorUpload,
+  AuthorUploadCreateResponse,
+  AuthorUploadCompleteResponse,
   InvitationWithToken,
   SessionPrincipal,
 } from "@dawnlight/api-client";
@@ -52,6 +55,7 @@ export function AuthorWorkspace() {
     null,
   );
   const [audit, setAudit] = useState<AuditEventSummary[]>([]);
+  const [uploads, setUploads] = useState<Record<string, AuthorUpload>>({});
 
   const apiRequest = useCallback(
     async <T,>(path: string, init?: RequestInit): Promise<T> => {
@@ -139,6 +143,51 @@ export function AuthorWorkspace() {
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "操作失败");
     }
+  };
+
+  const uploadFile = async (version: AuthorVersion, file: File) => {
+    if (!session) throw new Error("会话尚未建立");
+    const created = await mutate<AuthorUploadCreateResponse>(
+      `/api/v1/author/projects/${version.projectId}/versions/${version.id}/uploads`,
+      "POST",
+      {
+        fileName: file.name,
+        size: file.size,
+        contentType: file.type || "application/zip",
+      },
+    );
+    await new Promise<void>((resolve, reject) => {
+      const request = new XMLHttpRequest();
+      request.open("PUT", created.uploadUrl);
+      request.setRequestHeader("content-type", file.type || "application/zip");
+      request.onload = () =>
+        request.status >= 200 && request.status < 300
+          ? resolve()
+          : reject(new Error(`隔离区直传失败（HTTP ${request.status}）`));
+      request.onerror = () => reject(new Error("隔离区直传网络错误"));
+      request.send(file);
+    });
+    const completed = await mutate<AuthorUploadCompleteResponse>(
+      `/api/v1/author/uploads/${created.uploadId}/complete`,
+      "POST",
+      {},
+    );
+    let status = await apiRequest<AuthorUpload>(
+      `/api/v1/author/uploads/${completed.uploadId}`,
+    );
+    for (let attempt = 0; attempt < 60; attempt++) {
+      if (
+        ["passed", "rejected", "infrastructure-error", "expired"].includes(
+          status.status,
+        )
+      )
+        break;
+      await new Promise((resolve) => window.setTimeout(resolve, 1000));
+      status = await apiRequest<AuthorUpload>(
+        `/api/v1/author/uploads/${completed.uploadId}`,
+      );
+    }
+    setUploads((current) => ({ ...current, [version.id]: status }));
   };
 
   if (status === "unconfigured") {
@@ -334,6 +383,10 @@ export function AuthorWorkspace() {
             })
           }
           project={selected}
+          uploadStatuses={uploads}
+          onUpload={(version, file) =>
+            runMutation(() => uploadFile(version, file))
+          }
         />
       )}
 
@@ -423,6 +476,8 @@ function ProjectEditor({
   invitation,
   onAudit,
   audit,
+  uploadStatuses,
+  onUpload,
 }: {
   project: AuthorProject;
   onVersion: (body: object) => Promise<void>;
@@ -430,6 +485,8 @@ function ProjectEditor({
   invitation: InvitationWithToken | null;
   onAudit: () => Promise<void>;
   audit: AuditEventSummary[];
+  uploadStatuses: Record<string, AuthorUpload>;
+  onUpload: (version: AuthorVersion, file: File) => Promise<void>;
 }) {
   const writable = project.role === "owner" || project.role === "maintainer";
   const submitVersion = async (event: FormEvent<HTMLFormElement>) => {
@@ -579,6 +636,12 @@ function ProjectEditor({
                     {version.artifactDeclarations.length} 个 artifact
                     预声明；未上传、未验证
                   </small>
+                  {writable && (
+                    <UploadPanel
+                      onUpload={(file) => onUpload(version, file)}
+                      upload={uploadStatuses[version.id] ?? null}
+                    />
+                  )}
                 </article>
               ))
             )}
@@ -649,6 +712,64 @@ function TeamInvitationForm({
       </Button>
       {invitation?.projectId && <TokenResult invitation={invitation} />}
     </form>
+  );
+}
+
+function UploadPanel({
+  upload,
+  onUpload,
+}: {
+  upload: AuthorUpload | null;
+  onUpload: (file: File) => Promise<void>;
+}) {
+  const [busy, setBusy] = useState(false);
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const input = event.currentTarget.elements.namedItem("shaderArchive");
+    if (!(input instanceof HTMLInputElement) || !input.files?.[0]) return;
+    setBusy(true);
+    try {
+      await onUpload(input.files[0]);
+      event.currentTarget.reset();
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <div className="dl-author-upload">
+      <form onSubmit={(event) => void submit(event)}>
+        <label>
+          <span>上传 .zip 到隔离区</span>
+          <input
+            accept=".zip,application/zip"
+            name="shaderArchive"
+            type="file"
+          />
+        </label>
+        <Button disabled={busy} type="submit" variant="secondary">
+          {busy ? "直传并预检中…" : "开始直传"}
+        </Button>
+      </form>
+      {upload && (
+        <div className="dl-author-upload-status" role="status">
+          <StatusBadge status={upload.status} />
+          <span>
+            {upload.fileName} · {upload.objectSize ?? upload.expectedSize} bytes
+          </span>
+          {upload.inputSha256 && <code>{upload.inputSha256}</code>}
+          {upload.diagnostics.length > 0 && (
+            <ul>
+              {upload.diagnostics.slice(0, 5).map((item) => (
+                <li key={`${item.code}-${item.path ?? "root"}`}>
+                  <strong>{item.code}</strong>：{item.message}
+                  {item.path && <code> {item.path}</code>}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+    </div>
   );
 }
 

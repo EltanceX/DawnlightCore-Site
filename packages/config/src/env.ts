@@ -36,6 +36,26 @@ export const serverEnvSchema = z.object({
   AUTH_COOKIE_SECRET: z.string().min(32),
   AUTH_SESSION_TTL_SECONDS: z.coerce.number().int().min(300).max(2592000),
   AUTH_LOGIN_TTL_SECONDS: z.coerce.number().int().min(60).max(1800),
+  UPLOAD_URL_TTL_SECONDS: z.coerce.number().int().min(60).max(3600),
+  UPLOAD_SESSION_TTL_SECONDS: z.coerce.number().int().min(300).max(86400),
+  UPLOAD_MAX_BYTES: z.coerce.number().int().min(1024).max(536870912),
+  PREFLIGHT_MAX_EXTRACTED_BYTES: z.coerce
+    .number()
+    .int()
+    .min(1024)
+    .max(2147483648),
+  PREFLIGHT_MAX_FILES: z.coerce.number().int().min(1).max(20000),
+  PREFLIGHT_MAX_JSON_BYTES: z.coerce.number().int().min(1024).max(16777216),
+  PREFLIGHT_MAX_IMAGE_BYTES: z.coerce.number().int().min(1024).max(67108864),
+  PREFLIGHT_MAX_IMAGE_PIXELS: z.coerce.number().int().min(1).max(268435456),
+  PREFLIGHT_MAX_COMPRESSION_RATIO: z.coerce.number().min(1).max(1000),
+  PREFLIGHT_TIMEOUT_SECONDS: z.coerce.number().int().min(10).max(1800),
+  PREFLIGHT_RETRY_LIMIT: z.coerce.number().int().min(0).max(10),
+  QUARANTINE_FAILED_RETENTION_SECONDS: z.coerce
+    .number()
+    .int()
+    .min(60)
+    .max(2592000),
 });
 
 export type ServerEnv = z.infer<typeof serverEnvSchema>;
@@ -68,6 +88,18 @@ const defaults = {
   AUTH_COOKIE_SECRET: "dawnlight-local-cookie-key-change-before-use",
   AUTH_SESSION_TTL_SECONDS: "28800",
   AUTH_LOGIN_TTL_SECONDS: "600",
+  UPLOAD_URL_TTL_SECONDS: "900",
+  UPLOAD_SESSION_TTL_SECONDS: "3600",
+  UPLOAD_MAX_BYTES: "536870912",
+  PREFLIGHT_MAX_EXTRACTED_BYTES: "805306368",
+  PREFLIGHT_MAX_FILES: "4096",
+  PREFLIGHT_MAX_JSON_BYTES: "2097152",
+  PREFLIGHT_MAX_IMAGE_BYTES: "16777216",
+  PREFLIGHT_MAX_IMAGE_PIXELS: "67108864",
+  PREFLIGHT_MAX_COMPRESSION_RATIO: "200",
+  PREFLIGHT_TIMEOUT_SECONDS: "120",
+  PREFLIGHT_RETRY_LIMIT: "2",
+  QUARANTINE_FAILED_RETENTION_SECONDS: "86400",
 } as const;
 
 export function parseServerEnv(

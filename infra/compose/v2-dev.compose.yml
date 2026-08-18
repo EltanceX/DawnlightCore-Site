@@ -34,6 +34,21 @@ services:
       timeout: 3s
       retries: 10
 
+  minio-init:
+    image: minio/mc:RELEASE.2024-06-13T19-24-21Z
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: ["/bin/sh", "-c"]
+    command: >-
+      "mc alias set local http://minio:9000 dawnlight-local dawnlight-local-secret &&
+      mc mb --ignore-existing local/dawnlight-quarantine &&
+      mc mb --ignore-existing local/dawnlight-published &&
+      mc mb --ignore-existing local/dawnlight-derived &&
+      mc anonymous set none local/dawnlight-quarantine &&
+      mc anonymous set none local/dawnlight-published &&
+      mc anonymous set none local/dawnlight-derived"
+
   oidc:
     image: ghcr.io/navikt/mock-oauth2-server:4.0.0
     ports:

@@ -551,6 +551,71 @@ paths:
         '401': { $ref: '#/components/responses/ApiError' }
         '403': { $ref: '#/components/responses/ApiError' }
         '409': { $ref: '#/components/responses/ApiError' }
+  /api/v1/author/projects/{projectId}/versions/{versionId}/uploads:
+    post:
+      operationId: createAuthorUpload
+      security: [{ sessionCookie: [] }, { csrfToken: [] }, { idempotencyKey: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/ProjectId' }
+        - { $ref: '#/components/parameters/AuthorVersionId' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AuthorUploadInput' }
+      responses:
+        '201':
+          description: Short-lived single-object PUT URL for quarantine storage.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/AuthorUploadCreateResponse' }
+        '400': { $ref: '#/components/responses/ApiError' }
+        '401': { $ref: '#/components/responses/ApiError' }
+        '403': { $ref: '#/components/responses/ApiError' }
+        '413': { $ref: '#/components/responses/ApiError' }
+  /api/v1/author/uploads/{uploadId}:
+    get:
+      operationId: getAuthorUpload
+      security: [{ sessionCookie: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/UploadId' }
+      responses:
+        '200':
+          description: Private upload and preflight status. Never publicly cache.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/AuthorUpload' }
+        '401': { $ref: '#/components/responses/ApiError' }
+        '403': { $ref: '#/components/responses/ApiError' }
+        '404': { $ref: '#/components/responses/ApiError' }
+  /api/v1/author/uploads/{uploadId}/complete:
+    post:
+      operationId: completeAuthorUpload
+      security: [{ sessionCookie: [] }, { csrfToken: [] }, { idempotencyKey: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/UploadId' }
+      responses:
+        '200':
+          description: Object-storage HEAD verified and preflight queued.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/AuthorUploadCompleteResponse' }
+        '401': { $ref: '#/components/responses/ApiError' }
+        '403': { $ref: '#/components/responses/ApiError' }
+        '409': { $ref: '#/components/responses/ApiError' }
+        '410': { $ref: '#/components/responses/ApiError' }
   /api/v1/author/projects/{projectId}/invitations:
     post:
       operationId: createProjectInvitation
@@ -724,6 +789,11 @@ components:
       schema: { type: string, format: uuid }
     AuthorVersionId:
       name: versionId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    UploadId:
+      name: uploadId
       in: path
       required: true
       schema: { type: string, format: uuid }
@@ -1133,6 +1203,72 @@ components:
           type: array
           maxItems: 16
           items: { $ref: '#/components/schemas/AuthorArtifactDeclaration' }
+    AuthorUploadInput:
+      type: object
+      required: [fileName, size, contentType]
+      properties:
+        fileName: { type: string, maxLength: 160, pattern: '^.+\\.zip$' }
+        size: { type: integer, minimum: 1, maximum: 536870912 }
+        contentType:
+          type: string
+          enum: [application/zip, application/x-zip-compressed, application/octet-stream]
+    AuthorUploadCreateResponse:
+      type: object
+      required: [uploadId, method, uploadUrl, expiresAt, maxBytes, requiredHeaders]
+      properties:
+        uploadId: { type: string, format: uuid }
+        method: { type: string, enum: [PUT] }
+        uploadUrl: { type: string, format: uri }
+        expiresAt: { type: string, format: date-time }
+        maxBytes: { type: integer }
+        requiredHeaders:
+          type: object
+          required: [content-type]
+          properties:
+            content-type: { type: string }
+    PreflightDiagnostic:
+      type: object
+      required: [code, severity, path, message]
+      properties:
+        code: { type: string }
+        severity: { type: string, enum: [error, warning] }
+        path: { type: [string, 'null'] }
+        message: { type: string }
+    PreflightManifestEntry:
+      type: object
+      required: [path, size, compressedSize, sha256]
+      properties:
+        path: { type: string }
+        size: { type: integer }
+        compressedSize: { type: integer }
+        sha256: { type: string, pattern: '^[0-9a-f]{64}$' }
+    AuthorUpload:
+      type: object
+      required: [id, projectId, versionId, fileName, expectedSize, contentType, status, expiresAt, objectSize, inputSha256, fileCount, extractedSize, manifest, diagnostics, createdAt, updatedAt]
+      properties:
+        id: { type: string, format: uuid }
+        projectId: { type: string, format: uuid }
+        versionId: { type: string, format: uuid }
+        fileName: { type: string }
+        expectedSize: { type: integer }
+        contentType: { type: string }
+        status: { type: string, enum: [created, queued, inspecting, passed, rejected, infrastructure-error, expired] }
+        expiresAt: { type: string, format: date-time }
+        objectSize: { type: [integer, 'null'] }
+        inputSha256: { type: [string, 'null'], pattern: '^[0-9a-f]{64}$' }
+        fileCount: { type: [integer, 'null'] }
+        extractedSize: { type: [integer, 'null'] }
+        manifest: { type: array, items: { $ref: '#/components/schemas/PreflightManifestEntry' } }
+        diagnostics: { type: array, items: { $ref: '#/components/schemas/PreflightDiagnostic' } }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    AuthorUploadCompleteResponse:
+      type: object
+      required: [uploadId, status, objectSize]
+      properties:
+        uploadId: { type: string, format: uuid }
+        status: { type: string, enum: [queued] }
+        objectSize: { type: integer }
     InvitationWithToken:
       type: object
       required: [id, email, expiresAt, token]

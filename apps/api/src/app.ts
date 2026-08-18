@@ -24,6 +24,8 @@ import { registerContractRoutes } from "./contracts.js";
 import { registerDirectoryRoutes } from "./directory.js";
 import { registerAuthoringRoutes } from "./authoring.js";
 import type { OidcClient } from "./oidc.js";
+import type { QuarantineStorage } from "./storage.js";
+import type { PreflightQueue } from "./queue.js";
 
 export type ApiDependencies = {
   database?: Pool;
@@ -32,6 +34,9 @@ export type ApiDependencies = {
   directory?: DirectoryDataService;
   authoring?: AuthoringDataService;
   oidc?: OidcClient;
+  uploads?: import("@dawnlight/database").UploadDataService;
+  quarantine?: QuarantineStorage;
+  preflightQueue?: PreflightQueue;
 };
 
 const apiVersion = "0.1.0";
@@ -152,6 +157,9 @@ export async function createApp(
       env,
       dependencies.authoring,
       dependencies.oidc,
+      dependencies.uploads,
+      dependencies.quarantine,
+      dependencies.preflightQueue,
     );
   }
 

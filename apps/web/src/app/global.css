@@ -2343,6 +2343,52 @@ html > body[data-scroll-locked] {
   border-bottom: 1px solid var(--dl-border);
 }
 
+.dl-author-upload {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 0.55rem;
+  margin-top: 0.35rem;
+  padding-top: 0.55rem;
+  border-top: 1px dashed var(--dl-border);
+}
+
+.dl-author-upload form {
+  display: flex;
+  align-items: end;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.dl-author-upload label {
+  display: grid;
+  gap: 0.25rem;
+  color: var(--dl-muted);
+  font-size: 0.78rem;
+}
+
+.dl-author-upload input[type="file"] {
+  max-width: 20rem;
+  color: inherit;
+  font: inherit;
+}
+
+.dl-author-upload-status {
+  display: grid;
+  gap: 0.35rem;
+  color: var(--dl-muted);
+  font-size: 0.78rem;
+}
+
+.dl-author-upload-status code {
+  overflow-wrap: anywhere;
+  color: var(--dl-accent);
+}
+
+.dl-author-upload-status ul {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+
 @media (max-width: 900px) {
   .dl-author-project-layout,
   .dl-author-grid {

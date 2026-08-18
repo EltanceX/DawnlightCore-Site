@@ -6,6 +6,7 @@ import {
   createPostgresAuthoringDataService,
   createDatabasePool,
   createPostgresContractDataService,
+  createPostgresUploadDataService,
 } from "@dawnlight/database";
 import {
   createContractDataService,
@@ -15,6 +16,9 @@ import {
 import { loadContractBundle } from "@dawnlight/contract-data/node";
 import { createApp } from "./app.js";
 import { createOidcClient } from "./oidc.js";
+import { createQuarantineStorage } from "./storage.js";
+import { createPreflightQueue } from "./queue.js";
+import type { PreflightQueue } from "./queue.js";
 
 let env;
 try {
@@ -30,6 +34,37 @@ const database = createDatabasePool({
   connectionString: env.DATABASE_URL,
   max: env.DATABASE_POOL_MAX,
 });
+const quarantine = createQuarantineStorage(env);
+const uploads = createPostgresUploadDataService(database);
+let preflightQueue: PreflightQueue;
+let stopPreflightQueue = async () => {};
+try {
+  const managedQueue = await createPreflightQueue(
+    env.DATABASE_URL,
+    env.PREFLIGHT_RETRY_LIMIT,
+    env.PREFLIGHT_TIMEOUT_SECONDS,
+  );
+  preflightQueue = managedQueue;
+  stopPreflightQueue = managedQueue.stop;
+  for (const uploadId of await uploads.listPendingPreflightUploads()) {
+    try {
+      await preflightQueue.enqueue(uploadId);
+      await uploads.markPreflightDispatched(uploadId);
+    } catch {
+      // The outbox remains pending and will be retried on the next boot/complete.
+    }
+  }
+} catch (error) {
+  console.warn(
+    "Preflight queue unavailable; API will keep the outbox pending.",
+    error,
+  );
+  preflightQueue = {
+    async enqueue() {
+      throw new Error("preflight queue unavailable");
+    },
+  };
+}
 let contracts: ContractDataService;
 if (env.CONTRACT_DATA_SOURCE === "database") {
   contracts = await createPostgresContractDataService(database);
@@ -41,7 +76,11 @@ if (env.CONTRACT_DATA_SOURCE === "database") {
 }
 const app = await createApp(env, {
   database,
+  checkObjectStorage: quarantine.check,
   authoring: createPostgresAuthoringDataService(database),
+  uploads,
+  quarantine,
+  preflightQueue,
   oidc: env.OIDC_ENABLED
     ? createOidcClient({
         issuerUrl: env.OIDC_ISSUER_URL,
@@ -63,6 +102,7 @@ const app = await createApp(env, {
 
 const close = async () => {
   await app.close();
+  await stopPreflightQueue();
   await closeDatabase(database);
 };
 process.once("SIGINT", close);

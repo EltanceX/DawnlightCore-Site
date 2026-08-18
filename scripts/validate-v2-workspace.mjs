@@ -15,6 +15,7 @@ const requiredFiles = [
   "packages/database/migrations/0002_contract_ingest.sql",
   "packages/database/migrations/0003_directory.sql",
   "packages/database/migrations/0004_authoring.sql",
+  "packages/database/migrations/0005_upload_preflight.sql",
   "packages/database/scripts/seed-directory.mjs",
   "packages/database/scripts/seed-authoring.mjs",
   "packages/api-client/src/index.ts",
@@ -40,6 +41,11 @@ const requiredFiles = [
   "apps/api/src/oidc.ts",
   "apps/web/src/components/author/author-workspace.tsx",
   "apps/web/src/app/[locale]/author/page.tsx",
+  "apps/api/src/storage.ts",
+  "apps/api/src/queue.ts",
+  "apps/worker/src/preflight.ts",
+  "apps/worker/src/storage.ts",
+  "apps/worker/src/preflight.test.ts",
 ];
 
 const missing = requiredFiles.filter((file) => !existsSync(resolve(file)));
@@ -64,6 +70,7 @@ const composeDocument = parseYaml(compose);
 if (
   !composeDocument?.services?.postgres ||
   !composeDocument.services.minio ||
+  !composeDocument.services["minio-init"] ||
   !composeDocument.services.oidc
 ) {
   console.error(
@@ -71,7 +78,13 @@ if (
   );
   process.exit(1);
 }
-for (const service of ["postgres:", "minio:", "oidc:", "healthcheck:"]) {
+for (const service of [
+  "postgres:",
+  "minio:",
+  "minio-init:",
+  "oidc:",
+  "healthcheck:",
+]) {
   if (!compose.includes(service)) {
     console.error(`V2 compose is missing ${service}.`);
     process.exit(1);
@@ -81,7 +94,11 @@ for (const service of ["postgres:", "minio:", "oidc:", "healthcheck:"]) {
 const openapi = parseYaml(
   readFileSync(resolve("contracts/openapi/v1.yaml"), "utf8"),
 );
-if (!openapi?.paths?.["/health/live"] || !openapi?.paths?.["/health/ready"]) {
+if (
+  !openapi?.paths?.["/health/live"] ||
+  !openapi?.paths?.["/health/ready"] ||
+  !openapi?.paths?.["/api/v1/author/uploads/{uploadId}/complete"]
+) {
   console.error(
     "V2 OpenAPI bootstrap must define live and ready health paths.",
   );
@@ -97,6 +114,9 @@ for (const key of [
   "CONTRACT_FIXTURE_ROOT",
   "OIDC_ENABLED",
   "AUTH_COOKIE_SECRET",
+  "UPLOAD_MAX_BYTES",
+  "PREFLIGHT_MAX_EXTRACTED_BYTES",
+  "PREFLIGHT_RETRY_LIMIT",
 ]) {
   if (!envExample.includes(`${key}=`)) {
     console.error(`.env.example is missing ${key}.`);
@@ -105,5 +125,5 @@ for (const key of [
 }
 
 console.log(
-  "V2 workspace validation passed (WP1 skeleton, WP2 contract data, WP3 tools, WP4 directory, and WP5 authoring).",
+  "V2 workspace validation passed through WP6 (quarantine upload and preflight worker).",
 );

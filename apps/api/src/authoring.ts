@@ -7,8 +7,11 @@ import {
   type AuthoringDataService,
   type MutationContext,
   type SessionPrincipal,
+  type UploadDataService,
 } from "@dawnlight/database";
 import type { OidcClient } from "./oidc.js";
+import type { QuarantineStorage } from "./storage.js";
+import type { PreflightQueue } from "./queue.js";
 
 const sessionCookie = (secure: boolean) =>
   secure ? "__Host-dawnlight_session" : "dawnlight_session";
@@ -52,6 +55,17 @@ const artifactDeclarationsSchema = z
     }),
   )
   .max(16);
+const uploadRequestSchema = z.object({
+  fileName: z.string().min(1).max(160),
+  size: z.number().int().positive().max(536_870_912),
+  contentType: z
+    .enum([
+      "application/zip",
+      "application/x-zip-compressed",
+      "application/octet-stream",
+    ])
+    .default("application/zip"),
+});
 const createProjectSchema = z.object({
   slug: slugSchema,
   name: z.string().min(2).max(100),
@@ -161,6 +175,9 @@ export function registerAuthoringRoutes(
   env: ServerEnv,
   authoring: AuthoringDataService,
   oidc: OidcClient | undefined,
+  uploads?: UploadDataService,
+  quarantine?: QuarantineStorage,
+  preflightQueue?: PreflightQueue,
 ): void {
   const secureCookies =
     env.APP_ENV === "staging" || env.APP_ENV === "production";
@@ -372,6 +389,124 @@ export function registerAuthoringRoutes(
       data: await authoring.listProjects(principal.user.id),
     });
   });
+
+  if (uploads && quarantine && preflightQueue) {
+    app.post<{
+      Params: { projectId: string; versionId: string };
+    }>(
+      "/api/v1/author/projects/:projectId/versions/:versionId/uploads",
+      async (request, reply) => {
+        const principal = await requireMutation(request);
+        const body = parseBody(uploadRequestSchema, request.body);
+        if (
+          !body.fileName.toLowerCase().endsWith(".zip") ||
+          /[\\/\0]/.test(body.fileName) ||
+          body.fileName === "." ||
+          body.fileName === ".."
+        ) {
+          throw new AuthoringError(
+            "UploadFileNameInvalid",
+            "上传文件必须是单层 .zip 文件名。",
+            400,
+          );
+        }
+        if (body.size > env.UPLOAD_MAX_BYTES) {
+          throw new AuthoringError(
+            "UploadTooLarge",
+            "上传文件超过当前环境的大小上限。",
+            413,
+            { maxBytes: env.UPLOAD_MAX_BYTES },
+          );
+        }
+        const uploadId = crypto.randomUUID();
+        const session = await uploads.createUpload(
+          requestMutationContext(request, principal),
+          request.params.projectId,
+          request.params.versionId,
+          {
+            id: uploadId,
+            objectKey: `uploads/${request.params.projectId}/${request.params.versionId}/${uploadId}/archive.zip`,
+            fileName: body.fileName,
+            expectedSize: body.size,
+            contentType: body.contentType,
+            expiresAt: new Date(
+              Date.now() + env.UPLOAD_SESSION_TTL_SECONDS * 1000,
+            ),
+          },
+        );
+        const uploadUrl = await quarantine.createUploadUrl(
+          session.objectKey,
+          session.contentType,
+          env.UPLOAD_URL_TTL_SECONDS,
+        );
+        return reply
+          .code(201)
+          .header("cache-control", "private, no-store")
+          .send({
+            data: {
+              uploadId: session.id,
+              method: "PUT",
+              uploadUrl,
+              expiresAt: session.expiresAt,
+              maxBytes: env.UPLOAD_MAX_BYTES,
+              requiredHeaders: { "content-type": session.contentType },
+            },
+          });
+      },
+    );
+
+    app.get<{ Params: { uploadId: string } }>(
+      "/api/v1/author/uploads/:uploadId",
+      async (request, reply) => {
+        const principal = await requireSession(request);
+        const upload = await uploads.getAuthorUpload(
+          principal.user.id,
+          request.params.uploadId,
+        );
+        return reply.header("cache-control", "private, no-store").send({
+          data: upload,
+        });
+      },
+    );
+
+    app.post<{ Params: { uploadId: string } }>(
+      "/api/v1/author/uploads/:uploadId/complete",
+      async (request, reply) => {
+        const principal = await requireMutation(request);
+        const mutation = requestMutationContext(request, principal);
+        const existing = await uploads.getUploadForCompletion(
+          principal.user.id,
+          request.params.uploadId,
+        );
+        const head =
+          existing.status === "created"
+            ? await quarantine.head(existing.objectKey)
+            : {
+                size: existing.objectSize ?? existing.expectedSize,
+                contentType: existing.contentType,
+                etag: existing.objectEtag,
+              };
+        const completed = await uploads.completeUpload(
+          mutation,
+          request.params.uploadId,
+          head,
+        );
+        try {
+          await preflightQueue.enqueue(completed.id);
+          await uploads.markPreflightDispatched(completed.id);
+        } catch (error) {
+          request.log.warn({ error }, "preflight enqueue deferred to outbox");
+        }
+        return reply.header("cache-control", "private, no-store").send({
+          data: {
+            uploadId: completed.id,
+            status: completed.status,
+            objectSize: completed.objectSize,
+          },
+        });
+      },
+    );
+  }
 
   app.post("/api/v1/author/projects", async (request, reply) => {
     const principal = await requireMutation(request);

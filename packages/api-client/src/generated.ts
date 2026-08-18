@@ -421,6 +421,54 @@ export interface paths {
     patch: operations["updateAuthorVersion"];
     trace?: never;
   };
+  "/api/v1/author/projects/{projectId}/versions/{versionId}/uploads": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations["createAuthorUpload"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/author/uploads/{uploadId}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations["getAuthorUpload"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/author/uploads/{uploadId}/complete": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations["completeAuthorUpload"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/v1/author/projects/{projectId}/invitations": {
     parameters: {
       query?: never;
@@ -799,6 +847,81 @@ export interface components {
       compatibility?: components["schemas"]["AuthorCompatibilityDraft"][];
       artifactDeclarations?: components["schemas"]["AuthorArtifactDeclaration"][];
     };
+    AuthorUploadInput: {
+      fileName: string;
+      size: number;
+      /** @enum {string} */
+      contentType:
+        | "application/zip"
+        | "application/x-zip-compressed"
+        | "application/octet-stream";
+    };
+    AuthorUploadCreateResponse: {
+      /** Format: uuid */
+      uploadId: string;
+      /** @enum {string} */
+      method: "PUT";
+      /** Format: uri */
+      uploadUrl: string;
+      /** Format: date-time */
+      expiresAt: string;
+      maxBytes: number;
+      requiredHeaders: {
+        "content-type": string;
+      };
+    };
+    PreflightDiagnostic: {
+      code: string;
+      /** @enum {string} */
+      severity: "error" | "warning";
+      path: string | null;
+      message: string;
+    };
+    PreflightManifestEntry: {
+      path: string;
+      size: number;
+      compressedSize: number;
+      sha256: string;
+    };
+    AuthorUpload: {
+      /** Format: uuid */
+      id: string;
+      /** Format: uuid */
+      projectId: string;
+      /** Format: uuid */
+      versionId: string;
+      fileName: string;
+      expectedSize: number;
+      contentType: string;
+      /** @enum {string} */
+      status:
+        | "created"
+        | "queued"
+        | "inspecting"
+        | "passed"
+        | "rejected"
+        | "infrastructure-error"
+        | "expired";
+      /** Format: date-time */
+      expiresAt: string;
+      objectSize: number | null;
+      inputSha256: string | null;
+      fileCount: number | null;
+      extractedSize: number | null;
+      manifest: components["schemas"]["PreflightManifestEntry"][];
+      diagnostics: components["schemas"]["PreflightDiagnostic"][];
+      /** Format: date-time */
+      createdAt: string;
+      /** Format: date-time */
+      updatedAt: string;
+    };
+    AuthorUploadCompleteResponse: {
+      /** Format: uuid */
+      uploadId: string;
+      /** @enum {string} */
+      status: "queued";
+      objectSize: number;
+    };
     InvitationWithToken: {
       /** Format: uuid */
       id: string;
@@ -863,6 +986,7 @@ export interface components {
     DirectoryStatus: string;
     ProjectId: string;
     AuthorVersionId: string;
+    UploadId: string;
   };
   requestBodies: never;
   headers: {
@@ -1627,6 +1751,94 @@ export interface operations {
       401: components["responses"]["ApiError"];
       403: components["responses"]["ApiError"];
       409: components["responses"]["ApiError"];
+    };
+  };
+  createAuthorUpload: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        projectId: components["parameters"]["ProjectId"];
+        versionId: components["parameters"]["AuthorVersionId"];
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["AuthorUploadInput"];
+      };
+    };
+    responses: {
+      /** @description Short-lived single-object PUT URL for quarantine storage. */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            data: components["schemas"]["AuthorUploadCreateResponse"];
+          };
+        };
+      };
+      400: components["responses"]["ApiError"];
+      401: components["responses"]["ApiError"];
+      403: components["responses"]["ApiError"];
+      413: components["responses"]["ApiError"];
+    };
+  };
+  getAuthorUpload: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        uploadId: components["parameters"]["UploadId"];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Private upload and preflight status. Never publicly cache. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            data: components["schemas"]["AuthorUpload"];
+          };
+        };
+      };
+      401: components["responses"]["ApiError"];
+      403: components["responses"]["ApiError"];
+      404: components["responses"]["ApiError"];
+    };
+  };
+  completeAuthorUpload: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        uploadId: components["parameters"]["UploadId"];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Object-storage HEAD verified and preflight queued. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            data: components["schemas"]["AuthorUploadCompleteResponse"];
+          };
+        };
+      };
+      401: components["responses"]["ApiError"];
+      403: components["responses"]["ApiError"];
+      409: components["responses"]["ApiError"];
+      410: components["responses"]["ApiError"];
     };
   };
   createProjectInvitation: {

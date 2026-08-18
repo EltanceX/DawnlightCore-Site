@@ -34,6 +34,14 @@ export type AuthorArtifactDeclaration =
   components["schemas"]["AuthorArtifactDeclaration"];
 export type InvitationWithToken = components["schemas"]["InvitationWithToken"];
 export type AuditEventSummary = components["schemas"]["AuditEventSummary"];
+export type AuthorUpload = components["schemas"]["AuthorUpload"];
+export type AuthorUploadCreateResponse =
+  components["schemas"]["AuthorUploadCreateResponse"];
+export type AuthorUploadCompleteResponse =
+  components["schemas"]["AuthorUploadCompleteResponse"];
+export type PreflightDiagnostic = components["schemas"]["PreflightDiagnostic"];
+export type PreflightManifestEntry =
+  components["schemas"]["PreflightManifestEntry"];
 export type ApiError = components["schemas"]["ApiError"];
 
 export type { components, operations, paths } from "./generated.js";
