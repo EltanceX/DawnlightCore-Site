@@ -7,11 +7,13 @@
     ".": "./dist/index.js"
   },
   "scripts": {
+    "generate": "openapi-typescript ../../contracts/openapi/v1.yaml -o src/generated.ts",
     "build": "tsc -p tsconfig.json",
     "types:check": "tsc -p tsconfig.json --noEmit"
   },
   "devDependencies": {
     "@types/node": "^26.2.0",
+    "openapi-typescript": "^7.13.0",
     "typescript": "^6.0.3"
   }
 }

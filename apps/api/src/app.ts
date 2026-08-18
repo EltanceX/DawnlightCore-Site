@@ -8,10 +8,16 @@ import type {
 import type { ServerEnv } from "@dawnlight/config";
 import type { Pool } from "pg";
 import { checkDatabase } from "@dawnlight/database";
+import {
+  ContractDataError,
+  type ContractDataService,
+} from "@dawnlight/contract-data";
+import { registerContractRoutes } from "./contracts.js";
 
 export type ApiDependencies = {
   database?: Pool;
   checkObjectStorage?: () => Promise<void>;
+  contracts?: ContractDataService;
 };
 
 const apiVersion = "0.1.0";
@@ -118,7 +124,25 @@ export async function createApp(
     },
   );
 
+  if (dependencies.contracts) {
+    registerContractRoutes(app, dependencies.contracts);
+  }
+
   app.setErrorHandler((error, request, reply) => {
+    if (error instanceof ContractDataError) {
+      request.log.info(
+        { contractError: error.code, details: error.details },
+        "contract query rejected",
+      );
+      return reply.code(error.statusCode).send({
+        error: {
+          code: error.code,
+          message: error.message,
+          requestId: request.id,
+          details: error.details,
+        },
+      });
+    }
     request.log.error({ error: safeError(error) }, "unhandled api error");
     return reply.code(500).send({
       error: {

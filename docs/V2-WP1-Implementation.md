@@ -136,4 +136,4 @@ pnpm --filter @dawnlight/worker check:config
 
 ## 7. 下一工作包
 
-V2-WP2 将在这个骨架上定义 `contract-manifest.json`、ingest lock、只读 contract 数据表、OpenAPI DTO 和 contract ingest service。WP2 不应提前创建上传、账户或审核表，也不应把当前 Preview contract 升级为稳定 ABI。
+V2-WP2 已在这个骨架上定义 `contract-manifest.json`、ingest lock、只读 contract 数据表、OpenAPI DTO 和 contract ingest service。后续 V2-WP3 只扩展工具页交互，不应提前创建上传、账户或审核表，也不应把当前 Preview contract 升级为稳定 ABI。

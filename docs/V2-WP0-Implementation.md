@@ -17,6 +17,7 @@
 - 增加工具/目录导航、Footer 入口、sitemap 路由和静态 smoke 检查；
 - 增加工具/目录 E2E 关键路径和 axe 回归。
 - 静态输出总预算因新增 V2.0 路由从 12 MiB 调整为 14 MiB；单文件预算和失败门禁保持不变。
+- 已完成 [V2-WP1 动态工程骨架](./V2-WP1-Implementation.md) 和 [V2-WP2 Contract ingest 数据层](./V2-WP2-Implementation.md)。
 
 ## 当前实现边界
 
@@ -24,8 +25,7 @@
 
 ## 下一步
 
-1. 建立 API/Worker/database workspace skeleton 和本地 Compose；
-2. 定义 `contract-manifest.json`、ingest lock 和只读 OpenAPI DTO；
-3. 用 API 查询替换页面中的静态 data service，同时保留构建期 fixture 作为降级；
-4. 为项目、版本、artifact 和 compatibility 建立维护者 seed/import；
-5. 在稳定 CLI JSON contract 出现后接入 graph dump、variant explain 和真实 Loader 结果。
+1. 完成 WP3 的 API 优先工具页、版本切换、筛选和深链；
+2. 用 PostgreSQL/MinIO 环境执行真实 migration、contract ingest 和 staging smoke；
+3. 为项目、版本、artifact 和 compatibility 建立维护者 seed/import；
+4. 在稳定 CLI JSON contract 出现后接入 graph dump、variant explain 和真实 Loader 结果。

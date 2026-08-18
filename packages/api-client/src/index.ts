@@ -1,32 +1,18 @@
+import type { components } from "./generated.js";
+
 export const apiVersion = "v1" as const;
 
-export type HealthLiveResponse = {
-  status: "ok";
-  service: string;
-  version: string;
-  environment: "development" | "test" | "staging" | "production";
-};
+export type HealthLiveResponse = components["schemas"]["HealthLiveResponse"];
+export type DependencyCheck = components["schemas"]["DependencyCheck"];
+export type HealthReadyResponse = components["schemas"]["HealthReadyResponse"];
+export type ContractSummary = components["schemas"]["ContractSummary"];
+export type DiagnosticRecord = components["schemas"]["DiagnosticRecord"];
+export type CatalogKind = components["schemas"]["CatalogKind"];
+export type CatalogRecord = components["schemas"]["CatalogRecord"];
+export type CapabilityRecord = components["schemas"]["CapabilityRecord"];
+export type GraphRecord = components["schemas"]["GraphRecord"];
+export type VariantRecord = components["schemas"]["VariantRecord"];
+export type ContractDiff = components["schemas"]["ContractDiff"];
+export type ApiError = components["schemas"]["ApiError"];
 
-export type DependencyCheck = {
-  status: "ok" | "degraded" | "failed" | "not-configured";
-  detail?: string;
-};
-
-export type HealthReadyResponse = {
-  status: "ready" | "not-ready";
-  service: string;
-  version: string;
-  checks: {
-    database: DependencyCheck;
-    objectStorage: DependencyCheck;
-  };
-};
-
-export type ApiError = {
-  error: {
-    code: string;
-    message: string;
-    requestId: string;
-    details?: Record<string, unknown>;
-  };
-};
+export type { components, operations, paths } from "./generated.js";

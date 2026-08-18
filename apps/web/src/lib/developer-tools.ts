@@ -1,73 +1,65 @@
-import diagnostics from "../../../../contracts/dawnlight/preview/diagnostics/diagnostics.json";
-import catalog from "../../../../contracts/dawnlight/preview/catalogs/summary.json";
-import contractMetadata from "../../../../contracts/dawnlight/preview/metadata.json";
+import ingestFixture from "../../../../contracts/dawnlight/preview/ingest-fixture.json";
+import contractManifest from "../../../../contracts/dawnlight/preview/contract-manifest.json";
 import contractLock from "../../../../contracts/dawnlight/preview/contract-lock.json";
 
 export type ToolStatus = "preview" | "unavailable";
 
-export const toolContract = {
-  version: contractMetadata.contractVersion,
-  status: contractMetadata.status,
-  publicApiStatus: contractMetadata.publicApiStatus,
-  coreCommit: contractLock.source.commit,
-  gameApiTag: contractMetadata.candidate.gameApiTag,
-  manifestVersions: contractMetadata.candidate.manifestVersions,
+const fixture = ingestFixture;
+const diagnosticDescriptions = {
+  catalog:
+    "检查 StageTemplate、Service、SemanticProvider 和 EngineDrawProvider 引用。",
+  manifest: "检查可选服务和 Manifest 声明与当前 Catalog 的关系。",
+} as const;
+const catalogLabels = {
+  "stage-template": ["stageTemplates", "Stage Templates"],
+  service: ["services", "Services"],
+  "semantic-provider": ["semanticProviders", "Semantic Providers"],
+  "engine-draw-provider": ["engineDrawProviders", "EngineDraw Providers"],
 } as const;
 
-const diagnosticGroups = [
-  {
-    id: "catalog",
-    label: "Catalog 诊断",
-    description:
-      "检查 StageTemplate、Service、SemanticProvider 和 EngineDrawProvider 引用。",
-    codes: diagnostics.catalog.codes,
-  },
-  {
-    id: "manifest",
-    label: "Manifest 诊断",
-    description: "检查可选服务和 Manifest 声明与当前 Catalog 的关系。",
-    codes: diagnostics.manifest.codes,
-  },
-] as const;
+export const toolContract = {
+  version: fixture.contract.version,
+  status: fixture.contract.status,
+  publicApiStatus: fixture.contract.publicApiStatus,
+  coreCommit: fixture.contract.sourceCommit,
+  gameApiTag: fixture.contract.gameApiTag,
+  manifestVersions: fixture.contract.manifestVersions,
+  contentDigest: fixture.contract.contentDigest,
+  ingestManifestDigest: contractManifest.signature.signedPayloadSha256,
+} as const;
 
-export const diagnosticEntries = diagnosticGroups.flatMap((group) =>
-  group.codes.map((code) => ({
-    ...group,
-    code,
-    status: "preview" as ToolStatus,
-  })),
-);
+export const diagnosticEntries = fixture.diagnostics.map((entry) => ({
+  ...entry,
+  label: entry.group === "catalog" ? "Catalog 诊断" : "Manifest 诊断",
+  description:
+    diagnosticDescriptions[entry.group as keyof typeof diagnosticDescriptions],
+  status: "preview" as ToolStatus,
+}));
 
 export const catalogSections = [
-  {
-    id: "stageTemplates",
-    label: "Stage Templates",
-    items: catalog.stageTemplates.ids,
-  },
-  { id: "services", label: "Services", items: catalog.services.ids },
-  {
-    id: "semanticProviders",
-    label: "Semantic Providers",
-    items: catalog.semanticProviders.ids,
-  },
-  {
-    id: "engineDrawProviders",
-    label: "EngineDraw Providers",
-    items: catalog.engineDrawProviders.ids,
-  },
+  ...Object.entries(catalogLabels).map(([kind, [id, label]]) => ({
+    id,
+    label,
+    items: fixture.catalog
+      .filter((entry) => entry.kind === kind)
+      .map((entry) => entry.id),
+  })),
   {
     id: "capabilities",
     label: "Capabilities",
-    items: catalog.capabilities.ids,
+    items: fixture.capabilities.map((entry) => entry.id),
   },
 ] as const;
 
-export const capabilityEntries = catalog.capabilities.ids.map((id) => ({
-  id,
+export const capabilityEntries = fixture.capabilities.map((entry) => ({
+  ...entry,
   status: "preview" as ToolStatus,
   description:
     "当前 contract 只记录能力 ID；具体上限由同一 Core commit 的 runtime 结果决定。",
 }));
+
+export const graphAvailability = fixture.graph;
+export const variantAvailability = fixture.variant;
 
 export function getDiagnostic(code: string) {
   return diagnosticEntries.find((entry) => entry.code === code);
@@ -75,4 +67,8 @@ export function getDiagnostic(code: string) {
 
 export function getCatalogSection(id: string) {
   return catalogSections.find((section) => section.id === id);
+}
+
+export function getContractSourceLock() {
+  return contractLock;
 }

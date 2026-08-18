@@ -1,10 +1,10 @@
 openapi: 3.1.0
 info:
   title: DawnlightCore API
-  version: 0.1.0-preview
+  version: 0.2.0-preview
   description: >-
-    V2-WP1 bootstrap contract. Only health endpoints are implemented; project,
-    contract and artifact endpoints are introduced in later work packages.
+    V2-WP2 read-only API. Contract endpoints expose only versioned ingest data;
+    project, account, upload and artifact writes are introduced later.
 servers:
   - url: http://127.0.0.1:4100
 paths:
@@ -34,7 +34,251 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HealthReadyResponse'
+  /api/v1/contracts:
+    get:
+      operationId: listContracts
+      responses:
+        '200':
+          description: Versioned contract snapshots.
+          headers:
+            ETag: { $ref: '#/components/headers/ETag' }
+            Cache-Control: { $ref: '#/components/headers/CacheControl' }
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/ContractSummary' }
+  /api/v1/contracts/diff:
+    get:
+      operationId: getContractDiff
+      parameters:
+        - { $ref: '#/components/parameters/FromVersion' }
+        - { $ref: '#/components/parameters/ToVersion' }
+      responses:
+        '200':
+          description: Contract entity set changes.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/ContractDiff' }
+        '400': { $ref: '#/components/responses/ApiError' }
+        '404': { $ref: '#/components/responses/ApiError' }
+  /api/v1/contracts/{contractVersion}:
+    get:
+      operationId: getContract
+      parameters:
+        - { $ref: '#/components/parameters/ContractVersion' }
+      responses:
+        '200':
+          description: Contract snapshot metadata.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/ContractSummary' }
+        '404': { $ref: '#/components/responses/ApiError' }
+  /api/v1/contracts/{contractVersion}/diagnostics:
+    get:
+      operationId: listContractDiagnostics
+      parameters:
+        - { $ref: '#/components/parameters/ContractVersion' }
+      responses:
+        '200':
+          description: Diagnostics in this contract version.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/DiagnosticRecord' }
+        '404': { $ref: '#/components/responses/ApiError' }
+  /api/v1/contracts/{contractVersion}/diagnostics/{code}:
+    get:
+      operationId: getContractDiagnostic
+      parameters:
+        - { $ref: '#/components/parameters/ContractVersion' }
+        - name: code
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: One diagnostic record.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/DiagnosticRecord' }
+        '404': { $ref: '#/components/responses/ApiError' }
+        '409': { $ref: '#/components/responses/ApiError' }
+        '410': { $ref: '#/components/responses/ApiError' }
+  /api/v1/contracts/{contractVersion}/catalog:
+    get:
+      operationId: listContractCatalog
+      parameters:
+        - { $ref: '#/components/parameters/ContractVersion' }
+        - name: kind
+          in: query
+          schema: { $ref: '#/components/schemas/CatalogKind' }
+      responses:
+        '200':
+          description: Catalog records, optionally filtered by kind.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/CatalogRecord' }
+        '400': { $ref: '#/components/responses/ApiError' }
+        '404': { $ref: '#/components/responses/ApiError' }
+  /api/v1/contracts/{contractVersion}/catalog/{kind}/{id}:
+    get:
+      operationId: getContractCatalogEntry
+      parameters:
+        - { $ref: '#/components/parameters/ContractVersion' }
+        - name: kind
+          in: path
+          required: true
+          schema: { $ref: '#/components/schemas/CatalogKind' }
+        - name: id
+          in: path
+          required: true
+          description: URL-encoded stable catalog ID.
+          schema: { type: string }
+      responses:
+        '200':
+          description: One catalog record.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/CatalogRecord' }
+        '400': { $ref: '#/components/responses/ApiError' }
+        '404': { $ref: '#/components/responses/ApiError' }
+        '409': { $ref: '#/components/responses/ApiError' }
+        '410': { $ref: '#/components/responses/ApiError' }
+  /api/v1/contracts/{contractVersion}/capabilities:
+    get:
+      operationId: listContractCapabilities
+      parameters:
+        - { $ref: '#/components/parameters/ContractVersion' }
+      responses:
+        '200':
+          description: Capability records.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/CapabilityRecord' }
+        '404': { $ref: '#/components/responses/ApiError' }
+  /api/v1/contracts/{contractVersion}/capabilities/{id}:
+    get:
+      operationId: getContractCapability
+      parameters:
+        - { $ref: '#/components/parameters/ContractVersion' }
+        - name: id
+          in: path
+          required: true
+          description: URL-encoded stable capability ID.
+          schema: { type: string }
+      responses:
+        '200':
+          description: One capability record.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/CapabilityRecord' }
+        '404': { $ref: '#/components/responses/ApiError' }
+        '409': { $ref: '#/components/responses/ApiError' }
+        '410': { $ref: '#/components/responses/ApiError' }
+  /api/v1/contracts/{contractVersion}/graph:
+    get:
+      operationId: getContractGraph
+      parameters:
+        - { $ref: '#/components/parameters/ContractVersion' }
+      responses:
+        '200':
+          description: Graph record. It can explicitly be unavailable.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/GraphRecord' }
+        '404': { $ref: '#/components/responses/ApiError' }
+  /api/v1/contracts/{contractVersion}/variant:
+    get:
+      operationId: getContractVariant
+      parameters:
+        - { $ref: '#/components/parameters/ContractVersion' }
+      responses:
+        '200':
+          description: Variant explain record. It can explicitly be unavailable.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/VariantRecord' }
+        '404': { $ref: '#/components/responses/ApiError' }
 components:
+  headers:
+    ETag:
+      description: Strong hash of the response payload.
+      schema: { type: string }
+    CacheControl:
+      description: Public immutable-version cache policy.
+      schema: { type: string }
+  parameters:
+    ContractVersion:
+      name: contractVersion
+      in: path
+      required: true
+      schema: { type: string }
+    FromVersion:
+      name: from
+      in: query
+      required: true
+      schema: { type: string }
+    ToVersion:
+      name: to
+      in: query
+      required: true
+      schema: { type: string }
+  responses:
+    ApiError:
+      description: Explainable query error.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ApiError' }
   schemas:
     HealthLiveResponse:
       type: object
@@ -67,4 +311,148 @@ components:
           properties:
             database: { $ref: '#/components/schemas/DependencyCheck' }
             objectStorage: { $ref: '#/components/schemas/DependencyCheck' }
-
+    ContractStatus:
+      type: string
+      enum: [preview, preview-validated, available, unavailable, deprecated]
+    SourceRef:
+      type: object
+      required: [path, pointer, commit]
+      properties:
+        path: { type: string }
+        pointer: { type: string }
+        commit: { type: string, pattern: '^[0-9a-f]{40}$' }
+    Deprecation:
+      type: object
+      required: [since, replacement, message]
+      properties:
+        since: { type: string }
+        replacement: { type: [string, 'null'] }
+        message: { type: string }
+    ContractSummary:
+      type: object
+      required:
+        - id
+        - version
+        - status
+        - publicApiStatus
+        - sourceRepository
+        - sourceCommit
+        - gameApiTag
+        - manifestVersions
+        - settingsSchemaVersions
+        - capturedAt
+        - contentDigest
+      properties:
+        id: { type: string }
+        version: { type: string }
+        status: { $ref: '#/components/schemas/ContractStatus' }
+        publicApiStatus: { type: string, enum: [preview-only, stable] }
+        sourceRepository: { type: string, format: uri }
+        sourceCommit: { type: string, pattern: '^[0-9a-f]{40}$' }
+        gameApiTag: { type: string }
+        manifestVersions:
+          type: array
+          items: { type: integer }
+        settingsSchemaVersions:
+          type: array
+          items: { type: integer }
+        capturedAt: { type: string, format: date-time }
+        contentDigest: { type: string, pattern: '^[0-9a-f]{64}$' }
+    ContractEntryBase:
+      type: object
+      required: [id, version, status, sourceRef, deprecation]
+      properties:
+        id: { type: string }
+        version: { type: string }
+        status: { $ref: '#/components/schemas/ContractStatus' }
+        sourceRef: { $ref: '#/components/schemas/SourceRef' }
+        deprecation:
+          oneOf:
+            - { $ref: '#/components/schemas/Deprecation' }
+            - { type: 'null' }
+    DiagnosticRecord:
+      allOf:
+        - { $ref: '#/components/schemas/ContractEntryBase' }
+        - type: object
+          required: [code, group, severities, catalogKinds]
+          properties:
+            code: { type: string }
+            group: { type: string, enum: [catalog, manifest] }
+            severities:
+              type: array
+              items: { type: string }
+            catalogKinds:
+              type: array
+              items: { type: string }
+    CatalogKind:
+      type: string
+      enum: [stage-template, service, semantic-provider, engine-draw-provider]
+    CatalogRecord:
+      allOf:
+        - { $ref: '#/components/schemas/ContractEntryBase' }
+        - type: object
+          required: [kind]
+          properties:
+            kind: { $ref: '#/components/schemas/CatalogKind' }
+    CapabilityRecord:
+      allOf:
+        - { $ref: '#/components/schemas/ContractEntryBase' }
+    GraphRecord:
+      allOf:
+        - { $ref: '#/components/schemas/ContractEntryBase' }
+        - type: object
+          required: [reason, nodes, edges]
+          properties:
+            reason: { type: [string, 'null'] }
+            nodes:
+              type: array
+              items: { type: object, additionalProperties: true }
+            edges:
+              type: array
+              items: { type: object, additionalProperties: true }
+    VariantRecord:
+      allOf:
+        - { $ref: '#/components/schemas/ContractEntryBase' }
+        - type: object
+          required: [reason, explanations]
+          properties:
+            reason: { type: [string, 'null'] }
+            explanations:
+              type: array
+              items: { type: object, additionalProperties: true }
+    ContractDiffItem:
+      type: object
+      required: [entity, id]
+      properties:
+        entity:
+          type: string
+          enum: [schema, diagnostic, catalog, capability, graph, variant]
+        id: { type: string }
+        kind: { type: string }
+    ContractDiff:
+      type: object
+      required: [from, to, added, removed, changed]
+      properties:
+        from: { type: string }
+        to: { type: string }
+        added:
+          type: array
+          items: { $ref: '#/components/schemas/ContractDiffItem' }
+        removed:
+          type: array
+          items: { $ref: '#/components/schemas/ContractDiffItem' }
+        changed:
+          type: array
+          items: { $ref: '#/components/schemas/ContractDiffItem' }
+    ApiError:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message, requestId]
+          properties:
+            code: { type: string }
+            message: { type: string }
+            requestId: { type: string }
+            details: { type: object, additionalProperties: true }

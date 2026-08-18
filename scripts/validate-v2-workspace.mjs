@@ -5,13 +5,20 @@ import { parse as parseYaml } from "yaml";
 const requiredFiles = [
   "apps/api/package.json",
   "apps/api/src/app.ts",
+  "apps/api/src/contracts.ts",
   "apps/api/src/main.ts",
   "apps/api/tests/app.test.ts",
   "apps/worker/package.json",
   "apps/worker/src/queue.ts",
   "packages/config/src/env.ts",
   "packages/database/migrations/0001_runtime.sql",
+  "packages/database/migrations/0002_contract_ingest.sql",
   "packages/api-client/src/index.ts",
+  "packages/contract-data/src/index.ts",
+  "packages/contract-data/src/node.ts",
+  "contracts/dawnlight/preview/contract-manifest.json",
+  "contracts/dawnlight/preview/contract-ingest-lock.json",
+  "contracts/dawnlight/preview/ingest-fixture.json",
   "contracts/openapi/v1.yaml",
   "infra/compose/v2-dev.compose.yml",
 ];
@@ -61,6 +68,8 @@ for (const key of [
   "DATABASE_URL",
   "OBJECT_STORAGE_ENDPOINT",
   "OTEL_SERVICE_NAME",
+  "CONTRACT_DATA_SOURCE",
+  "CONTRACT_FIXTURE_ROOT",
 ]) {
   if (!envExample.includes(`${key}=`)) {
     console.error(`.env.example is missing ${key}.`);
@@ -69,5 +78,5 @@ for (const key of [
 }
 
 console.log(
-  "V2 workspace validation passed (WP1 skeleton and isolation fixtures).",
+  "V2 workspace validation passed (WP1 skeleton and WP2 contract ingest fixtures).",
 );

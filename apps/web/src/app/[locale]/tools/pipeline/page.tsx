@@ -3,6 +3,7 @@ import { Network } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Callout } from "@/components/ui/callout";
 import { PageContainer } from "@/components/ui/page-container";
+import { graphAvailability } from "@/lib/developer-tools";
 import { supportedLocales } from "@/lib/site";
 
 export function generateStaticParams() {
@@ -29,13 +30,13 @@ export default function PipelinePage() {
           </div>
         </div>
         <p className="dl-v2-lede">
-          当前 Preview contract 尚未提供结构化 graph
-          dump，因此页面暂不绘制虚构的 Pass、Resource 或执行边。
+          当前 contract 状态：{graphAvailability.status}。页面不会绘制未被
+          ingest snapshot 提供的 Pass、Resource 或执行边。
         </p>
         <Callout title="下一步接入条件">
-          Core CI 需要生成包含节点 ID、边、资源生命周期和 sourceRef 的 graph
-          dump，并绑定 Core commit、Manifest 版本和
-          hash。接入后这里再启用图形化查看和列表降级。
+          {graphAvailability.reason} Core CI 需要生成包含节点
+          ID、边、资源生命周期和 sourceRef 的 graph dump，并绑定 Core
+          commit、Manifest 版本和 hash。 接入后这里再启用图形化查看和列表降级。
         </Callout>
       </PageContainer>
     </main>

@@ -1,0 +1,77 @@
+{
+  "manifestVersion": 1,
+  "contractId": "dawnlight:developer-contract/preview-2026-08-16",
+  "contractVersion": "preview-2026-08-16",
+  "status": "preview-validated",
+  "publicApiStatus": "preview-only",
+  "source": {
+    "repository": "https://github.com/EltanceX/DawnlightCore.git",
+    "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e",
+    "capturedAt": "2026-08-16T17:42:48+08:00"
+  },
+  "generator": {
+    "name": "dawnlight-contract-ingest-builder",
+    "version": "1.0.0"
+  },
+  "datasets": [
+    {
+      "kind": "schema",
+      "path": "schemas/shaderpack.schema.json",
+      "status": "available",
+      "bytes": 1726,
+      "sha256": "7b224f97ef42203ad13c2c9c01c6ded5ee0110dff9f787e246dd0eeff30c2fe4"
+    },
+    {
+      "kind": "schema",
+      "path": "schemas/settings-ui.schema.json",
+      "status": "available",
+      "bytes": 2430,
+      "sha256": "81c85a673bbc95be9df3908c35fead286aaa79dc75e221f36656858e697d9d3f"
+    },
+    {
+      "kind": "catalog",
+      "path": "catalogs/summary.json",
+      "status": "available",
+      "bytes": 3250,
+      "sha256": "56b4febcae653a0c3a72611031817133f042829d527dd9985028bf5d60663edb"
+    },
+    {
+      "kind": "diagnostic",
+      "path": "diagnostics/diagnostics.json",
+      "status": "available",
+      "bytes": 423,
+      "sha256": "32a5a281e77e23b59a22cc5119238a1c0d40461762a314c01f20fc36c7d7fe8a"
+    },
+    {
+      "kind": "cli-metadata",
+      "path": "cli/metadata.json",
+      "status": "unavailable",
+      "bytes": 411,
+      "sha256": "b32b266a6831499be68c07ac6da618501ebe3609af1d2c36f19640eb8a38df31"
+    },
+    {
+      "kind": "normalized-fixture",
+      "path": "ingest-fixture.json",
+      "status": "available",
+      "bytes": 33678,
+      "sha256": "8cf3b24c18c1b7f3cb17b9d916a778cd66fb23f5ff467bf72f59f82184eb9ef9"
+    }
+  ],
+  "availability": {
+    "schema": "available",
+    "diagnostic": "available",
+    "catalog": "available",
+    "capability": "available",
+    "graph": "unavailable",
+    "variant": "unavailable",
+    "contractDiff": "available"
+  },
+  "signature": {
+    "status": "unsigned-preview",
+    "algorithm": null,
+    "keyId": null,
+    "value": null,
+    "signedPayloadSha256": "e065e0f69c1e842832da047c1d1017506a77ff8dd524f66d0ab8178a2dbab2d8",
+    "note": "No production signing key exists. Unsigned ingest is restricted to preview and non-production environments."
+  }
+}

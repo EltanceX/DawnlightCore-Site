@@ -46,7 +46,21 @@ try {
   ) {
     throw new Error(`unexpected ready response: ${JSON.stringify(body)}`);
   }
-  console.log("V2 API smoke passed (live 200, dependency failure 503).");
+  const contract = await fetch(
+    `http://127.0.0.1:${port}/api/v1/contracts/preview-2026-08-16/diagnostics`,
+  );
+  if (contract.status !== 200) {
+    throw new Error(`contract diagnostics returned ${contract.status}`);
+  }
+  const contractBody = await contract.json();
+  if (!Array.isArray(contractBody.data) || contractBody.data.length !== 4) {
+    throw new Error(
+      `unexpected contract response: ${JSON.stringify(contractBody)}`,
+    );
+  }
+  console.log(
+    "V2 API smoke passed (live 200, dependency failure 503, contract diagnostics 200).",
+  );
 } finally {
   child.kill("SIGTERM");
 }

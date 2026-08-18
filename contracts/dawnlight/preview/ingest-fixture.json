@@ -1,0 +1,1197 @@
+{
+  "fixtureVersion": 1,
+  "contract": {
+    "id": "dawnlight:developer-contract/preview-2026-08-16",
+    "version": "preview-2026-08-16",
+    "status": "preview-validated",
+    "publicApiStatus": "preview-only",
+    "sourceRepository": "https://github.com/EltanceX/DawnlightCore.git",
+    "sourceCommit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e",
+    "gameApiTag": "API_1.9.2.1",
+    "manifestVersions": [
+      3
+    ],
+    "settingsSchemaVersions": [
+      1
+    ],
+    "capturedAt": "2026-08-16T17:42:48+08:00",
+    "contentDigest": "462f92a36fcba8748b8400f2b8a45e40f0d7bbb500cabd2dc3581e0581f0d78e"
+  },
+  "schemas": [
+    {
+      "id": "dawnlight:schema/shaderpack",
+      "version": "3",
+      "status": "preview",
+      "sourceRef": {
+        "path": "schemas/shaderpack.schema.json",
+        "pointer": "",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      },
+      "deprecation": null,
+      "document": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:dawnlight:shaderpack:preview",
+        "title": "Dawnlight Shader Pack Manifest v3 (Preview)",
+        "description": "Website preview schema. Runtime semantics remain defined by the locked C# Loader.",
+        "type": "object",
+        "additionalProperties": true,
+        "required": [
+          "manifestVersion",
+          "id",
+          "name",
+          "version",
+          "shaderRoot"
+        ],
+        "properties": {
+          "manifestVersion": {
+            "const": 3
+          },
+          "sourceFormatVersion": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "id": {
+            "$ref": "#/$defs/identifier"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "version": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": {
+            "type": "string"
+          },
+          "shaderRoot": {
+            "type": "string",
+            "pattern": "^[^/\\\\].*"
+          },
+          "settings": {
+            "type": "string",
+            "pattern": "^[^/\\\\].*\\.json$"
+          },
+          "fragments": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/option"
+            }
+          },
+          "resources": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "programs": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "passes": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        },
+        "$defs": {
+          "identifier": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9._-]+:[a-zA-Z0-9._/-]+$"
+          },
+          "option": {
+            "type": "object",
+            "additionalProperties": true,
+            "required": [
+              "id",
+              "type",
+              "default",
+              "impact"
+            ],
+            "properties": {
+              "id": {
+                "$ref": "#/$defs/identifier"
+              },
+              "type": {
+                "enum": [
+                  "boolean",
+                  "integer",
+                  "number",
+                  "string"
+                ]
+              },
+              "default": {},
+              "impact": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "dawnlight:schema/settings-ui",
+      "version": "1",
+      "status": "preview",
+      "sourceRef": {
+        "path": "schemas/settings-ui.schema.json",
+        "pointer": "",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      },
+      "deprecation": null,
+      "document": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "urn:dawnlight:settings-ui:preview",
+        "title": "Dawnlight Settings UI Schema v1 (Preview)",
+        "description": "Preview schema for authored and generated Settings UI documents.",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "schemaVersion",
+          "defaultLocale",
+          "translations",
+          "pages",
+          "hiddenOptions"
+        ],
+        "properties": {
+          "schemaVersion": {
+            "const": 1
+          },
+          "defaultLocale": {
+            "type": "string",
+            "minLength": 2
+          },
+          "translations": {
+            "type": "object",
+            "minProperties": 1,
+            "additionalProperties": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "pages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/page"
+            }
+          },
+          "hiddenOptions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/hiddenOption"
+            }
+          }
+        },
+        "$defs": {
+          "page": {
+            "type": "object",
+            "additionalProperties": true,
+            "required": [
+              "id",
+              "title",
+              "order",
+              "groups"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "title": {
+                "type": "string",
+                "minLength": 1
+              },
+              "order": {
+                "type": "number"
+              },
+              "groups": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/group"
+                }
+              }
+            }
+          },
+          "group": {
+            "type": "object",
+            "additionalProperties": true,
+            "required": [
+              "id",
+              "title",
+              "order",
+              "controls"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "title": {
+                "type": "string",
+                "minLength": 1
+              },
+              "order": {
+                "type": "number"
+              },
+              "controls": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/control"
+                }
+              }
+            }
+          },
+          "control": {
+            "type": "object",
+            "additionalProperties": true,
+            "required": [
+              "id",
+              "option",
+              "widget",
+              "label"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "option": {
+                "type": "string",
+                "pattern": "^[a-zA-Z0-9._-]+:[a-zA-Z0-9._/-]+$"
+              },
+              "widget": {
+                "enum": [
+                  "toggle",
+                  "choice",
+                  "slider",
+                  "text",
+                  "color"
+                ]
+              },
+              "label": {
+                "type": "string",
+                "minLength": 1
+              },
+              "values": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "hiddenOption": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "option",
+              "reason"
+            ],
+            "properties": {
+              "option": {
+                "type": "string",
+                "minLength": 1
+              },
+              "reason": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "diagnostics": [
+    {
+      "id": "dawnlight:diagnostic/DuplicateRegistration",
+      "code": "DuplicateRegistration",
+      "version": "preview-1",
+      "status": "preview",
+      "group": "catalog",
+      "severities": [],
+      "catalogKinds": [
+        "StageTemplate",
+        "Service",
+        "SemanticProvider",
+        "EngineDrawProvider"
+      ],
+      "sourceRef": {
+        "path": "diagnostics/diagnostics.json",
+        "pointer": "/catalog/codes/0",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      },
+      "deprecation": null
+    },
+    {
+      "id": "dawnlight:diagnostic/UnknownIdentifier",
+      "code": "UnknownIdentifier",
+      "version": "preview-1",
+      "status": "preview",
+      "group": "catalog",
+      "severities": [],
+      "catalogKinds": [
+        "StageTemplate",
+        "Service",
+        "SemanticProvider",
+        "EngineDrawProvider"
+      ],
+      "sourceRef": {
+        "path": "diagnostics/diagnostics.json",
+        "pointer": "/catalog/codes/1",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      },
+      "deprecation": null
+    },
+    {
+      "id": "dawnlight:diagnostic/UnsupportedVersion",
+      "code": "UnsupportedVersion",
+      "version": "preview-1",
+      "status": "preview",
+      "group": "catalog",
+      "severities": [],
+      "catalogKinds": [
+        "StageTemplate",
+        "Service",
+        "SemanticProvider",
+        "EngineDrawProvider"
+      ],
+      "sourceRef": {
+        "path": "diagnostics/diagnostics.json",
+        "pointer": "/catalog/codes/2",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      },
+      "deprecation": null
+    },
+    {
+      "id": "dawnlight:diagnostic/OptionalServiceCatalogReferenceUnavailable",
+      "code": "OptionalServiceCatalogReferenceUnavailable",
+      "version": "preview-1",
+      "status": "preview",
+      "group": "manifest",
+      "severities": [
+        "Warning"
+      ],
+      "catalogKinds": [],
+      "sourceRef": {
+        "path": "diagnostics/diagnostics.json",
+        "pointer": "/manifest/codes/0",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      },
+      "deprecation": null
+    }
+  ],
+  "catalog": [
+    {
+      "id": "dawnlight:fullscreen",
+      "kind": "stage-template",
+      "version": "1",
+      "status": "preview",
+      "sourceRef": {
+        "path": "catalogs/summary.json",
+        "pointer": "/stageTemplates/ids/0",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      },
+      "deprecation": null
+    },
+    {
+      "id": "dawnlight:compute",
+      "kind": "stage-template",
+      "version": "1",
+      "status": "preview",
+      "sourceRef": {
+        "path": "catalogs/summary.json",
+        "pointer": "/stageTemplates/ids/1",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      },
+      "deprecation": null
+    },
+    {
+      "id": "dawnlight:command_list",
+      "kind": "stage-template",
+      "version": "1",
+      "status": "preview",
+      "sourceRef": {
+        "path": "catalogs/summary.json",
+        "pointer": "/stageTemplates/ids/2",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      },
+      "deprecation": null
+    },
+    {
+      "id": "dawnlight:model_shadow",
+      "kind": "stage-template",
+      "version": "1",
+      "status": "preview",
+      "sourceRef": {
+        "path": "catalogs/summary.json",
+        "pointer": "/stageTemplates/ids/3",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      },
+      "deprecation": null
+    },
+    {
+      "id": "dawnlight:ocean_fft",
+      "kind": "stage-template",
+      "version": "1",
+      "status": "preview",
+      "sourceRef": {
+        "path": "catalogs/summary.json",
+        "pointer": "/stageTemplates/ids/4",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      },
+      "deprecation": null
+    },
+    {
+      "id": "dawnlight:cubemap_capture",
+      "kind": "stage-template",
+      "version": "1",
+      "status": "preview",
+      "sourceRef": {
+        "path": "catalogs/summary.json",
+        "pointer": "/stageTemplates/ids/5",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      },
+      "deprecation": null
+    },
+    {
+      "id": "dawnlight:point_lights",
+      "kind": "stage-template",
+      "version": "1",
+      "status": "preview",
+      "sourceRef": {
+        "path": "catalogs/summary.json",
+        "pointer": "/stageTemplates/ids/6",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      },
+      "deprecation": null
+    },
+    {
+      "id": "dawnlight:point_lights",
+      "kind": "service",
+      "version": "1",
+      "status": "preview",
+      "sourceRef": {
+        "path": "catalogs/summary.json",
+        "pointer": "/services/ids/0",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      },
+      "deprecation": null
+    },
+    {
+      "id": "dawnlight:terrain_shadows",
+      "kind": "service",
+      "version": "1",
+      "status": "preview",
+      "sourceRef": {
+        "path": "catalogs/summary.json",
+        "pointer": "/services/ids/1",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      },
+      "deprecation": null
+    },
+    {
+      "id": "dawnlight:model_shadows",
+      "kind": "service",
+      "version": "1",
+      "status": "preview",
+      "sourceRef": {
+        "path": "catalogs/summary.json",
+        "pointer": "/services/ids/2",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      },
+      "deprecation": null
+    },
+    {
+      "id": "dawnlight:ocean_wave",
+      "kind": "service",
+      "version": "1",
+      "status": "preview",
+      "sourceRef": {
+        "path": "catalogs/summary.json",
+        "pointer": "/services/ids/3",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      },
+      "deprecation": null
+    },
+    {
+      "id": "dawnlight:cubemap",
+      "kind": "service",
+      "version": "1",
+      "status": "preview",
+      "sourceRef": {
+        "path": "catalogs/summary.json",
+        "pointer": "/services/ids/4",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      },
+      "deprecation": null
+    },
+    {
+      "id": "dawnlight:frame_uniforms",
+      "kind": "service",
+      "version": "1",
+      "status": "preview",
+      "sourceRef": {
+        "path": "catalogs/summary.json",
+        "pointer": "/services/ids/5",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      },
+      "deprecation": null
+    },
+    {
+      "id": "dawnlight:scene_target",
+      "kind": "service",
+      "version": "1",
+      "status": "preview",
+      "sourceRef": {
+        "path": "catalogs/summary.json",
+        "pointer": "/services/ids/6",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      },
+      "deprecation": null
+    },
+    {
+      "id": "dawnlight:frame/view_width",
+      "kind": "semantic-provider",
+      "version": "1",
+      "status": "preview",
+      "sourceRef": {
+        "path": "catalogs/summary.json",
+        "pointer": "/semanticProviders/ids/0",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      },
+      "deprecation": null
+    },
+    {
+      "id": "dawnlight:frame/view_height",
+      "kind": "semantic-provider",
+      "version": "1",
+      "status": "preview",
+      "sourceRef": {
+        "path": "catalogs/summary.json",
+        "pointer": "/semanticProviders/ids/1",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      },
+      "deprecation": null
+    },
+    {
+      "id": "dawnlight:frame/screen_size",
+      "kind": "semantic-provider",
+      "version": "1",
+      "status": "preview",
+      "sourceRef": {
+        "path": "catalogs/summary.json",
+        "pointer": "/semanticProviders/ids/2",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      },
+      "deprecation": null
+    },
+    {
+      "id": "dawnlight:camera/view_inverse_matrix",
+      "kind": "semantic-provider",
+      "version": "1",
+      "status": "preview",
+      "sourceRef": {
+        "path": "catalogs/summary.json",
+        "pointer": "/semanticProviders/ids/3",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      },
+      "deprecation": null
+    },
+    {
+      "id": "dawnlight:camera/projection_inverse_matrix",
+      "kind": "semantic-provider",
+      "version": "1",
+      "status": "preview",
+      "sourceRef": {
+        "path": "catalogs/summary.json",
+        "pointer": "/semanticProviders/ids/4",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      },
+      "deprecation": null
+    },
+    {
+      "id": "dawnlight:camera/position",
+      "kind": "semantic-provider",
+      "version": "1",
+      "status": "preview",
+      "sourceRef": {
+        "path": "catalogs/summary.json",
+        "pointer": "/semanticProviders/ids/5",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      },
+      "deprecation": null
+    },
+    {
+      "id": "dawnlight:frame/game_time",
+      "kind": "semantic-provider",
+      "version": "1",
+      "status": "preview",
+      "sourceRef": {
+        "path": "catalogs/summary.json",
+        "pointer": "/semanticProviders/ids/6",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      },
+      "deprecation": null
+    },
+    {
+      "id": "dawnlight:frame/system_time",
+      "kind": "semantic-provider",
+      "version": "1",
+      "status": "preview",
+      "sourceRef": {
+        "path": "catalogs/summary.json",
+        "pointer": "/semanticProviders/ids/7",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      },
+      "deprecation": null
+    },
+    {
+      "id": "dawnlight:weather/precipitation_proc",
+      "kind": "semantic-provider",
+      "version": "1",
+      "status": "preview",
+      "sourceRef": {
+        "path": "catalogs/summary.json",
+        "pointer": "/semanticProviders/ids/8",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      },
+      "deprecation": null
+    },
+    {
+      "id": "dawnlight:atmosphere/fog_proc",
+      "kind": "semantic-provider",
+      "version": "1",
+      "status": "preview",
+      "sourceRef": {
+        "path": "catalogs/summary.json",
+        "pointer": "/semanticProviders/ids/9",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      },
+      "deprecation": null
+    },
+    {
+      "id": "dawnlight:atmosphere/visibility_range",
+      "kind": "semantic-provider",
+      "version": "1",
+      "status": "preview",
+      "sourceRef": {
+        "path": "catalogs/summary.json",
+        "pointer": "/semanticProviders/ids/10",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      },
+      "deprecation": null
+    },
+    {
+      "id": "dawnlight:atmosphere/season",
+      "kind": "semantic-provider",
+      "version": "1",
+      "status": "preview",
+      "sourceRef": {
+        "path": "catalogs/summary.json",
+        "pointer": "/semanticProviders/ids/11",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      },
+      "deprecation": null
+    },
+    {
+      "id": "dawnlight:atmosphere/time_of_season",
+      "kind": "semantic-provider",
+      "version": "1",
+      "status": "preview",
+      "sourceRef": {
+        "path": "catalogs/summary.json",
+        "pointer": "/semanticProviders/ids/12",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      },
+      "deprecation": null
+    },
+    {
+      "id": "dawnlight:point_lights/cluster_x",
+      "kind": "semantic-provider",
+      "version": "1",
+      "status": "preview",
+      "sourceRef": {
+        "path": "catalogs/summary.json",
+        "pointer": "/semanticProviders/ids/13",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      },
+      "deprecation": null
+    },
+    {
+      "id": "dawnlight:point_lights/cluster_y",
+      "kind": "semantic-provider",
+      "version": "1",
+      "status": "preview",
+      "sourceRef": {
+        "path": "catalogs/summary.json",
+        "pointer": "/semanticProviders/ids/14",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      },
+      "deprecation": null
+    },
+    {
+      "id": "dawnlight:point_lights/cluster_z",
+      "kind": "semantic-provider",
+      "version": "1",
+      "status": "preview",
+      "sourceRef": {
+        "path": "catalogs/summary.json",
+        "pointer": "/semanticProviders/ids/15",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      },
+      "deprecation": null
+    },
+    {
+      "id": "dawnlight:point_lights/total_lights",
+      "kind": "semantic-provider",
+      "version": "1",
+      "status": "preview",
+      "sourceRef": {
+        "path": "catalogs/summary.json",
+        "pointer": "/semanticProviders/ids/16",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      },
+      "deprecation": null
+    },
+    {
+      "id": "dawnlight:atmosphere/skylight",
+      "kind": "semantic-provider",
+      "version": "1",
+      "status": "preview",
+      "sourceRef": {
+        "path": "catalogs/summary.json",
+        "pointer": "/semanticProviders/ids/17",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      },
+      "deprecation": null
+    },
+    {
+      "id": "dawnlight:atmosphere/sun_direction",
+      "kind": "semantic-provider",
+      "version": "1",
+      "status": "preview",
+      "sourceRef": {
+        "path": "catalogs/summary.json",
+        "pointer": "/semanticProviders/ids/18",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      },
+      "deprecation": null
+    },
+    {
+      "id": "dawnlight:shaft/sun_screen_uv",
+      "kind": "semantic-provider",
+      "version": "1",
+      "status": "preview",
+      "sourceRef": {
+        "path": "catalogs/summary.json",
+        "pointer": "/semanticProviders/ids/19",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      },
+      "deprecation": null
+    },
+    {
+      "id": "dawnlight:lighting/handheld_position_radius",
+      "kind": "semantic-provider",
+      "version": "1",
+      "status": "preview",
+      "sourceRef": {
+        "path": "catalogs/summary.json",
+        "pointer": "/semanticProviders/ids/20",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      },
+      "deprecation": null
+    },
+    {
+      "id": "dawnlight:lighting/handheld_color_intensity",
+      "kind": "semantic-provider",
+      "version": "1",
+      "status": "preview",
+      "sourceRef": {
+        "path": "catalogs/summary.json",
+        "pointer": "/semanticProviders/ids/21",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      },
+      "deprecation": null
+    },
+    {
+      "id": "dawnlight:camera/projection_matrix",
+      "kind": "semantic-provider",
+      "version": "1",
+      "status": "preview",
+      "sourceRef": {
+        "path": "catalogs/summary.json",
+        "pointer": "/semanticProviders/ids/22",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      },
+      "deprecation": null
+    },
+    {
+      "id": "dawnlight:camera/view_matrix",
+      "kind": "semantic-provider",
+      "version": "1",
+      "status": "preview",
+      "sourceRef": {
+        "path": "catalogs/summary.json",
+        "pointer": "/semanticProviders/ids/23",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      },
+      "deprecation": null
+    },
+    {
+      "id": "dawnlight:camera/near_plane",
+      "kind": "semantic-provider",
+      "version": "1",
+      "status": "preview",
+      "sourceRef": {
+        "path": "catalogs/summary.json",
+        "pointer": "/semanticProviders/ids/24",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      },
+      "deprecation": null
+    },
+    {
+      "id": "dawnlight:camera/far_plane",
+      "kind": "semantic-provider",
+      "version": "1",
+      "status": "preview",
+      "sourceRef": {
+        "path": "catalogs/summary.json",
+        "pointer": "/semanticProviders/ids/25",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      },
+      "deprecation": null
+    },
+    {
+      "id": "dawnlight:camera/normal_world_to_view_matrix",
+      "kind": "semantic-provider",
+      "version": "1",
+      "status": "preview",
+      "sourceRef": {
+        "path": "catalogs/summary.json",
+        "pointer": "/semanticProviders/ids/26",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      },
+      "deprecation": null
+    },
+    {
+      "id": "dawnlight:camera/direction",
+      "kind": "semantic-provider",
+      "version": "1",
+      "status": "preview",
+      "sourceRef": {
+        "path": "catalogs/summary.json",
+        "pointer": "/semanticProviders/ids/27",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      },
+      "deprecation": null
+    },
+    {
+      "id": "dawnlight:environment/view_underwater_depth",
+      "kind": "semantic-provider",
+      "version": "1",
+      "status": "preview",
+      "sourceRef": {
+        "path": "catalogs/summary.json",
+        "pointer": "/semanticProviders/ids/28",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      },
+      "deprecation": null
+    },
+    {
+      "id": "dawnlight:environment/temperature",
+      "kind": "semantic-provider",
+      "version": "1",
+      "status": "preview",
+      "sourceRef": {
+        "path": "catalogs/summary.json",
+        "pointer": "/semanticProviders/ids/29",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      },
+      "deprecation": null
+    },
+    {
+      "id": "dawnlight:environment/temperature_target",
+      "kind": "semantic-provider",
+      "version": "1",
+      "status": "preview",
+      "sourceRef": {
+        "path": "catalogs/summary.json",
+        "pointer": "/semanticProviders/ids/30",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      },
+      "deprecation": null
+    },
+    {
+      "id": "dawnlight:atmosphere/sun_position",
+      "kind": "semantic-provider",
+      "version": "1",
+      "status": "preview",
+      "sourceRef": {
+        "path": "catalogs/summary.json",
+        "pointer": "/semanticProviders/ids/31",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      },
+      "deprecation": null
+    },
+    {
+      "id": "dawnlight:atmosphere/fog_color",
+      "kind": "semantic-provider",
+      "version": "1",
+      "status": "preview",
+      "sourceRef": {
+        "path": "catalogs/summary.json",
+        "pointer": "/semanticProviders/ids/32",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      },
+      "deprecation": null
+    },
+    {
+      "id": "dawnlight:point_lights/cluster_dimensions",
+      "kind": "semantic-provider",
+      "version": "1",
+      "status": "preview",
+      "sourceRef": {
+        "path": "catalogs/summary.json",
+        "pointer": "/semanticProviders/ids/33",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      },
+      "deprecation": null
+    },
+    {
+      "id": "dawnlight:shaft/prepare",
+      "kind": "engine-draw-provider",
+      "version": "1",
+      "status": "preview",
+      "sourceRef": {
+        "path": "catalogs/summary.json",
+        "pointer": "/engineDrawProviders/ids/0",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      },
+      "deprecation": null
+    },
+    {
+      "id": "dawnlight:shaft/sun",
+      "kind": "engine-draw-provider",
+      "version": "1",
+      "status": "preview",
+      "sourceRef": {
+        "path": "catalogs/summary.json",
+        "pointer": "/engineDrawProviders/ids/1",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      },
+      "deprecation": null
+    },
+    {
+      "id": "dawnlight:lighting/handheld_prepare",
+      "kind": "engine-draw-provider",
+      "version": "1",
+      "status": "preview",
+      "sourceRef": {
+        "path": "catalogs/summary.json",
+        "pointer": "/engineDrawProviders/ids/2",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      },
+      "deprecation": null
+    },
+    {
+      "id": "dawnlight:terrain/opaque",
+      "kind": "engine-draw-provider",
+      "version": "1",
+      "status": "preview",
+      "sourceRef": {
+        "path": "catalogs/summary.json",
+        "pointer": "/engineDrawProviders/ids/3",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      },
+      "deprecation": null
+    },
+    {
+      "id": "dawnlight:terrain/alpha_tested",
+      "kind": "engine-draw-provider",
+      "version": "1",
+      "status": "preview",
+      "sourceRef": {
+        "path": "catalogs/summary.json",
+        "pointer": "/engineDrawProviders/ids/4",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      },
+      "deprecation": null
+    },
+    {
+      "id": "dawnlight:terrain/transparent",
+      "kind": "engine-draw-provider",
+      "version": "1",
+      "status": "preview",
+      "sourceRef": {
+        "path": "catalogs/summary.json",
+        "pointer": "/engineDrawProviders/ids/5",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      },
+      "deprecation": null
+    },
+    {
+      "id": "dawnlight:terrain/sorted_translucent",
+      "kind": "engine-draw-provider",
+      "version": "1",
+      "status": "preview",
+      "sourceRef": {
+        "path": "catalogs/summary.json",
+        "pointer": "/engineDrawProviders/ids/6",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      },
+      "deprecation": null
+    },
+    {
+      "id": "dawnlight:terrain/prepare",
+      "kind": "engine-draw-provider",
+      "version": "1",
+      "status": "preview",
+      "sourceRef": {
+        "path": "catalogs/summary.json",
+        "pointer": "/engineDrawProviders/ids/7",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      },
+      "deprecation": null
+    },
+    {
+      "id": "dawnlight:terrain_shadow/layer_0",
+      "kind": "engine-draw-provider",
+      "version": "1",
+      "status": "preview",
+      "sourceRef": {
+        "path": "catalogs/summary.json",
+        "pointer": "/engineDrawProviders/ids/8",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      },
+      "deprecation": null
+    },
+    {
+      "id": "dawnlight:terrain_shadow/layer_1",
+      "kind": "engine-draw-provider",
+      "version": "1",
+      "status": "preview",
+      "sourceRef": {
+        "path": "catalogs/summary.json",
+        "pointer": "/engineDrawProviders/ids/9",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      },
+      "deprecation": null
+    },
+    {
+      "id": "dawnlight:model_shadow/opaque_instanced",
+      "kind": "engine-draw-provider",
+      "version": "1",
+      "status": "preview",
+      "sourceRef": {
+        "path": "catalogs/summary.json",
+        "pointer": "/engineDrawProviders/ids/10",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      },
+      "deprecation": null
+    },
+    {
+      "id": "dawnlight:model_shadow/opaque_skinned",
+      "kind": "engine-draw-provider",
+      "version": "1",
+      "status": "preview",
+      "sourceRef": {
+        "path": "catalogs/summary.json",
+        "pointer": "/engineDrawProviders/ids/11",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      },
+      "deprecation": null
+    },
+    {
+      "id": "dawnlight:model_shadow/alpha_tested_instanced",
+      "kind": "engine-draw-provider",
+      "version": "1",
+      "status": "preview",
+      "sourceRef": {
+        "path": "catalogs/summary.json",
+        "pointer": "/engineDrawProviders/ids/12",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      },
+      "deprecation": null
+    },
+    {
+      "id": "dawnlight:model_shadow/alpha_tested_skinned",
+      "kind": "engine-draw-provider",
+      "version": "1",
+      "status": "preview",
+      "sourceRef": {
+        "path": "catalogs/summary.json",
+        "pointer": "/engineDrawProviders/ids/13",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      },
+      "deprecation": null
+    }
+  ],
+  "capabilities": [
+    {
+      "id": "dawnlight:model_shadow/max_instances",
+      "version": "preview-1",
+      "status": "preview",
+      "sourceRef": {
+        "path": "catalogs/summary.json",
+        "pointer": "/capabilities/ids/0",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      },
+      "deprecation": null
+    },
+    {
+      "id": "dawnlight:model_shadow/max_joints",
+      "version": "preview-1",
+      "status": "preview",
+      "sourceRef": {
+        "path": "catalogs/summary.json",
+        "pointer": "/capabilities/ids/1",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      },
+      "deprecation": null
+    }
+  ],
+  "graph": {
+    "id": "dawnlight:pipeline-graph",
+    "version": "preview-2026-08-16",
+    "status": "unavailable",
+    "sourceRef": {
+      "path": "contract-manifest.json",
+      "pointer": "/availability/graph",
+      "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+    },
+    "deprecation": null,
+    "reason": "The locked Core contract does not contain a structured graph dump with nodes, edges, lifetimes and sourceRef fields.",
+    "nodes": [],
+    "edges": []
+  },
+  "variant": {
+    "id": "dawnlight:variant-explain",
+    "version": "preview-2026-08-16",
+    "status": "unavailable",
+    "sourceRef": {
+      "path": "cli/metadata.json",
+      "pointer": "",
+      "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+    },
+    "deprecation": null,
+    "reason": "ShaderPackCli structured output is unavailable, so the website cannot infer variant selection or exclusion reasons.",
+    "explanations": []
+  }
+}

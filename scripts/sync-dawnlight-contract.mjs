@@ -133,4 +133,9 @@ writeFileSync(
   resolve(outputRoot, "contract-lock.json"),
   `${JSON.stringify(lock, null, 2)}\n`,
 );
+execFileSync(
+  process.execPath,
+  [resolve("scripts/build-contract-ingest.mjs"), "--root", outputRoot],
+  { stdio: "inherit" },
+);
 console.log(`Exported ${generated.length} contract files from ${commit}.`);

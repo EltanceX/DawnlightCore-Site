@@ -13,3 +13,9 @@ export async function checkDatabase(pool: Pool): Promise<void> {
 export async function closeDatabase(pool: Pool): Promise<void> {
   await pool.end();
 }
+
+export {
+  createPostgresContractDataService,
+  ingestContractBundle,
+  type ContractIngestResult,
+} from "./contracts.js";

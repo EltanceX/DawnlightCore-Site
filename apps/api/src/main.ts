@@ -1,5 +1,14 @@
 import { parseServerEnv, formatEnvIssues } from "@dawnlight/config";
-import { closeDatabase, createDatabasePool } from "@dawnlight/database";
+import {
+  closeDatabase,
+  createDatabasePool,
+  createPostgresContractDataService,
+} from "@dawnlight/database";
+import {
+  createContractDataService,
+  type ContractDataService,
+} from "@dawnlight/contract-data";
+import { loadContractBundle } from "@dawnlight/contract-data/node";
 import { createApp } from "./app.js";
 
 let env;
@@ -16,7 +25,16 @@ const database = createDatabasePool({
   connectionString: env.DATABASE_URL,
   max: env.DATABASE_POOL_MAX,
 });
-const app = await createApp(env, { database });
+let contracts: ContractDataService;
+if (env.CONTRACT_DATA_SOURCE === "database") {
+  contracts = await createPostgresContractDataService(database);
+} else {
+  const bundle = loadContractBundle(env.CONTRACT_FIXTURE_ROOT, {
+    requireSignature: env.APP_ENV === "production",
+  });
+  contracts = createContractDataService([bundle.fixture]);
+}
+const app = await createApp(env, { database, contracts });
 
 const close = async () => {
   await app.close();

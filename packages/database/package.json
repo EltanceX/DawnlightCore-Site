@@ -7,12 +7,14 @@
     ".": "./dist/index.js"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "pnpm --filter @dawnlight/contract-data build && tsc -p tsconfig.json",
     "types:check": "tsc -p tsconfig.json --noEmit",
     "migrate:up": "node scripts/migrate-up.mjs",
-    "seed": "node scripts/seed.mjs"
+    "seed": "node scripts/seed.mjs",
+    "contract:ingest": "node scripts/ingest-contract.mjs"
   },
   "dependencies": {
+    "@dawnlight/contract-data": "workspace:*",
     "pg": "^8.16.3"
   },
   "devDependencies": {
