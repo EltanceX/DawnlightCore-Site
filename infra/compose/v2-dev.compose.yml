@@ -1,0 +1,39 @@
+name: dawnlight-v2-dev
+
+services:
+  postgres:
+    image: postgres:16.4-alpine
+    ports:
+      - "55432:5432"
+    environment:
+      POSTGRES_USER: dawnlight
+      POSTGRES_PASSWORD: dawnlight
+      POSTGRES_DB: dawnlight_v2
+    volumes:
+      - dawnlight-v2-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dawnlight -d dawnlight_v2"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  minio:
+    image: minio/minio:RELEASE.2024-06-13T22-53-53Z
+    command: server /data --console-address ":59001"
+    ports:
+      - "59000:9000"
+      - "59001:59001"
+    environment:
+      MINIO_ROOT_USER: dawnlight-local
+      MINIO_ROOT_PASSWORD: dawnlight-local-secret
+    volumes:
+      - dawnlight-v2-minio:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  dawnlight-v2-postgres:
+  dawnlight-v2-minio:

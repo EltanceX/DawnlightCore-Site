@@ -1,0 +1,70 @@
+openapi: 3.1.0
+info:
+  title: DawnlightCore API
+  version: 0.1.0-preview
+  description: >-
+    V2-WP1 bootstrap contract. Only health endpoints are implemented; project,
+    contract and artifact endpoints are introduced in later work packages.
+servers:
+  - url: http://127.0.0.1:4100
+paths:
+  /health/live:
+    get:
+      operationId: getHealthLive
+      responses:
+        '200':
+          description: Process is alive.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthLiveResponse'
+  /health/ready:
+    get:
+      operationId: getHealthReady
+      responses:
+        '200':
+          description: Required dependencies are ready.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthReadyResponse'
+        '503':
+          description: One or more dependencies are unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthReadyResponse'
+components:
+  schemas:
+    HealthLiveResponse:
+      type: object
+      required: [status, service, version, environment]
+      properties:
+        status: { type: string, enum: [ok] }
+        service: { type: string }
+        version: { type: string }
+        environment:
+          type: string
+          enum: [development, test, staging, production]
+    DependencyCheck:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [ok, degraded, failed, not-configured]
+        detail: { type: string }
+    HealthReadyResponse:
+      type: object
+      required: [status, service, version, checks]
+      properties:
+        status: { type: string, enum: [ready, not-ready] }
+        service: { type: string }
+        version: { type: string }
+        checks:
+          type: object
+          required: [database, objectStorage]
+          properties:
+            database: { $ref: '#/components/schemas/DependencyCheck' }
+            objectStorage: { $ref: '#/components/schemas/DependencyCheck' }
+

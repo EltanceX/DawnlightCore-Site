@@ -1,0 +1,24 @@
+{
+  "name": "@dawnlight/worker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "pnpm --filter @dawnlight/config build && pnpm --filter @dawnlight/database build && tsc -p tsconfig.build.json",
+    "dev": "tsx watch src/main.ts",
+    "start": "node dist/main.js",
+    "types:check": "tsc -p tsconfig.json --noEmit",
+    "check:config": "tsx src/check-config.ts"
+  },
+  "dependencies": {
+    "@dawnlight/config": "workspace:*",
+    "@dawnlight/database": "workspace:*",
+    "pg-boss": "^12.5.0",
+    "pino": "^10.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.2.0",
+    "tsx": "^4.20.6",
+    "typescript": "^6.0.3"
+  }
+}

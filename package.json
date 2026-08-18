@@ -9,12 +9,18 @@
   },
   "scripts": {
     "dev": "pnpm --filter @dawnlight/web dev",
+    "dev:api": "pnpm --filter @dawnlight/api dev",
+    "dev:worker": "pnpm --filter @dawnlight/worker dev",
+    "db:migrate": "pnpm --filter @dawnlight/database migrate:up",
+    "db:seed": "pnpm --filter @dawnlight/database seed",
+    "services:build": "pnpm --filter @dawnlight/api build && pnpm --filter @dawnlight/worker build",
+    "api:smoke": "node scripts/smoke-v2-api.mjs",
     "build": "pnpm --filter @dawnlight/web build",
     "start": "pnpm --filter @dawnlight/web start",
     "lint": "pnpm --filter @dawnlight/web lint",
-    "typecheck": "pnpm --filter @dawnlight/web types:check",
-    "format:check": "prettier --check \"apps/web/src/**/*.{ts,tsx,md,mdx,json,yml,yaml,css}\" \"apps/web/tests/**/*.{ts,tsx}\" \"tests/e2e/**/*.{ts,tsx}\" \"apps/web/vitest.config.ts\" \"playwright.config.ts\" \"apps/web/package.json\" \"scripts/**/*.{mjs,mts,ts}\" \"config/**/*.json\" \".github/**/*.{yml,yaml}\" \"contracts/dawnlight/preview/**/*.json\" \"content/releases/**/*.json\" \"apps/web/public/feeds/**/*.json\" \"package.json\" \"pnpm-workspace.yaml\" \"turbo.json\"",
-    "test": "pnpm --filter @dawnlight/web test",
+    "typecheck": "pnpm --filter @dawnlight/config build && pnpm --filter @dawnlight/api-client build && pnpm --filter @dawnlight/database build && pnpm --filter @dawnlight/web types:check && pnpm --filter @dawnlight/config types:check && pnpm --filter @dawnlight/api-client types:check && pnpm --filter @dawnlight/database types:check && pnpm --filter @dawnlight/api types:check && pnpm --filter @dawnlight/worker types:check",
+    "format:check": "prettier --check \"apps/web/src/**/*.{ts,tsx,md,mdx,json,yml,yaml,css}\" \"apps/web/tests/**/*.{ts,tsx}\" \"tests/e2e/**/*.{ts,tsx}\" \"apps/api/src/**/*.ts\" \"apps/api/tests/**/*.ts\" \"apps/api/tsconfig*.json\" \"apps/worker/src/**/*.ts\" \"apps/worker/tsconfig*.json\" \"packages/*/src/**/*.ts\" \"packages/*/tsconfig*.json\" \"apps/web/vitest.config.ts\" \"playwright.config.ts\" \"apps/web/package.json\" \"apps/api/package.json\" \"apps/worker/package.json\" \"packages/*/package.json\" \"scripts/**/*.{mjs,mts,ts}\" \"config/**/*.json\" \"infra/**/*.{yml,yaml}\" \"contracts/openapi/**/*.{yml,yaml}\" \".github/**/*.{yml,yaml}\" \"contracts/dawnlight/preview/**/*.json\" \"content/releases/**/*.json\" \"apps/web/public/feeds/**/*.json\" \"package.json\" \"pnpm-workspace.yaml\" \"turbo.json\"",
+    "test": "pnpm --filter @dawnlight/web test && pnpm --filter @dawnlight/api test",
     "e2e": "pnpm build && pnpm e2e:run",
     "e2e:run": "playwright test",
     "lighthouse": "start-server-and-test \"pnpm --filter @dawnlight/web start:lighthouse\" http://127.0.0.1:4174 \"node scripts/run-lighthouse.mjs\"",
@@ -30,7 +36,8 @@
     "releases:generate": "node scripts/generate-release-feed.mjs",
     "contract:sync": "node scripts/sync-dawnlight-contract.mjs",
     "validate:contract": "node scripts/validate-dawnlight-contract.mjs",
-    "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm validate:contract && pnpm validate:content && pnpm validate:releases && pnpm build && pnpm verify:static && pnpm static:budget && pnpm security:scan && pnpm e2e:run && pnpm lighthouse"
+    "v2:check": "node scripts/validate-v2-workspace.mjs",
+    "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm services:build && pnpm test && pnpm api:smoke && pnpm validate:contract && pnpm v2:check && pnpm validate:content && pnpm validate:releases && pnpm build && pnpm verify:static && pnpm static:budget && pnpm security:scan && pnpm e2e:run && pnpm lighthouse"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",
