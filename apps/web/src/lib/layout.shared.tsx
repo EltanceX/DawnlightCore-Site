@@ -1,5 +1,5 @@
 import type { BaseLayoutProps } from "fumadocs-ui/layouts/shared";
-import { BookOpen, Download, GitFork } from "lucide-react";
+import { BookOpen, Boxes, Download, GitFork, Wrench } from "lucide-react";
 import { BrandMark } from "@/components/brand-mark";
 import { gitConfig } from "./shared";
 
@@ -21,6 +21,18 @@ export function baseOptions(): BaseLayoutProps {
         text: "下载",
         url: "/zh-CN/downloads/",
         icon: <Download size={16} aria-hidden="true" />,
+      },
+      {
+        type: "main",
+        text: "工具",
+        url: "/zh-CN/tools/",
+        icon: <Wrench size={16} aria-hidden="true" />,
+      },
+      {
+        type: "main",
+        text: "光影",
+        url: "/zh-CN/shaders/",
+        icon: <Boxes size={16} aria-hidden="true" />,
       },
       {
         type: "icon",

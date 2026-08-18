@@ -34,7 +34,7 @@ format -> lint -> typecheck -> unit tests
 - `config/lighthouse-budgets.json` 与 `scripts/run-lighthouse.mjs`：使用 Lighthouse 官方 desktop config 检查首页、文档首页和下载页；
 - `scripts/scan-static-output.mjs`：扫描静态输出中的 secret 形态、本机绝对路径、`file://`、source map 和危险 HTML/脚本模式。
 
-当前静态上限：总输出 12 MiB，单 JS chunk 320 KiB，CSS/HTML 各 128 KiB，搜索索引 512 KiB，WebP 300 KiB，JPEG 400 KiB，PNG 128 KiB。搜索索引预算在补充三页 V1 内容后从 400 KiB 上调至 512 KiB，并继续由 CI 硬失败保护。
+当前静态上限：总输出 14 MiB，单 JS chunk 320 KiB，CSS/HTML 各 128 KiB，搜索索引 512 KiB，WebP 300 KiB，JPEG 400 KiB，PNG 128 KiB。搜索索引预算在补充三页 V1 内容后从 400 KiB 上调至 512 KiB；总输出预算在 V2.0 增加开发工具和只读目录静态路由后从 12 MiB 上调至 14 MiB。两项仍由 CI 硬失败保护。
 
 Lighthouse 的 Production 阈值为 Performance 0.90、Accessibility 0.95、Best Practices 0.95、SEO 0.95。Preview 有意输出 `noindex` 和 `Disallow: /`，Lighthouse 13 的 `is-crawlable` 会把 SEO 总分压到约 0.63，因此 Preview 单独采用 0.60 的书面例外；Production 不继承该例外。
 

@@ -7,6 +7,11 @@
 - [V1 当前进度与剩余项](./V1-Progress.md)
 - [V2 详细实现方案](./DawnlightCoreWebsiteV2ImplementationPlan.md)
 
+## V2.0：开发工具与只读目录
+
+- [V2-WP0 决策登记](./V2-WP0-DecisionRegister.md)
+- [V2-WP0 实现记录](./V2-WP0-Implementation.md)
+
 ## WP0：决策冻结与资产盘点
 
 - [决策登记表](./WP0-DecisionRegister.md)

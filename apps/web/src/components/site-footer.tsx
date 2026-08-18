@@ -14,6 +14,8 @@ export function SiteFooter() {
         <nav className="dl-footer__links" aria-label="页脚导航">
           <Link href="/zh-CN/docs/preview/">开发文档</Link>
           <Link href="/zh-CN/downloads/">下载</Link>
+          <Link href="/zh-CN/tools/">开发工具</Link>
+          <Link href="/zh-CN/shaders/">光影目录</Link>
           <a
             href={`https://github.com/${gitConfig.user}/${gitConfig.repo}`}
             rel="noreferrer"

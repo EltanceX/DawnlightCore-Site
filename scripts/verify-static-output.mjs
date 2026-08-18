@@ -11,6 +11,12 @@ const required = [
   "zh-CN/docs/preview/06-reference/diagnostics/index.html",
   "zh-CN/downloads/index.html",
   "zh-CN/downloads/releases/index.html",
+  "zh-CN/tools/index.html",
+  "zh-CN/tools/diagnostics/index.html",
+  "zh-CN/tools/catalog/index.html",
+  "zh-CN/tools/capabilities/index.html",
+  "zh-CN/shaders/index.html",
+  "zh-CN/shaders/dawnlight-v3-1/index.html",
   "api/search",
   "feeds/releases-v1.json",
 ];
@@ -77,6 +83,34 @@ if (
 ) {
   console.error(
     "Static download output does not contain the preview feed state.",
+  );
+  process.exit(1);
+}
+
+const toolsHtml = readFileSync(
+  resolve(output, "zh-CN/tools/index.html"),
+  "utf8",
+);
+if (
+  !toolsHtml.includes("Diagnostic Explorer") ||
+  !toolsHtml.includes("待 contract")
+) {
+  console.error(
+    "Static tools output does not contain the V2.0 preview boundary.",
+  );
+  process.exit(1);
+}
+
+const shadersHtml = readFileSync(
+  resolve(output, "zh-CN/shaders/dawnlight-v3-1/index.html"),
+  "utf8",
+);
+if (
+  !shadersHtml.includes("schema-only") ||
+  !shadersHtml.includes("当前不能下载")
+) {
+  console.error(
+    "Static shader directory output does not contain the no-download state.",
   );
   process.exit(1);
 }

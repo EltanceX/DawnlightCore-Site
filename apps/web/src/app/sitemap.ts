@@ -13,6 +13,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/zh-CN/",
     "/zh-CN/downloads/",
     "/zh-CN/downloads/releases/",
+    "/zh-CN/tools/",
+    "/zh-CN/tools/diagnostics/",
+    "/zh-CN/tools/catalog/",
+    "/zh-CN/tools/capabilities/",
+    "/zh-CN/tools/pipeline/",
+    "/zh-CN/tools/variants/",
+    "/zh-CN/shaders/",
   ];
   const docsRoutes = source.getPages().map((page) => `${page.url}/`);
   const routes = [...new Set([...baseRoutes, ...docsRoutes])];

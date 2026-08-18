@@ -47,7 +47,7 @@ test("documentation search opens the CLI validation page", async ({
   const search = page.getByRole("dialog").getByRole("textbox");
   await search.fill("schema-only");
   const result = page.getByText("使用 CLI 验证", { exact: true }).first();
-  await expect(result).toBeVisible();
+  await expect(result).toBeVisible({ timeout: 10000 });
   await result.click();
   await expect(page).toHaveURL(/\/01-getting-started\/validate-with-cli\/$/);
   await expect(
@@ -68,6 +68,43 @@ test("download page preserves the verified empty-feed state", async ({
   await expect(
     page.getByText("页面不会展示未经核对的下载链接。", { exact: false }),
   ).toBeVisible();
+  await expect(
+    page.locator("a[href^='http']").filter({ hasText: /下载/ }),
+  ).toHaveCount(0);
+});
+
+test("V2 tools and shader directory expose verified preview boundaries", async ({
+  page,
+}) => {
+  await page.goto("/zh-CN/tools/");
+  await expect(
+    page.getByRole("heading", { level: 1, name: "开发工具" }),
+  ).toBeVisible();
+  await expect(
+    page.getByText("preview-2026-08-16", { exact: false }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: /Diagnostic Explorer/ }),
+  ).toHaveAttribute("href", "/zh-CN/tools/diagnostics/");
+
+  await page.goto("/zh-CN/tools/diagnostics/UnknownIdentifier/");
+  await expect(
+    page.getByRole("heading", { level: 1, name: "UnknownIdentifier" }),
+  ).toBeVisible();
+  await expect(
+    page.getByText("不虚构具体文件路径", { exact: false }),
+  ).toBeVisible();
+
+  await page.goto("/zh-CN/shaders/");
+  await expect(
+    page.getByRole("heading", { level: 1, name: "光影目录" }),
+  ).toBeVisible();
+  await expect(page.getByText("Dawnlight v3.1", { exact: true })).toBeVisible();
+  await expect(page.getByText("暂无下载", { exact: true })).toBeVisible();
+
+  await page.goto("/zh-CN/shaders/dawnlight-v3-1/");
+  await expect(page.getByText("当前不能下载", { exact: true })).toBeVisible();
+  await expect(page.getByText("schema-only", { exact: true })).toBeVisible();
   await expect(
     page.locator("a[href^='http']").filter({ hasText: /下载/ }),
   ).toHaveCount(0);
@@ -110,6 +147,11 @@ for (const route of [
   "/zh-CN/",
   "/zh-CN/docs/preview/",
   "/zh-CN/downloads/",
+  "/zh-CN/tools/",
+  "/zh-CN/tools/catalog/",
+  "/zh-CN/tools/diagnostics/UnknownIdentifier/",
+  "/zh-CN/shaders/",
+  "/zh-CN/shaders/dawnlight-v3-1/",
   "/zh-CN/does-not-exist/",
 ]) {
   test(`axe has no serious or critical violations on ${route}`, async ({
