@@ -29,6 +29,7 @@ const requiredFiles = [
   "contracts/dawnlight/preview/ingest-fixture.json",
   "contracts/dawnlight/preview/directory-fixture.json",
   "contracts/openapi/v1.yaml",
+  "docs/V2-WP9-DecisionRegister.md",
   "infra/compose/v2-dev.compose.yml",
   "apps/web/src/components/developer-tools/tool-shared.tsx",
   "apps/web/src/components/developer-tools/diagnostic-explorer.tsx",
@@ -180,6 +181,42 @@ for (const boundary of [
   }
 }
 
+const wp9Decisions = readFileSync(
+  resolve("docs/V2-WP9-DecisionRegister.md"),
+  "utf8",
+);
+for (const decision of ["WP9-D01", "WP9-D02", "WP9-D03", "WP9-D04"]) {
+  if (!wp9Decisions.includes(decision)) {
+    console.error(`WP9 decision register is missing ${decision}.`);
+    process.exit(1);
+  }
+}
+for (const boundary of [
+  "ghcr.io/eltancex/dawnlight-validator",
+  "`takedown`",
+  "单 API 实例",
+  "Release Owner",
+]) {
+  if (!wp9Decisions.includes(boundary)) {
+    console.error(`WP9 decision register is missing boundary: ${boundary}`);
+    process.exit(1);
+  }
+}
+
+const validatorReadme = readFileSync(
+  resolve("infra/validator/README.md"),
+  "utf8",
+);
+if (
+  !validatorReadme.includes("ghcr.io/eltancex/dawnlight-validator@sha256:") ||
+  validatorReadme.includes("registry.example.invalid")
+) {
+  console.error(
+    "Validator documentation must use the frozen GHCR digest form.",
+  );
+  process.exit(1);
+}
+
 console.log(
-  "V2 workspace validation passed through WP8 (public search, coarse download analytics and private operations).",
+  "V2 workspace validation passed through WP9-0 (Beta supply chain, takedown, topology and ownership decisions frozen).",
 );
