@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
-import { Boxes } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { CatalogExplorer } from "@/components/developer-tools/catalog-explorer";
 import { Callout } from "@/components/ui/callout";
 import { PageContainer } from "@/components/ui/page-container";
-import { catalogSections, toolContract } from "@/lib/developer-tools";
+import {
+  catalogEntries,
+  contractVersions,
+  toolContract,
+} from "@/lib/developer-tools";
 import { supportedLocales } from "@/lib/site";
 
 export function generateStaticParams() {
@@ -25,28 +28,11 @@ export default function CatalogPage() {
           当前目录快照来自 Core {toolContract.coreCommit.slice(0, 8)}。ID
           可以用于阅读和 schema 引用，但不代表所有图形设备上都有相同运行能力。
         </p>
-        <div className="dl-v2-catalog-grid">
-          {catalogSections.map((section) => (
-            <section className="dl-v2-catalog-section" key={section.id}>
-              <div className="dl-v2-section-heading">
-                <div className="dl-v2-card__icon">
-                  <Boxes size={18} aria-hidden="true" />
-                </div>
-                <div>
-                  <h2>{section.label}</h2>
-                  <Badge>{section.items.length} IDs</Badge>
-                </div>
-              </div>
-              <ul>
-                {section.items.map((id) => (
-                  <li key={id}>
-                    <code>{id}</code>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          ))}
-        </div>
+        <CatalogExplorer
+          initialEntries={catalogEntries}
+          locale="zh-CN"
+          versions={contractVersions}
+        />
         <Callout title="Catalog 不是私有 C# API 的镜像">
           只有进入版本化 contract 的 ID
           才能被光影包依赖。未出现在目录中的内部类型、factory

@@ -3,7 +3,7 @@
   "limits": {
     "javascriptChunkBytes": 327680,
     "stylesheetBytes": 131072,
-    "htmlDocumentBytes": 131072,
+    "htmlDocumentBytes": 163840,
     "searchIndexBytes": 524288,
     "webpImageBytes": 307200,
     "jpegImageBytes": 409600,

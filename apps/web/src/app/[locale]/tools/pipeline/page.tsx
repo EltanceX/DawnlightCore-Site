@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { Network } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Callout } from "@/components/ui/callout";
+import { GraphExplorer } from "@/components/developer-tools/graph-explorer";
 import { PageContainer } from "@/components/ui/page-container";
-import { graphAvailability } from "@/lib/developer-tools";
+import { contractVersions, graphAvailability } from "@/lib/developer-tools";
 import { supportedLocales } from "@/lib/site";
 
 export function generateStaticParams() {
@@ -26,18 +26,18 @@ export default function PipelinePage() {
           </span>
           <div>
             <h1>Pipeline Graph</h1>
-            <Badge>待 contract</Badge>
+            <Badge>Contract unavailable</Badge>
           </div>
         </div>
         <p className="dl-v2-lede">
           当前 contract 状态：{graphAvailability.status}。页面不会绘制未被
           ingest snapshot 提供的 Pass、Resource 或执行边。
         </p>
-        <Callout title="下一步接入条件">
-          {graphAvailability.reason} Core CI 需要生成包含节点
-          ID、边、资源生命周期和 sourceRef 的 graph dump，并绑定 Core
-          commit、Manifest 版本和 hash。 接入后这里再启用图形化查看和列表降级。
-        </Callout>
+        <GraphExplorer
+          initialGraph={graphAvailability}
+          locale="zh-CN"
+          versions={contractVersions}
+        />
       </PageContainer>
     </main>
   );

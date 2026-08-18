@@ -13,6 +13,7 @@
 - [V2-WP0 实现记录](./V2-WP0-Implementation.md)
 - [V2-WP1 实现记录](./V2-WP1-Implementation.md)
 - [V2-WP2 实现记录](./V2-WP2-Implementation.md)
+- [V2-WP3 实现记录](./V2-WP3-Implementation.md)
 
 ## WP0：决策冻结与资产盘点
 

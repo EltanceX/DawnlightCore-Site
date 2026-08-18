@@ -15,6 +15,9 @@ const required = [
   "zh-CN/tools/diagnostics/index.html",
   "zh-CN/tools/catalog/index.html",
   "zh-CN/tools/capabilities/index.html",
+  "zh-CN/tools/pipeline/index.html",
+  "zh-CN/tools/variants/index.html",
+  "zh-CN/tools/contract-diff/index.html",
   "zh-CN/shaders/index.html",
   "zh-CN/shaders/dawnlight-v3-1/index.html",
   "api/search",
@@ -93,10 +96,45 @@ const toolsHtml = readFileSync(
 );
 if (
   !toolsHtml.includes("Diagnostic Explorer") ||
-  !toolsHtml.includes("待 contract")
+  !toolsHtml.includes("Contract Diff") ||
+  !toolsHtml.includes("只读 API")
 ) {
   console.error(
     "Static tools output does not contain the V2.0 preview boundary.",
+  );
+  process.exit(1);
+}
+
+const pipelineHtml = readFileSync(
+  resolve(output, "zh-CN/tools/pipeline/index.html"),
+  "utf8",
+);
+if (
+  !pipelineHtml.includes("Graph unavailable") ||
+  !pipelineHtml.includes("当前 contract 没有结构化 Graph dump")
+) {
+  console.error("Static Pipeline output hides the unavailable Graph boundary.");
+  process.exit(1);
+}
+
+const variantsHtml = readFileSync(
+  resolve(output, "zh-CN/tools/variants/index.html"),
+  "utf8",
+);
+if (!variantsHtml.includes("Variant explain unavailable")) {
+  console.error(
+    "Static Variant output hides the unavailable explain boundary.",
+  );
+  process.exit(1);
+}
+
+const diffHtml = readFileSync(
+  resolve(output, "zh-CN/tools/contract-diff/index.html"),
+  "utf8",
+);
+if (!diffHtml.includes("两个 contract 没有结构差异")) {
+  console.error(
+    "Static Contract Diff output does not contain its empty state.",
   );
   process.exit(1);
 }

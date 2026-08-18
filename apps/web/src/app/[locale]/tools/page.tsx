@@ -63,6 +63,13 @@ const tools = [
       "等待真实 variant explain 输出；不会由网页自行推断 Loader 结果。",
     status: "待 CLI",
   },
+  {
+    href: "/zh-CN/tools/contract-diff/",
+    icon: GitCompare,
+    title: "Contract Diff",
+    description: "比较两个 contract snapshot 中稳定实体的新增、移除与变更。",
+    status: "可用",
+  },
 ];
 
 export default function ToolsPage() {
@@ -102,9 +109,9 @@ export default function ToolsPage() {
           ))}
         </div>
         <Callout title="V2.0 数据边界">
-          当前页面是 V2.0 的静态 contract data service。真实
-          API、PostgreSQL、CLI JSON 输出、Pipeline graph dump 和 variant explain
-          会在后续工作包中接入。
+          当前工具优先读取 V2.0 只读 API；未配置或暂时无法连接 API
+          时回退到同源构建期 fixture。Pipeline graph dump 和 variant explain
+          仍等待 Core/CLI 提供真实结构化输出。
         </Callout>
         <p className="dl-v2-backlink">
           <BookOpen size={15} aria-hidden="true" />

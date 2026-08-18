@@ -28,6 +28,9 @@ export const toolContract = {
   ingestManifestDigest: contractManifest.signature.signedPayloadSha256,
 } as const;
 
+export const contractVersions = [fixture.contract] as const;
+export const catalogEntries = fixture.catalog;
+
 export const diagnosticEntries = fixture.diagnostics.map((entry) => ({
   ...entry,
   label: entry.group === "catalog" ? "Catalog 诊断" : "Manifest 诊断",
@@ -60,6 +63,20 @@ export const capabilityEntries = fixture.capabilities.map((entry) => ({
 
 export const graphAvailability = fixture.graph;
 export const variantAvailability = fixture.variant;
+export const emptyContractDiff = {
+  from: fixture.contract.version,
+  to: fixture.contract.version,
+  added: [],
+  removed: [],
+  changed: [],
+};
+
+export type DiagnosticToolEntry = (typeof diagnosticEntries)[number];
+export type CatalogToolEntry = (typeof catalogEntries)[number];
+export type CapabilityToolEntry = (typeof capabilityEntries)[number];
+export type GraphToolRecord = typeof graphAvailability;
+export type VariantToolRecord = typeof variantAvailability;
+export type ContractVersionToolEntry = (typeof contractVersions)[number];
 
 export function getDiagnostic(code: string) {
   return diagnosticEntries.find((entry) => entry.code === code);

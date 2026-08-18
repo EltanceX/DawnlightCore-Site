@@ -1,6 +1,6 @@
-+# V2-WP2：Contract ingest 与开发工具数据层
+# V2-WP2：Contract ingest 与开发工具数据层
 
-状态：代码实现完成；PostgreSQL/MinIO 实际运行演练和生产签名仍待环境就绪
+状态：代码与远端 Compose 运行演练完成；staging smoke 和生产签名仍待后续环境
 
 日期：2026-08-18
 
@@ -183,9 +183,10 @@ Pipeline/Variant 页面读取数据层的 unavailable 记录；页面不会自�
 - [x] 只读 service、OpenAPI DTO、错误语义、ETag 和缓存策略已实现；
 - [x] API 与静态工具 fallback 消费同一 normalized fixture；
 - [x] ingest 失败不会覆盖当前 active 版本的事务策略已实现并有测试入口；
-- [ ] 真实 PostgreSQL/MinIO 运行演练和 staging smoke；
+- [x] 真实 PostgreSQL/MinIO migration、ingest 幂等和 database-mode API 运行演练；
+- [ ] staging 部署 smoke；
 - [ ] 生产签名 key、稳定 CLI 和真实 Loader contract。
 
-## 9. 下一工作包
+## 9. 后续交接
 
-V2-WP3 继续完成 Developer Tools 前端：版本切换、搜索、筛选、URL 深链、API 优先/fallback、Graph/Variant 空状态、Contract Diff 页面、响应式和键盘验收。WP3 不得把当前 unavailable 数据升级为推断结果。
+V2-WP3 已完成 Developer Tools 前端，记录见 [V2-WP3 实现记录](./V2-WP3-Implementation.md)。下一步进入 V2-WP4，只读目录仍复用本工作包的版本、sourceRef、错误 envelope 和缓存边界。

@@ -21,6 +21,14 @@ const requiredFiles = [
   "contracts/dawnlight/preview/ingest-fixture.json",
   "contracts/openapi/v1.yaml",
   "infra/compose/v2-dev.compose.yml",
+  "apps/web/src/components/developer-tools/tool-shared.tsx",
+  "apps/web/src/components/developer-tools/diagnostic-explorer.tsx",
+  "apps/web/src/components/developer-tools/catalog-explorer.tsx",
+  "apps/web/src/components/developer-tools/capability-explorer.tsx",
+  "apps/web/src/components/developer-tools/graph-explorer.tsx",
+  "apps/web/src/components/developer-tools/variant-explorer.tsx",
+  "apps/web/src/components/developer-tools/contract-diff-explorer.tsx",
+  "apps/web/src/app/[locale]/tools/contract-diff/page.tsx",
 ];
 
 const missing = requiredFiles.filter((file) => !existsSync(resolve(file)));
@@ -78,5 +86,5 @@ for (const key of [
 }
 
 console.log(
-  "V2 workspace validation passed (WP1 skeleton and WP2 contract ingest fixtures).",
+  "V2 workspace validation passed (WP1 skeleton, WP2 contract data, and WP3 developer tools).",
 );

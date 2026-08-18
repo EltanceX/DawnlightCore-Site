@@ -1,6 +1,6 @@
 # V2-WP0：V2.0 决策冻结与第一批实现
 
-状态：已完成范围冻结，已开始静态开发工具与只读目录实现
+状态：V2-WP0 决策冻结完成；WP1、WP2、WP3 已实现，进入 V2-WP4 准备
 
 日期：2026-08-18
 
@@ -17,7 +17,7 @@
 - 增加工具/目录导航、Footer 入口、sitemap 路由和静态 smoke 检查；
 - 增加工具/目录 E2E 关键路径和 axe 回归。
 - 静态输出总预算因新增 V2.0 路由从 12 MiB 调整为 14 MiB；单文件预算和失败门禁保持不变。
-- 已完成 [V2-WP1 动态工程骨架](./V2-WP1-Implementation.md) 和 [V2-WP2 Contract ingest 数据层](./V2-WP2-Implementation.md)。
+- 已完成 [V2-WP1 动态工程骨架](./V2-WP1-Implementation.md)、[V2-WP2 Contract ingest 数据层](./V2-WP2-Implementation.md) 和 [V2-WP3 Developer Tools 前端](./V2-WP3-Implementation.md)。
 
 ## 当前实现边界
 
@@ -25,7 +25,7 @@
 
 ## 下一步
 
-1. 完成 WP3 的 API 优先工具页、版本切换、筛选和深链；
-2. 用 PostgreSQL/MinIO 环境执行真实 migration、contract ingest 和 staging smoke；
-3. 为项目、版本、artifact 和 compatibility 建立维护者 seed/import；
+1. 为项目、版本、artifact 和 compatibility 建立维护者 seed/import；
+2. 完成 V2-WP4 只读目录、兼容性筛选、推荐原因与排除原因；
+3. 在 staging 环境复验 API、PostgreSQL、MinIO、缓存和 CORS；
 4. 在稳定 CLI JSON contract 出现后接入 graph dump、variant explain 和真实 Loader 结果。

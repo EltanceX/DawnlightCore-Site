@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
-import { Gauge, ShieldCheck } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { CapabilityExplorer } from "@/components/developer-tools/capability-explorer";
 import { Callout } from "@/components/ui/callout";
 import { PageContainer } from "@/components/ui/page-container";
-import { capabilityEntries, toolContract } from "@/lib/developer-tools";
+import {
+  capabilityEntries,
+  contractVersions,
+  toolContract,
+} from "@/lib/developer-tools";
 import { supportedLocales } from "@/lib/site";
 
 export function generateStaticParams() {
@@ -25,20 +28,11 @@ export default function CapabilitiesPage() {
           能力 ID 来自当前 contract。数值上限、设备差异和运行时降级仍需由 Loader
           或实机验证记录补充。
         </p>
-        <div className="dl-v2-matrix">
-          <div className="dl-v2-matrix__header">
-            <span>Capability ID</span>
-            <span>Contract</span>
-            <span>当前说明</span>
-          </div>
-          {capabilityEntries.map((entry) => (
-            <div className="dl-v2-matrix__row" key={entry.id}>
-              <code>{entry.id}</code>
-              <Badge>{toolContract.status}</Badge>
-              <span>{entry.description}</span>
-            </div>
-          ))}
-        </div>
+        <CapabilityExplorer
+          initialEntries={capabilityEntries}
+          locale="zh-CN"
+          versions={contractVersions}
+        />
         <div className="dl-v2-fact-grid">
           <div>
             <span>Core commit</span>
@@ -54,15 +48,9 @@ export default function CapabilitiesPage() {
           </div>
         </div>
         <Callout title="能力矩阵的使用方式">
-          <span className="dl-v2-inline-icon">
-            <Gauge size={15} aria-hidden="true" />
-            先用 capability ID 做声明和筛选，再使用真实 Loader
-            结果确认是否满足包的最低要求。
-          </span>
-          <span className="dl-v2-inline-icon">
-            <ShieldCheck size={15} aria-hidden="true" />
-            当前页面不替代设备探测，也不会把 Preview contract 变成稳定 ABI。
-          </span>
+          先用 capability ID 做声明和筛选，再使用真实 Loader
+          结果确认是否满足包的最低要求。当前页面不替代设备探测，也不会把 Preview
+          contract 变成稳定 ABI。
         </Callout>
       </PageContainer>
     </main>

@@ -110,6 +110,61 @@ test("V2 tools and shader directory expose verified preview boundaries", async (
   ).toHaveCount(0);
 });
 
+test("V2 developer tools preserve filters in shareable URLs", async ({
+  page,
+}) => {
+  await page.goto("/zh-CN/tools/diagnostics/?q=Unknown&group=catalog");
+  await expect(page.getByRole("searchbox", { name: "搜索" })).toHaveValue(
+    "Unknown",
+  );
+  await expect(page.getByLabel("诊断分类")).toHaveValue("catalog");
+  await expect(
+    page.getByText("UnknownIdentifier", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByText("DuplicateIdentifier", { exact: true }),
+  ).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "复制诊断码" })).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "复制JSON path" }),
+  ).toBeVisible();
+
+  await page.goto("/zh-CN/tools/catalog/?q=view_width&kind=semantic-provider");
+  await expect(page.getByRole("searchbox", { name: "搜索" })).toHaveValue(
+    "view_width",
+  );
+  await expect(page.getByLabel("Catalog 类型")).toHaveValue(
+    "semantic-provider",
+  );
+  await expect(
+    page.getByText("dawnlight:frame/view_width", { exact: true }),
+  ).toBeVisible();
+  await expect(page).toHaveURL(/q=view_width&kind=semantic-provider/);
+});
+
+test("V2 graph, variant and diff pages expose honest contract states", async ({
+  page,
+}) => {
+  await page.goto("/zh-CN/tools/pipeline/");
+  await expect(
+    page.getByText("Graph unavailable", { exact: true }),
+  ).toBeVisible();
+  await expect(page.getByText("节点 0 · 边 0", { exact: true })).toBeVisible();
+
+  await page.goto("/zh-CN/tools/variants/");
+  await expect(
+    page.getByText("Variant explain unavailable", { exact: true }),
+  ).toBeVisible();
+
+  await page.goto("/zh-CN/tools/contract-diff/");
+  await expect(
+    page.getByRole("heading", { level: 1, name: "Contract Diff" }),
+  ).toBeVisible();
+  await expect(
+    page.getByText("两个 contract 没有结构差异", { exact: true }),
+  ).toBeVisible();
+});
+
 test("theme selection survives a reload", async ({ page }, testInfo) => {
   test.skip(
     testInfo.project.name.startsWith("mobile"),
@@ -149,6 +204,8 @@ for (const route of [
   "/zh-CN/downloads/",
   "/zh-CN/tools/",
   "/zh-CN/tools/catalog/",
+  "/zh-CN/tools/pipeline/",
+  "/zh-CN/tools/contract-diff/",
   "/zh-CN/tools/diagnostics/UnknownIdentifier/",
   "/zh-CN/shaders/",
   "/zh-CN/shaders/dawnlight-v3-1/",

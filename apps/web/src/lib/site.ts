@@ -6,6 +6,7 @@ export const siteConfig = {
   canonicalOrigin:
     process.env.NEXT_PUBLIC_SITE_ORIGIN ??
     "https://dawnlightcore.example.invalid",
+  apiOrigin: process.env.NEXT_PUBLIC_API_ORIGIN?.replace(/\/$/, "") ?? "",
   previewMode,
   defaultLocale: "zh-CN",
   defaultDocsVersion: "preview",

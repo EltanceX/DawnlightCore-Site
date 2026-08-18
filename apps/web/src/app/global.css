@@ -1484,6 +1484,352 @@ html > body[data-scroll-locked] {
   margin-top: 2rem;
 }
 
+.dl-tool-controls {
+  display: grid;
+  grid-template-columns:
+    minmax(14rem, 1.4fr) minmax(13rem, 0.8fr) minmax(11rem, 0.65fr)
+    auto;
+  gap: 0.8rem;
+  align-items: end;
+  margin-top: 2rem;
+  border: 1px solid var(--dl-line);
+  border-radius: 0.85rem;
+  background: var(--dl-surface-muted);
+  padding: 1rem;
+}
+
+.dl-tool-field {
+  display: grid;
+  min-width: 0;
+  gap: 0.4rem;
+  color: var(--dl-muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.dl-tool-field input,
+.dl-tool-field select {
+  width: 100%;
+  min-width: 0;
+  height: 2.55rem;
+  border: 1px solid var(--dl-line);
+  border-radius: 0.55rem;
+  background: var(--dl-surface);
+  padding-inline: 0.75rem;
+  color: var(--dl-ink);
+  font: inherit;
+  font-size: 0.8rem;
+}
+
+.dl-tool-field input:focus-visible,
+.dl-tool-field select:focus-visible,
+.dl-tool-copy:focus-visible,
+.dl-tool-detail-link:focus-visible {
+  outline: 2px solid var(--dl-cool);
+  outline-offset: 2px;
+}
+
+.dl-tool-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.dl-tool-input-wrap svg {
+  position: absolute;
+  left: 0.75rem;
+  color: var(--dl-muted);
+  pointer-events: none;
+}
+
+.dl-tool-input-wrap input {
+  padding-left: 2.15rem;
+}
+
+.dl-tool-result-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 0.8rem;
+  color: var(--dl-muted);
+  font-size: 0.78rem;
+}
+
+.dl-tool-result-summary strong {
+  color: var(--dl-ink);
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+}
+
+.dl-tool-source {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 0.7rem;
+}
+
+.dl-tool-source > span {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: var(--dl-accent);
+}
+
+.dl-tool-source[data-source="api"] > span {
+  background: var(--dl-cool);
+}
+
+.dl-tool-source[data-source="loading"] > span {
+  animation: dl-tool-pulse 1s ease-in-out infinite alternate;
+}
+
+@keyframes dl-tool-pulse {
+  to {
+    opacity: 0.3;
+  }
+}
+
+.dl-tool-list,
+.dl-tool-capability-list,
+.dl-tool-record-stack,
+.dl-tool-explain-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.dl-tool-record,
+.dl-tool-capability,
+.dl-tool-compact-record,
+.dl-tool-boundary-state,
+.dl-tool-empty,
+.dl-tool-graph-list,
+.dl-tool-diff-grid > section {
+  border: 1px solid var(--dl-line);
+  border-radius: 0.75rem;
+  background: var(--dl-surface);
+}
+
+.dl-tool-record {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 0.85rem;
+  align-items: start;
+  padding: 1rem;
+}
+
+.dl-tool-record__body,
+.dl-tool-record__heading {
+  min-width: 0;
+}
+
+.dl-tool-record__heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.dl-tool-record__heading code,
+.dl-tool-capability code,
+.dl-tool-compact-record code {
+  overflow-wrap: anywhere;
+  color: var(--dl-ink);
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.dl-tool-record__body > p,
+.dl-tool-capability > p,
+.dl-tool-boundary-state p {
+  margin: 0.55rem 0 0;
+  color: var(--dl-muted);
+  font-size: 0.8rem;
+  line-height: 1.6;
+}
+
+.dl-tool-detail-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  border-radius: 0.35rem;
+  color: var(--dl-accent-strong);
+  font-size: 0.76rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.dl-tool-source-ref {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.55rem;
+  margin-top: 0.75rem;
+  border-top: 1px solid var(--dl-line);
+  padding-top: 0.65rem;
+}
+
+.dl-tool-source-ref > code {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: var(--dl-muted);
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 0.68rem;
+}
+
+.dl-tool-source-ref > span {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.dl-tool-copy {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  border: 1px solid var(--dl-line);
+  border-radius: 0.4rem;
+  background: var(--dl-surface-muted);
+  padding: 0.32rem 0.48rem;
+  color: var(--dl-muted);
+  font: inherit;
+  font-size: 0.68rem;
+  cursor: pointer;
+}
+
+.dl-tool-copy:hover {
+  border-color: var(--dl-cool);
+  color: var(--dl-ink);
+}
+
+.dl-tool-empty,
+.dl-tool-boundary-state,
+.dl-tool-graph-list {
+  margin-top: 1.25rem;
+  padding: 1.15rem;
+}
+
+.dl-tool-empty {
+  border-style: dashed;
+}
+
+.dl-tool-empty strong {
+  color: var(--dl-ink);
+}
+
+.dl-tool-empty p {
+  max-width: 48rem;
+  margin: 0.4rem 0 0;
+  color: var(--dl-muted);
+  font-size: 0.82rem;
+  line-height: 1.6;
+}
+
+.dl-tool-catalog-grid,
+.dl-tool-capability-list {
+  margin-top: 1.25rem;
+}
+
+.dl-tool-record-stack {
+  margin-top: 1rem;
+}
+
+.dl-tool-compact-record,
+.dl-tool-capability {
+  padding: 0.85rem;
+}
+
+.dl-tool-boundary-state {
+  max-width: 56rem;
+  border-color: color-mix(in srgb, var(--dl-accent) 45%, var(--dl-line));
+}
+
+.dl-tool-boundary-state h2 {
+  margin-top: 0.7rem;
+}
+
+.dl-tool-graph-list ol {
+  display: grid;
+  gap: 0.8rem;
+  margin: 1rem 0 0;
+  padding-left: 1.25rem;
+}
+
+.dl-tool-graph-list pre,
+.dl-tool-explain-list pre {
+  overflow: auto;
+  max-width: 100%;
+  border-radius: 0.5rem;
+  background: var(--dl-surface-muted);
+  padding: 0.8rem;
+  font-size: 0.72rem;
+}
+
+.dl-tool-diff-controls {
+  grid-template-columns: minmax(12rem, 1fr) auto minmax(12rem, 1fr) auto;
+}
+
+.dl-tool-diff-arrow {
+  display: inline-flex;
+  height: 2.55rem;
+  align-items: center;
+  color: var(--dl-muted);
+}
+
+.dl-tool-diff-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.8rem;
+  margin-top: 1.25rem;
+}
+
+.dl-tool-diff-grid > section {
+  padding: 1rem;
+}
+
+.dl-tool-diff-grid ul {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0.8rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dl-tool-diff-grid li {
+  display: grid;
+  gap: 0.2rem;
+  border-top: 1px solid var(--dl-line);
+  padding-top: 0.5rem;
+}
+
+.dl-tool-diff-grid li span {
+  color: var(--dl-muted);
+  font-size: 0.68rem;
+}
+
+.dl-tool-diff-grid code {
+  overflow-wrap: anywhere;
+  font-size: 0.76rem;
+}
+
+@media (max-width: 900px) {
+  .dl-tool-controls {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .dl-tool-diff-controls {
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  }
+
+  .dl-tool-diff-controls > button {
+    grid-column: 1 / -1;
+    justify-self: start;
+  }
+}
+
 @media (max-width: 560px) {
   .dl-v2-page {
     padding-block: 2.5rem 4rem;
@@ -1504,5 +1850,38 @@ html > body[data-scroll-locked] {
 
   .dl-v2-project-card__facts {
     grid-template-columns: 1fr;
+  }
+
+  .dl-tool-controls,
+  .dl-tool-diff-controls,
+  .dl-tool-diff-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dl-tool-controls > button,
+  .dl-tool-diff-controls > button {
+    width: 100%;
+    grid-column: auto;
+    justify-content: center;
+  }
+
+  .dl-tool-diff-arrow {
+    height: auto;
+    transform: rotate(90deg);
+  }
+
+  .dl-tool-record {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .dl-tool-detail-link {
+    grid-column: 2;
+    justify-self: start;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dl-tool-source[data-source="loading"] > span {
+    animation: none;
   }
 }

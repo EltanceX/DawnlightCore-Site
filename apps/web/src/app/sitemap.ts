@@ -19,6 +19,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/zh-CN/tools/capabilities/",
     "/zh-CN/tools/pipeline/",
     "/zh-CN/tools/variants/",
+    "/zh-CN/tools/contract-diff/",
     "/zh-CN/shaders/",
   ];
   const docsRoutes = source.getPages().map((page) => `${page.url}/`);
