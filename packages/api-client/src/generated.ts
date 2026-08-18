@@ -260,6 +260,231 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/auth/oidc/start": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations["startOidcLogin"];
+    put?: never;
+    /** @description Preferred browser form endpoint; keeps the one-time invite token out of the URL. */
+    post: operations["startOidcLoginWithInvitation"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/auth/oidc/callback": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations["completeOidcLogin"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/auth/session": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations["getAuthorSession"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/auth/logout": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations["logoutAuthorSession"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/auth/invitations": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations["createAccountInvitation"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/auth/users/{userId}/disable": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations["disableAuthorUser"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/author/projects": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations["listAuthorProjects"];
+    put?: never;
+    post: operations["createAuthorProject"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/author/projects/{projectId}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch: operations["updateAuthorProject"];
+    trace?: never;
+  };
+  "/api/v1/author/projects/{projectId}/versions": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations["createAuthorVersion"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/author/projects/{projectId}/versions/{versionId}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch: operations["updateAuthorVersion"];
+    trace?: never;
+  };
+  "/api/v1/author/projects/{projectId}/invitations": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations["createProjectInvitation"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/author/projects/{projectId}/invitations/{invitationId}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete: operations["revokeProjectInvitation"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/author/invitations/accept": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations["acceptProjectInvitation"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/author/projects/{projectId}/audit": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations["listProjectAuditEvents"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -475,6 +700,131 @@ export interface components {
       reasons: string[];
       exclusions: string[];
     };
+    AuthUser: {
+      /** Format: uuid */
+      id: string;
+      displayName: string;
+      /** Format: email */
+      email: string;
+      /** @enum {string} */
+      status: "active" | "disabled" | "deletion-requested";
+      isPlatformAdmin: boolean;
+    };
+    SessionPrincipal: {
+      /** Format: uuid */
+      sessionId: string;
+      /** @description Per-session CSRF token. It is not an authentication credential. */
+      csrfToken: string;
+      /** Format: date-time */
+      expiresAt: string;
+      user: components["schemas"]["AuthUser"];
+    };
+    AuthorCompatibilityDraft: {
+      coreRange: string;
+      gameApiTag: string;
+      platforms: string[];
+      architectures: string[];
+      gpuClasses: string[];
+      note: string;
+    };
+    /** @description Metadata declaration only. It is not an upload or published artifact. */
+    AuthorArtifactDeclaration: {
+      fileName: string;
+      platform: string;
+      architecture: string;
+      gpuClass: string;
+      expectedSize: number | null;
+    };
+    AuthorVersion: {
+      /** Format: uuid */
+      id: string;
+      /** Format: uuid */
+      projectId: string;
+      version: string;
+      /** @enum {string} */
+      channel: "preview" | "alpha" | "beta" | "stable";
+      /** @enum {string} */
+      status: "draft" | "changes-requested";
+      changelog: string;
+      licenseSpdx: string | null;
+      compatibility: components["schemas"]["AuthorCompatibilityDraft"][];
+      artifactDeclarations: components["schemas"]["AuthorArtifactDeclaration"][];
+      revision: number;
+      /** Format: date-time */
+      updatedAt: string;
+    };
+    AuthorProject: {
+      /** Format: uuid */
+      id: string;
+      slug: string;
+      name: string;
+      summary: string;
+      licenseSpdx: string | null;
+      /** @enum {string} */
+      status: "draft" | "archived";
+      /** @enum {string} */
+      role: "owner" | "maintainer" | "reviewer";
+      /** Format: date-time */
+      updatedAt: string;
+      versions: components["schemas"]["AuthorVersion"][];
+    };
+    AuthorProjectInput: {
+      slug: string;
+      name: string;
+      summary: string;
+      licenseSpdx: string | null;
+    };
+    AuthorProjectPatch: {
+      name?: string;
+      summary?: string;
+      licenseSpdx?: string | null;
+      /** @enum {string} */
+      status?: "draft" | "archived";
+    };
+    AuthorVersionInput: {
+      version: string;
+      /** @enum {string} */
+      channel: "preview" | "alpha" | "beta" | "stable";
+      changelog: string;
+      licenseSpdx: string | null;
+      compatibility: components["schemas"]["AuthorCompatibilityDraft"][];
+      artifactDeclarations: components["schemas"]["AuthorArtifactDeclaration"][];
+    };
+    AuthorVersionPatch: {
+      expectedRevision: number;
+      /** @enum {string} */
+      channel?: "preview" | "alpha" | "beta" | "stable";
+      changelog?: string;
+      licenseSpdx?: string | null;
+      compatibility?: components["schemas"]["AuthorCompatibilityDraft"][];
+      artifactDeclarations?: components["schemas"]["AuthorArtifactDeclaration"][];
+    };
+    InvitationWithToken: {
+      /** Format: uuid */
+      id: string;
+      /** Format: uuid */
+      projectId?: string;
+      /** Format: email */
+      email: string;
+      /** @enum {string} */
+      role?: "maintainer" | "reviewer";
+      /** @enum {string} */
+      status?: "pending";
+      /** Format: date-time */
+      expiresAt: string;
+      /** @description One-time plaintext token, returned only on creation. */
+      token: string;
+    };
+    AuditEventSummary: {
+      /** Format: uuid */
+      id: string;
+      action: string;
+      /** @enum {string} */
+      outcome: "allowed" | "denied" | "failed";
+      requestId: string;
+      /** Format: date-time */
+      createdAt: string;
+    };
     ApiError: {
       error: {
         code: string;
@@ -511,6 +861,8 @@ export interface components {
     DirectoryChannel: string;
     DirectoryLicense: string;
     DirectoryStatus: string;
+    ProjectId: string;
+    AuthorVersionId: string;
   };
   requestBodies: never;
   headers: {
@@ -947,6 +1299,449 @@ export interface operations {
         };
       };
       404: components["responses"]["ApiError"];
+    };
+  };
+  startOidcLogin: {
+    parameters: {
+      query?: {
+        returnTo?: string;
+        /** @description One-time account invitation token. Never persisted in plaintext. */
+        invite?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Redirect to the configured OIDC provider. */
+      302: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      503: components["responses"]["ApiError"];
+    };
+  };
+  startOidcLoginWithInvitation: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        "application/x-www-form-urlencoded": {
+          returnTo?: string;
+          invite?: string;
+        };
+      };
+    };
+    responses: {
+      /** @description Redirect to the configured OIDC provider. */
+      302: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      503: components["responses"]["ApiError"];
+    };
+  };
+  completeOidcLogin: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Set the opaque session cookie and return to the author workspace. */
+      302: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      400: components["responses"]["ApiError"];
+      403: components["responses"]["ApiError"];
+    };
+  };
+  getAuthorSession: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Current private author session. Never publicly cache. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            data: components["schemas"]["SessionPrincipal"];
+          };
+        };
+      };
+      401: components["responses"]["ApiError"];
+    };
+  };
+  logoutAuthorSession: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Session revoked. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            data: {
+              loggedOut: boolean;
+            };
+          };
+        };
+      };
+      401: components["responses"]["ApiError"];
+      403: components["responses"]["ApiError"];
+    };
+  };
+  createAccountInvitation: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          /** Format: email */
+          email: string;
+        };
+      };
+    };
+    responses: {
+      /** @description One-time account invitation. Token is returned only in this response. */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            data: components["schemas"]["InvitationWithToken"];
+          };
+        };
+      };
+      401: components["responses"]["ApiError"];
+      403: components["responses"]["ApiError"];
+    };
+  };
+  disableAuthorUser: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        userId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          reason: string;
+        };
+      };
+    };
+    responses: {
+      /** @description User disabled and active sessions revoked. Platform admin only. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            data: components["schemas"]["AuthUser"];
+          };
+        };
+      };
+      401: components["responses"]["ApiError"];
+      403: components["responses"]["ApiError"];
+      404: components["responses"]["ApiError"];
+    };
+  };
+  listAuthorProjects: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Projects visible through the current user's memberships. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            data: components["schemas"]["AuthorProject"][];
+          };
+        };
+      };
+      401: components["responses"]["ApiError"];
+    };
+  };
+  createAuthorProject: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["AuthorProjectInput"];
+      };
+    };
+    responses: {
+      /** @description Draft project and owner membership created atomically. */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            data: components["schemas"]["AuthorProject"];
+          };
+        };
+      };
+      400: components["responses"]["ApiError"];
+      401: components["responses"]["ApiError"];
+      403: components["responses"]["ApiError"];
+      409: components["responses"]["ApiError"];
+    };
+  };
+  updateAuthorProject: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        projectId: components["parameters"]["ProjectId"];
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["AuthorProjectPatch"];
+      };
+    };
+    responses: {
+      /** @description Updated private project draft. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            data: components["schemas"]["AuthorProject"];
+          };
+        };
+      };
+      401: components["responses"]["ApiError"];
+      403: components["responses"]["ApiError"];
+      404: components["responses"]["ApiError"];
+    };
+  };
+  createAuthorVersion: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        projectId: components["parameters"]["ProjectId"];
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["AuthorVersionInput"];
+      };
+    };
+    responses: {
+      /** @description Private metadata-only version draft. */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            data: components["schemas"]["AuthorVersion"];
+          };
+        };
+      };
+      401: components["responses"]["ApiError"];
+      403: components["responses"]["ApiError"];
+    };
+  };
+  updateAuthorVersion: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        projectId: components["parameters"]["ProjectId"];
+        versionId: components["parameters"]["AuthorVersionId"];
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["AuthorVersionPatch"];
+      };
+    };
+    responses: {
+      /** @description Version draft updated with optimistic revision control. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            data: components["schemas"]["AuthorVersion"];
+          };
+        };
+      };
+      401: components["responses"]["ApiError"];
+      403: components["responses"]["ApiError"];
+      409: components["responses"]["ApiError"];
+    };
+  };
+  createProjectInvitation: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        projectId: components["parameters"]["ProjectId"];
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          /** Format: email */
+          email: string;
+          /** @enum {string} */
+          role: "maintainer" | "reviewer";
+        };
+      };
+    };
+    responses: {
+      /** @description One-time project invitation. Owner only. */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            data: components["schemas"]["InvitationWithToken"];
+          };
+        };
+      };
+      401: components["responses"]["ApiError"];
+      403: components["responses"]["ApiError"];
+    };
+  };
+  revokeProjectInvitation: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        projectId: components["parameters"]["ProjectId"];
+        invitationId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Pending invitation revoked. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      401: components["responses"]["ApiError"];
+      403: components["responses"]["ApiError"];
+      404: components["responses"]["ApiError"];
+    };
+  };
+  acceptProjectInvitation: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          token: string;
+        };
+      };
+    };
+    responses: {
+      /** @description Invitation accepted only when its email matches the OIDC account. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            data: components["schemas"]["AuthorProject"];
+          };
+        };
+      };
+      403: components["responses"]["ApiError"];
+      404: components["responses"]["ApiError"];
+    };
+  };
+  listProjectAuditEvents: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        projectId: components["parameters"]["ProjectId"];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Private append-only project audit summary. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            data: components["schemas"]["AuditEventSummary"][];
+          };
+        };
+      };
+      401: components["responses"]["ApiError"];
+      403: components["responses"]["ApiError"];
     };
   };
 }

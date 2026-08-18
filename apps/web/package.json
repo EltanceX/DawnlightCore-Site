@@ -13,6 +13,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@dawnlight/api-client": "workspace:*",
     "@dawnlight/contract-data": "workspace:*",
     "cnfast": "^0.1.0",
     "fumadocs-core": "16.14.4",

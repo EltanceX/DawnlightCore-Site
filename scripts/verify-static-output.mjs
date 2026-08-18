@@ -20,6 +20,7 @@ const required = [
   "zh-CN/tools/contract-diff/index.html",
   "zh-CN/shaders/index.html",
   "zh-CN/shaders/dawnlight-v3-1/index.html",
+  "zh-CN/author/index.html",
   "api/search",
   "feeds/releases-v1.json",
 ];
@@ -178,6 +179,21 @@ if (
   !projectHtml.includes("当前没有可核对的项目图片")
 ) {
   console.error("Static project output does not contain the WP4 detail state.");
+  process.exit(1);
+}
+
+const authorHtml = readFileSync(
+  resolve(output, "zh-CN/author/index.html"),
+  "utf8",
+);
+if (
+  !authorHtml.includes("作者工作区") ||
+  !authorHtml.includes("当前静态预览未连接作者 API") ||
+  !authorHtml.includes("不接收光影包文件")
+) {
+  console.error(
+    "Static author output does not preserve the WP5 private-workspace boundary.",
+  );
   process.exit(1);
 }
 

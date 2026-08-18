@@ -24,6 +24,16 @@ export type DirectoryImage = components["schemas"]["DirectoryImage"];
 export type DirectoryLicense = components["schemas"]["DirectoryLicense"];
 export type DirectoryRecommendation =
   components["schemas"]["DirectoryRecommendation"];
+export type AuthUser = components["schemas"]["AuthUser"];
+export type SessionPrincipal = components["schemas"]["SessionPrincipal"];
+export type AuthorProject = components["schemas"]["AuthorProject"];
+export type AuthorVersion = components["schemas"]["AuthorVersion"];
+export type AuthorCompatibilityDraft =
+  components["schemas"]["AuthorCompatibilityDraft"];
+export type AuthorArtifactDeclaration =
+  components["schemas"]["AuthorArtifactDeclaration"];
+export type InvitationWithToken = components["schemas"]["InvitationWithToken"];
+export type AuditEventSummary = components["schemas"]["AuditEventSummary"];
 export type ApiError = components["schemas"]["ApiError"];
 
 export type { components, operations, paths } from "./generated.js";

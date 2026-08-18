@@ -155,7 +155,7 @@ WP4 提供维护者侧 `pnpm db:directory:seed`（底层为 `@dawnlight/database
 - API 输出不包含 `objectKey` 等私有 artifact 字段；
 - directory fixture 与 schema 关系校验；
 - Playwright 已覆盖目录筛选、无 artifact 和详情资产状态回归；
-- 静态构建和完整 `pnpm check` 需在 WP4 改动稳定后再次执行。
+- 静态构建和完整 `pnpm check` 需在 WP4 改动稳定后再次执行；WP5 已增加作者页后会再次覆盖。
 
 ## 9. 退出条件
 
@@ -173,4 +173,4 @@ WP4 提供维护者侧 `pnpm db:directory:seed`（底层为 `@dawnlight/database
 
 ## 10. 下一工作包
 
-V2-WP5 进入 OIDC、项目团队和作者草稿。写操作必须从 Project/ProjectVersion 资源级权限开始，并保留 WP4 的 public DTO 投影，不能直接暴露数据库行或 quarantine 字段。
+V2-WP5 已完成第一版 OIDC、项目团队和作者草稿。下一步 V2-WP6 进入 quarantine upload；写操作仍必须保留 WP4 的 public DTO 投影，不能直接暴露数据库行或 quarantine 字段。

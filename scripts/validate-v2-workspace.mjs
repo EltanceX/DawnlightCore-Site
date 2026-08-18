@@ -14,7 +14,9 @@ const requiredFiles = [
   "packages/database/migrations/0001_runtime.sql",
   "packages/database/migrations/0002_contract_ingest.sql",
   "packages/database/migrations/0003_directory.sql",
+  "packages/database/migrations/0004_authoring.sql",
   "packages/database/scripts/seed-directory.mjs",
+  "packages/database/scripts/seed-authoring.mjs",
   "packages/api-client/src/index.ts",
   "packages/contract-data/src/index.ts",
   "packages/contract-data/src/node.ts",
@@ -34,6 +36,10 @@ const requiredFiles = [
   "apps/web/src/app/[locale]/tools/contract-diff/page.tsx",
   "apps/web/src/components/directory/directory-explorer.tsx",
   "apps/api/src/directory.ts",
+  "apps/api/src/authoring.ts",
+  "apps/api/src/oidc.ts",
+  "apps/web/src/components/author/author-workspace.tsx",
+  "apps/web/src/app/[locale]/author/page.tsx",
 ];
 
 const missing = requiredFiles.filter((file) => !existsSync(resolve(file)));
@@ -55,11 +61,17 @@ const compose = readFileSync(
   "utf8",
 );
 const composeDocument = parseYaml(compose);
-if (!composeDocument?.services?.postgres || !composeDocument.services.minio) {
-  console.error("V2 compose must define postgres and minio services.");
+if (
+  !composeDocument?.services?.postgres ||
+  !composeDocument.services.minio ||
+  !composeDocument.services.oidc
+) {
+  console.error(
+    "V2 compose must define postgres, minio and test OIDC services.",
+  );
   process.exit(1);
 }
-for (const service of ["postgres:", "minio:", "healthcheck:"]) {
+for (const service of ["postgres:", "minio:", "oidc:", "healthcheck:"]) {
   if (!compose.includes(service)) {
     console.error(`V2 compose is missing ${service}.`);
     process.exit(1);
@@ -83,6 +95,8 @@ for (const key of [
   "OTEL_SERVICE_NAME",
   "CONTRACT_DATA_SOURCE",
   "CONTRACT_FIXTURE_ROOT",
+  "OIDC_ENABLED",
+  "AUTH_COOKIE_SECRET",
 ]) {
   if (!envExample.includes(`${key}=`)) {
     console.error(`.env.example is missing ${key}.`);
@@ -91,5 +105,5 @@ for (const key of [
 }
 
 console.log(
-  "V2 workspace validation passed (WP1 skeleton, WP2 contract data, WP3 tools, and WP4 directory).",
+  "V2 workspace validation passed (WP1 skeleton, WP2 contract data, WP3 tools, WP4 directory, and WP5 authoring).",
 );

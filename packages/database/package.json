@@ -12,7 +12,8 @@
     "migrate:up": "node scripts/migrate-up.mjs",
     "seed": "node scripts/seed.mjs",
     "contract:ingest": "node scripts/ingest-contract.mjs",
-    "directory:seed": "node scripts/seed-directory.mjs"
+    "directory:seed": "node scripts/seed-directory.mjs",
+    "authoring:seed": "node scripts/seed-authoring.mjs"
   },
   "dependencies": {
     "@dawnlight/contract-data": "workspace:*",

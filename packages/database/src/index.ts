@@ -19,3 +19,4 @@ export {
   ingestContractBundle,
   type ContractIngestResult,
 } from "./contracts.js";
+export * from "./authoring.js";

@@ -6,6 +6,14 @@ import { loadContractBundle } from "@dawnlight/contract-data/node";
 import { createContractDataService } from "@dawnlight/contract-data";
 import { createDirectoryDataService } from "@dawnlight/contract-data";
 import { readFileSync } from "node:fs";
+import type {
+  AuthoringDataService,
+  AuthorProject,
+  CompleteLoginInput,
+  LoginTransaction,
+  SessionPrincipal,
+} from "@dawnlight/database";
+import type { OidcClient } from "../src/oidc.js";
 
 const env = parseServerEnv({ APP_ENV: "test" });
 const contractFixture = loadContractBundle(
@@ -125,4 +133,196 @@ describe("API health shell", () => {
     expect(detail.statusCode).toBe(200);
     expect(detail.json().data.latestVersion.status).toBe("metadata-only");
   });
+
+  it("completes an injected OIDC flow and protects author writes", async () => {
+    const transactions = new Map<string, LoginTransaction>();
+    const sessions = new Map<string, SessionPrincipal>();
+    const project: AuthorProject = {
+      id: "project-1",
+      slug: "test-pack",
+      name: "Test Pack",
+      summary: "An invited author draft used by the API test.",
+      licenseSpdx: "MIT",
+      status: "draft",
+      role: "owner",
+      updatedAt: new Date(0).toISOString(),
+      versions: [],
+    };
+    const authoring = createAuthoringFixture(transactions, sessions, project);
+    const oidc: OidcClient = {
+      async createAuthorizationRequest() {
+        return {
+          authorizationUrl:
+            "https://oidc.example.test/authorize?state=test-state",
+          state: "test-state",
+          codeVerifier: "test-verifier",
+          nonce: "test-nonce",
+        };
+      },
+      async consumeAuthorizationResponse(_url, transaction) {
+        expect(transaction).toEqual({
+          state: "test-state",
+          codeVerifier: "test-verifier",
+          nonce: "test-nonce",
+        });
+        return {
+          issuer: "https://oidc.example.test",
+          subject: "author-1",
+          displayName: "Author One",
+          email: "author@example.test",
+        };
+      },
+    };
+    const authEnv = parseServerEnv({
+      APP_ENV: "test",
+      OIDC_ENABLED: "true",
+      OIDC_ISSUER_URL: "https://oidc.example.test",
+      OIDC_CLIENT_ID: "test-client",
+      OIDC_CLIENT_SECRET: "test-client-secret",
+      OIDC_REDIRECT_URI: "http://127.0.0.1:4100/api/v1/auth/oidc/callback",
+      CORS_ORIGIN: "http://127.0.0.1:3000",
+    });
+    const app = await createApp(authEnv, { authoring, oidc });
+    apps.push(app);
+
+    const formStart = await app.inject({
+      method: "POST",
+      url: "/api/v1/auth/oidc/start",
+      headers: { "content-type": "application/x-www-form-urlencoded" },
+      payload: "returnTo=%2Fzh-CN%2Fauthor%2F&invite=one-time-invite-token",
+    });
+    expect(formStart.statusCode).toBe(302);
+    expect(formStart.headers.location).toContain("oidc.example.test/authorize");
+
+    const start = await app.inject({
+      method: "GET",
+      url: "/api/v1/auth/oidc/start?returnTo=/zh-CN/author/",
+    });
+    expect(start.statusCode).toBe(302);
+    expect(start.headers.location).toContain("oidc.example.test/authorize");
+    const transactionCookie = cookiePair(start.headers["set-cookie"]);
+
+    const callback = await app.inject({
+      method: "GET",
+      url: "/api/v1/auth/oidc/callback?state=test-state&code=test-code",
+      headers: { cookie: transactionCookie },
+    });
+    expect(callback.statusCode).toBe(302);
+    expect(callback.headers.location).toBe(
+      "http://127.0.0.1:3000/zh-CN/author/?login=success",
+    );
+    const setCookies = Array.isArray(callback.headers["set-cookie"])
+      ? callback.headers["set-cookie"]
+      : [callback.headers["set-cookie"] ?? ""];
+    const sessionCookie = cookiePair(
+      setCookies.find((value) => value.startsWith("dawnlight_session=")) ?? "",
+    );
+
+    const session = await app.inject({
+      method: "GET",
+      url: "/api/v1/auth/session",
+      headers: { cookie: sessionCookie },
+    });
+    expect(session.statusCode).toBe(200);
+    expect(session.headers["cache-control"]).toBe("private, no-store");
+    expect(session.json().data.user.email).toBe("author@example.test");
+
+    const rejected = await app.inject({
+      method: "POST",
+      url: "/api/v1/author/projects",
+      headers: { cookie: sessionCookie },
+      payload: {
+        slug: "test-pack",
+        name: "Test Pack",
+        summary: "An invited author draft used by the API test.",
+        licenseSpdx: "MIT",
+      },
+    });
+    expect(rejected.statusCode).toBe(403);
+    expect(rejected.json().error.code).toBe("OriginRejected");
+
+    const created = await app.inject({
+      method: "POST",
+      url: "/api/v1/author/projects",
+      headers: {
+        cookie: sessionCookie,
+        origin: "http://127.0.0.1:3000",
+        "x-csrf-token": session.json().data.csrfToken,
+        "idempotency-key": "project-create-1",
+      },
+      payload: {
+        slug: "test-pack",
+        name: "Test Pack",
+        summary: "An invited author draft used by the API test.",
+        licenseSpdx: "MIT",
+      },
+    });
+    expect(created.statusCode).toBe(201);
+    expect(created.json().data).toMatchObject({
+      slug: "test-pack",
+      role: "owner",
+    });
+  });
 });
+
+function cookiePair(header: string | string[] | undefined) {
+  const value = Array.isArray(header) ? header[0] : header;
+  return value?.split(";", 1)[0] ?? "";
+}
+
+function createAuthoringFixture(
+  transactions: Map<string, LoginTransaction>,
+  sessions: Map<string, SessionPrincipal>,
+  project: AuthorProject,
+): AuthoringDataService {
+  const unsupported = async (): Promise<never> => {
+    throw new Error("unsupported test operation");
+  };
+  return {
+    async createLoginTransaction(stateHash, transaction) {
+      transactions.set(stateHash, transaction);
+    },
+    async consumeLoginTransaction() {
+      const transaction = transactions.values().next().value;
+      if (!transaction) throw new Error("missing transaction");
+      return transaction;
+    },
+    async completeOidcLogin(input: CompleteLoginInput) {
+      const principal: SessionPrincipal = {
+        sessionId: "session-1",
+        csrfToken: input.csrfToken,
+        expiresAt: input.expiresAt.toISOString(),
+        user: {
+          id: "user-1",
+          displayName: input.identity.displayName,
+          email: input.identity.email,
+          status: "active",
+          isPlatformAdmin: false,
+        },
+      };
+      sessions.set(input.sessionTokenHash, principal);
+      return principal;
+    },
+    async getSession(sessionTokenHash) {
+      return sessions.get(sessionTokenHash) ?? null;
+    },
+    async revokeSession() {},
+    createAccountInvitation: unsupported,
+    disableUser: unsupported,
+    async listProjects() {
+      return [project];
+    },
+    async createProject() {
+      return project;
+    },
+    updateProject: unsupported,
+    createVersion: unsupported,
+    updateVersion: unsupported,
+    createProjectInvitation: unsupported,
+    acceptProjectInvitation: unsupported,
+    revokeProjectInvitation: unsupported,
+    async listAuditEvents() {
+      return [];
+    },
+  };
+}

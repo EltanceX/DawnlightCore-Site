@@ -15,6 +15,7 @@
     "db:seed": "pnpm --filter @dawnlight/database seed",
     "db:contract:ingest": "pnpm --filter @dawnlight/database build && pnpm --filter @dawnlight/database contract:ingest",
     "db:directory:seed": "pnpm --filter @dawnlight/database directory:seed",
+    "db:authoring:seed": "pnpm --filter @dawnlight/database authoring:seed",
     "services:build": "pnpm --filter @dawnlight/api build && pnpm --filter @dawnlight/worker build",
     "api:smoke": "node scripts/smoke-v2-api.mjs",
     "api:generate": "pnpm --filter @dawnlight/api-client generate",

@@ -27,6 +27,15 @@ export const serverEnvSchema = z.object({
   OTEL_EXPORTER_OTLP_ENDPOINT: z.string().url().optional(),
   LOG_LEVEL: z.enum(["fatal", "error", "warn", "info", "debug", "trace"]),
   TRUST_PROXY: booleanFromEnv,
+  OIDC_ENABLED: booleanFromEnv,
+  OIDC_ISSUER_URL: z.string().url(),
+  OIDC_CLIENT_ID: z.string().min(1),
+  OIDC_CLIENT_SECRET: z.string().min(1),
+  OIDC_REDIRECT_URI: z.string().url(),
+  OIDC_WEB_RETURN_ORIGIN: z.string().url(),
+  AUTH_COOKIE_SECRET: z.string().min(32),
+  AUTH_SESSION_TTL_SECONDS: z.coerce.number().int().min(300).max(2592000),
+  AUTH_LOGIN_TTL_SECONDS: z.coerce.number().int().min(60).max(1800),
 });
 
 export type ServerEnv = z.infer<typeof serverEnvSchema>;
@@ -50,6 +59,15 @@ const defaults = {
   OTEL_SERVICE_NAME: "dawnlight-api",
   LOG_LEVEL: "info",
   TRUST_PROXY: "false",
+  OIDC_ENABLED: "false",
+  OIDC_ISSUER_URL: "https://oidc.example.invalid",
+  OIDC_CLIENT_ID: "dawnlight-disabled",
+  OIDC_CLIENT_SECRET: "dawnlight-disabled",
+  OIDC_REDIRECT_URI: "http://127.0.0.1:4100/api/v1/auth/oidc/callback",
+  OIDC_WEB_RETURN_ORIGIN: "http://127.0.0.1:3000",
+  AUTH_COOKIE_SECRET: "dawnlight-local-cookie-key-change-before-use",
+  AUTH_SESSION_TTL_SECONDS: "28800",
+  AUTH_LOGIN_TTL_SECONDS: "600",
 } as const;
 
 export function parseServerEnv(

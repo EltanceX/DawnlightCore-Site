@@ -3,6 +3,7 @@ import { resolve } from "node:path";
 import { parseServerEnv, formatEnvIssues } from "@dawnlight/config";
 import {
   closeDatabase,
+  createPostgresAuthoringDataService,
   createDatabasePool,
   createPostgresContractDataService,
 } from "@dawnlight/database";
@@ -13,6 +14,7 @@ import {
 } from "@dawnlight/contract-data";
 import { loadContractBundle } from "@dawnlight/contract-data/node";
 import { createApp } from "./app.js";
+import { createOidcClient } from "./oidc.js";
 
 let env;
 try {
@@ -39,6 +41,15 @@ if (env.CONTRACT_DATA_SOURCE === "database") {
 }
 const app = await createApp(env, {
   database,
+  authoring: createPostgresAuthoringDataService(database),
+  oidc: env.OIDC_ENABLED
+    ? createOidcClient({
+        issuerUrl: env.OIDC_ISSUER_URL,
+        clientId: env.OIDC_CLIENT_ID,
+        clientSecret: env.OIDC_CLIENT_SECRET,
+        redirectUri: env.OIDC_REDIRECT_URI,
+      })
+    : undefined,
   contracts,
   directory: createDirectoryDataService(
     JSON.parse(

@@ -34,6 +34,14 @@ services:
       timeout: 3s
       retries: 10
 
+  oidc:
+    image: ghcr.io/navikt/mock-oauth2-server:4.0.0
+    ports:
+      - "59002:8080"
+    environment:
+      JSON_CONFIG: >-
+        {"interactiveLogin":true,"tokenCallbacks":[{"issuerId":"dawnlight","requestMappings":[{"requestParam":"subject","match":".*","claims":{"sub":"$${subject}","name":"$${subject}","email":"$${subject}@example.test","email_verified":true,"aud":["dawnlight-web"]}}]}]}
+
 volumes:
   dawnlight-v2-postgres:
   dawnlight-v2-minio:

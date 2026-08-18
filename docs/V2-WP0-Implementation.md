@@ -17,15 +17,14 @@
 - 增加工具/目录导航、Footer 入口、sitemap 路由和静态 smoke 检查；
 - 增加工具/目录 E2E 关键路径和 axe 回归。
 - 静态输出总预算因新增 V2.0 路由从 12 MiB 调整为 14 MiB；单文件预算和失败门禁保持不变。
-- 已完成 [V2-WP1 动态工程骨架](./V2-WP1-Implementation.md)、[V2-WP2 Contract ingest 数据层](./V2-WP2-Implementation.md)、[V2-WP3 Developer Tools 前端](./V2-WP3-Implementation.md) 和 [V2-WP4 只读目录](./V2-WP4-Implementation.md)。
+- 已完成 [V2-WP1 动态工程骨架](./V2-WP1-Implementation.md)、[V2-WP2 Contract ingest 数据层](./V2-WP2-Implementation.md)、[V2-WP3 Developer Tools 前端](./V2-WP3-Implementation.md)、[V2-WP4 只读目录](./V2-WP4-Implementation.md) 和 [V2-WP5 作者草稿](./V2-WP5-Implementation.md)。
 
 ## 当前实现边界
 
-本批代码先将 contract 快照适配为纯 TypeScript data service，并提供可静态构建的工具/目录页面。它是 V2.0 的 UI 和数据层 Spike，不代表 NestJS API、PostgreSQL、OIDC、上传 Worker 或公开社区已经完成。Pipeline Graph 和 Variant Explorer 目前只展示接入条件，因为当前 contract 没有 graph dump 或真实 CLI explain 输出。
+本批代码先将 contract 快照适配为纯 TypeScript data service，并提供可静态构建的工具/目录页面；WP5 再将 OIDC 和作者写操作放到 Fastify API。它仍不代表真实 artifact 上传、Loader 验证、审核发布或公开社区已经完成。Pipeline Graph 和 Variant Explorer 目前只展示接入条件，因为当前 contract 没有 graph dump 或真实 CLI explain 输出。
 
 ## 下一步
 
-1. 为项目、版本、artifact 和 compatibility 建立维护者 seed/import；
-2. 进入 V2-WP5 的 OIDC、团队成员和作者草稿；
-3. 在 staging 环境复验 API、PostgreSQL、MinIO、缓存和 CORS；
-4. 在稳定 CLI JSON contract 出现后接入 graph dump、variant explain 和真实 Loader 结果。
+1. 在 staging 环境复验 OIDC、API、PostgreSQL、MinIO、缓存和 CORS；
+2. 进入 V2-WP6 的 quarantine upload 和预检 Worker；
+3. 在稳定 CLI JSON contract 出现后接入 graph dump、variant explain 和真实 Loader 结果。

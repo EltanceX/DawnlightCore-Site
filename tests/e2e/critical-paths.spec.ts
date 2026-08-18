@@ -204,6 +204,21 @@ test("V2 directory filters preserve compatibility boundaries", async ({
   ).toBeVisible();
 });
 
+test("V2 author workspace preserves the private API boundary in static preview", async ({
+  page,
+}) => {
+  await page.goto("/zh-CN/author/");
+  await expect(
+    page.getByRole("heading", { level: 1, name: "作者工作区" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { level: 2, name: "当前静态预览未连接作者 API" }),
+  ).toBeVisible();
+  await expect(
+    page.getByText("不接收光影包文件", { exact: false }),
+  ).toBeVisible();
+});
+
 test("theme selection survives a reload", async ({ page }, testInfo) => {
   test.skip(
     testInfo.project.name.startsWith("mobile"),
@@ -248,6 +263,7 @@ for (const route of [
   "/zh-CN/tools/diagnostics/UnknownIdentifier/",
   "/zh-CN/shaders/",
   "/zh-CN/shaders/dawnlight-v3-1/",
+  "/zh-CN/author/",
   "/zh-CN/does-not-exist/",
 ]) {
   test(`axe has no serious or critical violations on ${route}`, async ({

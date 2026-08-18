@@ -1,4 +1,6 @@
 import cors from "@fastify/cors";
+import cookie from "@fastify/cookie";
+import formbody from "@fastify/formbody";
 import { trace } from "@opentelemetry/api";
 import Fastify, { type FastifyInstance } from "fastify";
 import type {
@@ -7,7 +9,11 @@ import type {
 } from "@dawnlight/api-client";
 import type { ServerEnv } from "@dawnlight/config";
 import type { Pool } from "pg";
-import { checkDatabase } from "@dawnlight/database";
+import {
+  AuthoringError,
+  checkDatabase,
+  type AuthoringDataService,
+} from "@dawnlight/database";
 import {
   ContractDataError,
   DirectoryDataError,
@@ -16,12 +22,16 @@ import {
 } from "@dawnlight/contract-data";
 import { registerContractRoutes } from "./contracts.js";
 import { registerDirectoryRoutes } from "./directory.js";
+import { registerAuthoringRoutes } from "./authoring.js";
+import type { OidcClient } from "./oidc.js";
 
 export type ApiDependencies = {
   database?: Pool;
   checkObjectStorage?: () => Promise<void>;
   contracts?: ContractDataService;
   directory?: DirectoryDataService;
+  authoring?: AuthoringDataService;
+  oidc?: OidcClient;
 };
 
 const apiVersion = "0.1.0";
@@ -45,7 +55,7 @@ export async function createApp(
   dependencies: ApiDependencies = {},
 ): Promise<FastifyInstance> {
   const app = Fastify({
-    logger: { level: env.LOG_LEVEL },
+    logger: { level: env.LOG_LEVEL, redact: ["req.url"] },
     requestIdHeader: "x-request-id",
     genReqId: (request) =>
       requestIdFromHeaders(request.headers) ?? crypto.randomUUID(),
@@ -56,6 +66,8 @@ export async function createApp(
     origin: env.CORS_ORIGIN,
     credentials: true,
   });
+  await app.register(cookie, { secret: env.AUTH_COOKIE_SECRET });
+  await app.register(formbody);
 
   app.addHook("onRequest", async (request) => {
     const span = trace.getActiveSpan();
@@ -134,15 +146,24 @@ export async function createApp(
   if (dependencies.directory) {
     registerDirectoryRoutes(app, dependencies.directory);
   }
+  if (dependencies.authoring) {
+    registerAuthoringRoutes(
+      app,
+      env,
+      dependencies.authoring,
+      dependencies.oidc,
+    );
+  }
 
   app.setErrorHandler((error, request, reply) => {
     if (
       error instanceof ContractDataError ||
-      error instanceof DirectoryDataError
+      error instanceof DirectoryDataError ||
+      error instanceof AuthoringError
     ) {
       request.log.info(
-        { contractError: error.code, details: error.details },
-        "contract query rejected",
+        { domainError: error.code, details: error.details },
+        "api request rejected",
       );
       return reply.code(error.statusCode).send({
         error: {

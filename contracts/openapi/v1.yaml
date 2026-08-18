@@ -3,8 +3,8 @@ info:
   title: DawnlightCore API
   version: 0.2.0-preview
   description: >-
-    V2-WP2 read-only API. Contract endpoints expose only versioned ingest data;
-    project, account, upload and artifact writes are introduced later.
+    V2 API for public contract/directory reads and invitation-only author drafts.
+    Author writes require an OIDC session, CSRF token, resource role and idempotency key.
 servers:
   - url: http://127.0.0.1:4100
 paths:
@@ -313,7 +313,346 @@ paths:
                 properties:
                   data: { $ref: '#/components/schemas/DirectoryProjectView' }
         '404': { $ref: '#/components/responses/ApiError' }
+  /api/v1/auth/oidc/start:
+    get:
+      operationId: startOidcLogin
+      parameters:
+        - name: returnTo
+          in: query
+          schema: { type: string }
+        - name: invite
+          in: query
+          description: One-time account invitation token. Never persisted in plaintext.
+          schema: { type: string }
+      responses:
+        '302': { description: Redirect to the configured OIDC provider. }
+        '503': { $ref: '#/components/responses/ApiError' }
+    post:
+      operationId: startOidcLoginWithInvitation
+      description: Preferred browser form endpoint; keeps the one-time invite token out of the URL.
+      requestBody:
+        required: false
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                returnTo: { type: string }
+                invite: { type: string }
+      responses:
+        '302': { description: Redirect to the configured OIDC provider. }
+        '503': { $ref: '#/components/responses/ApiError' }
+  /api/v1/auth/oidc/callback:
+    get:
+      operationId: completeOidcLogin
+      responses:
+        '302': { description: Set the opaque session cookie and return to the author workspace. }
+        '400': { $ref: '#/components/responses/ApiError' }
+        '403': { $ref: '#/components/responses/ApiError' }
+  /api/v1/auth/session:
+    get:
+      operationId: getAuthorSession
+      security: [{ sessionCookie: [] }]
+      responses:
+        '200':
+          description: Current private author session. Never publicly cache.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/SessionPrincipal' }
+        '401': { $ref: '#/components/responses/ApiError' }
+  /api/v1/auth/logout:
+    post:
+      operationId: logoutAuthorSession
+      security: [{ sessionCookie: [] }, { csrfToken: [] }]
+      responses:
+        '200':
+          description: Session revoked.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: object
+                    required: [loggedOut]
+                    properties:
+                      loggedOut: { type: boolean }
+        '401': { $ref: '#/components/responses/ApiError' }
+        '403': { $ref: '#/components/responses/ApiError' }
+  /api/v1/auth/invitations:
+    post:
+      operationId: createAccountInvitation
+      security: [{ sessionCookie: [] }, { csrfToken: [] }, { idempotencyKey: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email: { type: string, format: email }
+      responses:
+        '201':
+          description: One-time account invitation. Token is returned only in this response.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/InvitationWithToken' }
+        '401': { $ref: '#/components/responses/ApiError' }
+        '403': { $ref: '#/components/responses/ApiError' }
+  /api/v1/auth/users/{userId}/disable:
+    post:
+      operationId: disableAuthorUser
+      security: [{ sessionCookie: [] }, { csrfToken: [] }, { idempotencyKey: [] }]
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [reason]
+              properties:
+                reason: { type: string, minLength: 10, maxLength: 1000 }
+      responses:
+        '200':
+          description: User disabled and active sessions revoked. Platform admin only.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/AuthUser' }
+        '401': { $ref: '#/components/responses/ApiError' }
+        '403': { $ref: '#/components/responses/ApiError' }
+        '404': { $ref: '#/components/responses/ApiError' }
+  /api/v1/author/projects:
+    get:
+      operationId: listAuthorProjects
+      security: [{ sessionCookie: [] }]
+      responses:
+        '200':
+          description: Projects visible through the current user's memberships.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/AuthorProject' }
+        '401': { $ref: '#/components/responses/ApiError' }
+    post:
+      operationId: createAuthorProject
+      security: [{ sessionCookie: [] }, { csrfToken: [] }, { idempotencyKey: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AuthorProjectInput' }
+      responses:
+        '201':
+          description: Draft project and owner membership created atomically.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/AuthorProject' }
+        '400': { $ref: '#/components/responses/ApiError' }
+        '401': { $ref: '#/components/responses/ApiError' }
+        '403': { $ref: '#/components/responses/ApiError' }
+        '409': { $ref: '#/components/responses/ApiError' }
+  /api/v1/author/projects/{projectId}:
+    patch:
+      operationId: updateAuthorProject
+      security: [{ sessionCookie: [] }, { csrfToken: [] }, { idempotencyKey: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/ProjectId' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AuthorProjectPatch' }
+      responses:
+        '200':
+          description: Updated private project draft.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/AuthorProject' }
+        '401': { $ref: '#/components/responses/ApiError' }
+        '403': { $ref: '#/components/responses/ApiError' }
+        '404': { $ref: '#/components/responses/ApiError' }
+  /api/v1/author/projects/{projectId}/versions:
+    post:
+      operationId: createAuthorVersion
+      security: [{ sessionCookie: [] }, { csrfToken: [] }, { idempotencyKey: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/ProjectId' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AuthorVersionInput' }
+      responses:
+        '201':
+          description: Private metadata-only version draft.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/AuthorVersion' }
+        '401': { $ref: '#/components/responses/ApiError' }
+        '403': { $ref: '#/components/responses/ApiError' }
+  /api/v1/author/projects/{projectId}/versions/{versionId}:
+    patch:
+      operationId: updateAuthorVersion
+      security: [{ sessionCookie: [] }, { csrfToken: [] }, { idempotencyKey: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/ProjectId' }
+        - { $ref: '#/components/parameters/AuthorVersionId' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AuthorVersionPatch' }
+      responses:
+        '200':
+          description: Version draft updated with optimistic revision control.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/AuthorVersion' }
+        '401': { $ref: '#/components/responses/ApiError' }
+        '403': { $ref: '#/components/responses/ApiError' }
+        '409': { $ref: '#/components/responses/ApiError' }
+  /api/v1/author/projects/{projectId}/invitations:
+    post:
+      operationId: createProjectInvitation
+      security: [{ sessionCookie: [] }, { csrfToken: [] }, { idempotencyKey: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/ProjectId' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, role]
+              properties:
+                email: { type: string, format: email }
+                role: { type: string, enum: [maintainer, reviewer] }
+      responses:
+        '201':
+          description: One-time project invitation. Owner only.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/InvitationWithToken' }
+        '401': { $ref: '#/components/responses/ApiError' }
+        '403': { $ref: '#/components/responses/ApiError' }
+  /api/v1/author/projects/{projectId}/invitations/{invitationId}:
+    delete:
+      operationId: revokeProjectInvitation
+      security: [{ sessionCookie: [] }, { csrfToken: [] }, { idempotencyKey: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/ProjectId' }
+        - name: invitationId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200': { description: Pending invitation revoked. }
+        '401': { $ref: '#/components/responses/ApiError' }
+        '403': { $ref: '#/components/responses/ApiError' }
+        '404': { $ref: '#/components/responses/ApiError' }
+  /api/v1/author/invitations/accept:
+    post:
+      operationId: acceptProjectInvitation
+      security: [{ sessionCookie: [] }, { csrfToken: [] }, { idempotencyKey: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token]
+              properties:
+                token: { type: string }
+      responses:
+        '200':
+          description: Invitation accepted only when its email matches the OIDC account.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/AuthorProject' }
+        '403': { $ref: '#/components/responses/ApiError' }
+        '404': { $ref: '#/components/responses/ApiError' }
+  /api/v1/author/projects/{projectId}/audit:
+    get:
+      operationId: listProjectAuditEvents
+      security: [{ sessionCookie: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/ProjectId' }
+      responses:
+        '200':
+          description: Private append-only project audit summary.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/AuditEventSummary' }
+        '401': { $ref: '#/components/responses/ApiError' }
+        '403': { $ref: '#/components/responses/ApiError' }
 components:
+  securitySchemes:
+    sessionCookie:
+      type: apiKey
+      in: cookie
+      name: __Host-dawnlight_session
+    csrfToken:
+      type: apiKey
+      in: header
+      name: X-CSRF-Token
+    idempotencyKey:
+      type: apiKey
+      in: header
+      name: Idempotency-Key
   headers:
     ETag:
       description: Strong hash of the response payload.
@@ -378,6 +717,16 @@ components:
       name: status
       in: query
       schema: { type: string }
+    ProjectId:
+      name: projectId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    AuthorVersionId:
+      name: versionId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
   responses:
     ApiError:
       description: Explainable query error.
@@ -663,6 +1012,149 @@ components:
             - { type: 'null' }
         reasons: { type: array, items: { type: string } }
         exclusions: { type: array, items: { type: string } }
+    AuthUser:
+      type: object
+      required: [id, displayName, email, status, isPlatformAdmin]
+      properties:
+        id: { type: string, format: uuid }
+        displayName: { type: string }
+        email: { type: string, format: email }
+        status: { type: string, enum: [active, disabled, deletion-requested] }
+        isPlatformAdmin: { type: boolean }
+    SessionPrincipal:
+      type: object
+      required: [sessionId, csrfToken, expiresAt, user]
+      properties:
+        sessionId: { type: string, format: uuid }
+        csrfToken:
+          type: string
+          description: Per-session CSRF token. It is not an authentication credential.
+        expiresAt: { type: string, format: date-time }
+        user: { $ref: '#/components/schemas/AuthUser' }
+    AuthorCompatibilityDraft:
+      type: object
+      required: [coreRange, gameApiTag, platforms, architectures, gpuClasses, note]
+      properties:
+        coreRange: { type: string }
+        gameApiTag: { type: string }
+        platforms: { type: array, items: { type: string } }
+        architectures: { type: array, items: { type: string } }
+        gpuClasses: { type: array, items: { type: string } }
+        note: { type: string }
+    AuthorArtifactDeclaration:
+      type: object
+      description: Metadata declaration only. It is not an upload or published artifact.
+      required: [fileName, platform, architecture, gpuClass, expectedSize]
+      properties:
+        fileName: { type: string }
+        platform: { type: string }
+        architecture: { type: string }
+        gpuClass: { type: string }
+        expectedSize: { type: [integer, 'null'], minimum: 1, maximum: 536870912 }
+    AuthorVersion:
+      type: object
+      required: [id, projectId, version, channel, status, changelog, licenseSpdx, compatibility, artifactDeclarations, revision, updatedAt]
+      properties:
+        id: { type: string, format: uuid }
+        projectId: { type: string, format: uuid }
+        version: { type: string }
+        channel: { type: string, enum: [preview, alpha, beta, stable] }
+        status: { type: string, enum: [draft, changes-requested] }
+        changelog: { type: string }
+        licenseSpdx: { type: [string, 'null'] }
+        compatibility:
+          type: array
+          items: { $ref: '#/components/schemas/AuthorCompatibilityDraft' }
+        artifactDeclarations:
+          type: array
+          items: { $ref: '#/components/schemas/AuthorArtifactDeclaration' }
+        revision: { type: integer, minimum: 1 }
+        updatedAt: { type: string, format: date-time }
+    AuthorProject:
+      type: object
+      required: [id, slug, name, summary, licenseSpdx, status, role, updatedAt, versions]
+      properties:
+        id: { type: string, format: uuid }
+        slug: { type: string }
+        name: { type: string }
+        summary: { type: string }
+        licenseSpdx: { type: [string, 'null'] }
+        status: { type: string, enum: [draft, archived] }
+        role: { type: string, enum: [owner, maintainer, reviewer] }
+        updatedAt: { type: string, format: date-time }
+        versions:
+          type: array
+          items: { $ref: '#/components/schemas/AuthorVersion' }
+    AuthorProjectInput:
+      type: object
+      required: [slug, name, summary, licenseSpdx]
+      properties:
+        slug: { type: string, pattern: '^[a-z0-9]+(?:-[a-z0-9]+)*$' }
+        name: { type: string, minLength: 2, maxLength: 100 }
+        summary: { type: string, minLength: 10, maxLength: 500 }
+        licenseSpdx: { type: [string, 'null'] }
+    AuthorProjectPatch:
+      type: object
+      minProperties: 1
+      properties:
+        name: { type: string, minLength: 2, maxLength: 100 }
+        summary: { type: string, minLength: 10, maxLength: 500 }
+        licenseSpdx: { type: [string, 'null'] }
+        status: { type: string, enum: [draft, archived] }
+    AuthorVersionInput:
+      type: object
+      required: [version, channel, changelog, licenseSpdx, compatibility, artifactDeclarations]
+      properties:
+        version: { type: string }
+        channel: { type: string, enum: [preview, alpha, beta, stable] }
+        changelog: { type: string, maxLength: 20000 }
+        licenseSpdx: { type: [string, 'null'] }
+        compatibility:
+          type: array
+          maxItems: 32
+          items: { $ref: '#/components/schemas/AuthorCompatibilityDraft' }
+        artifactDeclarations:
+          type: array
+          maxItems: 16
+          items: { $ref: '#/components/schemas/AuthorArtifactDeclaration' }
+    AuthorVersionPatch:
+      type: object
+      required: [expectedRevision]
+      properties:
+        expectedRevision: { type: integer, minimum: 1 }
+        channel: { type: string, enum: [preview, alpha, beta, stable] }
+        changelog: { type: string, maxLength: 20000 }
+        licenseSpdx: { type: [string, 'null'] }
+        compatibility:
+          type: array
+          maxItems: 32
+          items: { $ref: '#/components/schemas/AuthorCompatibilityDraft' }
+        artifactDeclarations:
+          type: array
+          maxItems: 16
+          items: { $ref: '#/components/schemas/AuthorArtifactDeclaration' }
+    InvitationWithToken:
+      type: object
+      required: [id, email, expiresAt, token]
+      properties:
+        id: { type: string, format: uuid }
+        projectId: { type: string, format: uuid }
+        email: { type: string, format: email }
+        role: { type: string, enum: [maintainer, reviewer] }
+        status: { type: string, enum: [pending] }
+        expiresAt: { type: string, format: date-time }
+        token:
+          type: string
+          description: One-time plaintext token, returned only on creation.
+    AuditEventSummary:
+      type: object
+      required: [id, action, outcome, requestId, createdAt]
+      properties:
+        id: { type: string, format: uuid }
+        action: { type: string }
+        outcome: { type: string, enum: [allowed, denied, failed] }
+        requestId: { type: string }
+        createdAt: { type: string, format: date-time }
     ApiError:
       type: object
       required: [error]
