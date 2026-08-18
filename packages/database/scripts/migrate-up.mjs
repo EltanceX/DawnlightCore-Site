@@ -1,13 +1,17 @@
 import { readFileSync } from "node:fs";
 import { readdir } from "node:fs/promises";
-import { resolve } from "node:path";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import pg from "pg";
 
 const { Client } = pg;
 const connectionString =
   process.env.DATABASE_URL ??
   "postgres://dawnlight:dawnlight@127.0.0.1:55432/dawnlight_v2";
-const migrationsRoot = resolve("packages/database/migrations");
+const migrationsRoot = resolve(
+  dirname(fileURLToPath(import.meta.url)),
+  "../migrations",
+);
 const files = (await readdir(migrationsRoot))
   .filter((file) => file.endsWith(".sql"))
   .sort();

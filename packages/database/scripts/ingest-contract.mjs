@@ -1,4 +1,5 @@
-import { resolve } from "node:path";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { createDatabasePool, ingestContractBundle } from "../dist/index.js";
 import { loadContractBundle } from "@dawnlight/contract-data/node";
 
@@ -6,7 +7,11 @@ const connectionString =
   process.env.DATABASE_URL ??
   "postgres://dawnlight:dawnlight@127.0.0.1:55432/dawnlight_v2";
 const contractRoot = resolve(
-  process.env.DAWNLIGHT_CONTRACT_ROOT ?? "contracts/dawnlight/preview",
+  process.env.DAWNLIGHT_CONTRACT_ROOT ??
+    resolve(
+      dirname(fileURLToPath(import.meta.url)),
+      "../../../contracts/dawnlight/preview",
+    ),
 );
 const requireSignature = process.env.APP_ENV === "production";
 const pool = createDatabasePool({ connectionString });
