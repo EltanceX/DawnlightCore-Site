@@ -153,6 +153,34 @@ if (
   process.exit(1);
 }
 
+const directoryHtml = readFileSync(
+  resolve(output, "zh-CN/shaders/index.html"),
+  "utf8",
+);
+if (
+  !directoryHtml.includes("Dawnlight v3.1") ||
+  !directoryHtml.includes("暂无可下载 artifact") ||
+  !directoryHtml.includes("兼容性")
+) {
+  console.error(
+    "Static directory output does not contain the WP4 compatibility boundary.",
+  );
+  process.exit(1);
+}
+
+const projectHtml = readFileSync(
+  resolve(output, "zh-CN/shaders/dawnlight-v3-1/index.html"),
+  "utf8",
+);
+if (
+  !projectHtml.includes("项目版本") ||
+  !projectHtml.includes("许可证与预览资产") ||
+  !projectHtml.includes("当前没有可核对的项目图片")
+) {
+  console.error("Static project output does not contain the WP4 detail state.");
+  process.exit(1);
+}
+
 const files = required.map((file) => statSync(resolve(output, file)).size);
 console.log(
   `Static smoke passed (${files.reduce((total, size) => total + size, 0)} bytes across required files).`,

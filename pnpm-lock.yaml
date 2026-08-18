@@ -87,6 +87,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@dawnlight/contract-data':
+        specifier: workspace:*
+        version: link:../../packages/contract-data
       cnfast:
         specifier: ^0.1.0
         version: 0.1.0

@@ -10,14 +10,18 @@ import type { Pool } from "pg";
 import { checkDatabase } from "@dawnlight/database";
 import {
   ContractDataError,
+  DirectoryDataError,
   type ContractDataService,
+  type DirectoryDataService,
 } from "@dawnlight/contract-data";
 import { registerContractRoutes } from "./contracts.js";
+import { registerDirectoryRoutes } from "./directory.js";
 
 export type ApiDependencies = {
   database?: Pool;
   checkObjectStorage?: () => Promise<void>;
   contracts?: ContractDataService;
+  directory?: DirectoryDataService;
 };
 
 const apiVersion = "0.1.0";
@@ -127,9 +131,15 @@ export async function createApp(
   if (dependencies.contracts) {
     registerContractRoutes(app, dependencies.contracts);
   }
+  if (dependencies.directory) {
+    registerDirectoryRoutes(app, dependencies.directory);
+  }
 
   app.setErrorHandler((error, request, reply) => {
-    if (error instanceof ContractDataError) {
+    if (
+      error instanceof ContractDataError ||
+      error instanceof DirectoryDataError
+    ) {
       request.log.info(
         { contractError: error.code, details: error.details },
         "contract query rejected",

@@ -11,7 +11,8 @@
     "types:check": "tsc -p tsconfig.json --noEmit",
     "migrate:up": "node scripts/migrate-up.mjs",
     "seed": "node scripts/seed.mjs",
-    "contract:ingest": "node scripts/ingest-contract.mjs"
+    "contract:ingest": "node scripts/ingest-contract.mjs",
+    "directory:seed": "node scripts/seed-directory.mjs"
   },
   "dependencies": {
     "@dawnlight/contract-data": "workspace:*",

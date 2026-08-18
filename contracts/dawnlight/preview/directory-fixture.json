@@ -1,0 +1,70 @@
+{
+  "fixtureVersion": 1,
+  "catalogStatus": "preview",
+  "generatedAt": "2026-08-18T00:00:00+08:00",
+  "projects": [
+    {
+      "id": "dawnlight:dawnlight_v3_1",
+      "slug": "dawnlight-v3-1",
+      "name": "Dawnlight v3.1",
+      "summary": "DawnlightCore 当前 Preview contract candidate 的光影包元数据。",
+      "status": "preview",
+      "visibility": "public-candidate",
+      "licenseId": "license:dawnlight:dawnlight_v3_1",
+      "sourceRef": {
+        "path": "metadata.json",
+        "pointer": "/candidate",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      }
+    }
+  ],
+  "projectVersions": [
+    {
+      "id": "dawnlight:dawnlight_v3_1@3.1",
+      "projectId": "dawnlight:dawnlight_v3_1",
+      "version": "3.1",
+      "channel": "preview",
+      "status": "metadata-only",
+      "verification": "schema-only",
+      "contractVersion": "preview-2026-08-16",
+      "coreCommit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e",
+      "gameApiTag": "API_1.9.2.1",
+      "manifestVersion": 3,
+      "settingsSchemaVersion": 1,
+      "compatibilityIds": ["compat:dawnlight:dawnlight_v3_1@3.1"],
+      "artifactIds": [],
+      "imageIds": [],
+      "sourceRef": {
+        "path": "metadata.json",
+        "pointer": "/candidate/shaderPackVersion",
+        "commit": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e"
+      }
+    }
+  ],
+  "artifacts": [],
+  "compatibilities": [
+    {
+      "id": "compat:dawnlight:dawnlight_v3_1@3.1",
+      "projectVersionId": "dawnlight:dawnlight_v3_1@3.1",
+      "status": "unverified",
+      "coreRange": "3ec28fc9461e6b1636ad4adc086e9cea8150c02e",
+      "gameApiTag": "API_1.9.2.1",
+      "platforms": [],
+      "architectures": [],
+      "gpuClasses": [],
+      "reason": "当前只有 schema-only contract；没有真实 Loader、设备或 artifact 兼容性记录。"
+    }
+  ],
+  "images": [],
+  "licenses": [
+    {
+      "id": "license:dawnlight:dawnlight_v3_1",
+      "projectId": "dawnlight:dawnlight_v3_1",
+      "status": "unknown",
+      "spdxId": null,
+      "name": null,
+      "url": null,
+      "reason": "当前冻结快照未包含可核对的项目许可证声明。"
+    }
+  ]
+}

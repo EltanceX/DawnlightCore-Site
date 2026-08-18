@@ -100,11 +100,17 @@ test("V2 tools and shader directory expose verified preview boundaries", async (
     page.getByRole("heading", { level: 1, name: "光影目录" }),
   ).toBeVisible();
   await expect(page.getByText("Dawnlight v3.1", { exact: true })).toBeVisible();
-  await expect(page.getByText("暂无下载", { exact: true })).toBeVisible();
+  await expect(
+    page.getByText("暂无可下载 artifact", { exact: true }),
+  ).toBeVisible();
 
   await page.goto("/zh-CN/shaders/dawnlight-v3-1/");
   await expect(page.getByText("当前不能下载", { exact: true })).toBeVisible();
-  await expect(page.getByText("schema-only", { exact: true })).toBeVisible();
+  await expect(
+    page
+      .locator(".dl-directory-version")
+      .getByText("schema-only", { exact: false }),
+  ).toBeVisible();
   await expect(
     page.locator("a[href^='http']").filter({ hasText: /下载/ }),
   ).toHaveCount(0);
@@ -162,6 +168,39 @@ test("V2 graph, variant and diff pages expose honest contract states", async ({
   ).toBeVisible();
   await expect(
     page.getByText("两个 contract 没有结构差异", { exact: true }),
+  ).toBeVisible();
+});
+
+test("V2 directory filters preserve compatibility boundaries", async ({
+  page,
+}) => {
+  await page.goto(
+    "/zh-CN/shaders/?q=Dawnlight&gameApi=API_1.9.2.1&status=preview",
+  );
+  await expect(page.getByRole("searchbox", { name: /搜索项目/ })).toHaveValue(
+    "Dawnlight",
+  );
+  await expect(page.getByLabel("Game API")).toHaveValue("API_1.9.2.1");
+  await expect(page.getByText("Dawnlight v3.1", { exact: true })).toBeVisible();
+  await expect(
+    page.getByText("暂无可下载 artifact", { exact: true }),
+  ).toBeVisible();
+  await expect(page).toHaveURL(
+    /q=Dawnlight&gameApi=API_1\.9\.2\.1&status=preview/,
+  );
+
+  await page.goto("/zh-CN/shaders/?platform=windows");
+  await expect(page.getByText("没有匹配的项目", { exact: true })).toBeVisible();
+
+  await page.goto("/zh-CN/shaders/dawnlight-v3-1/");
+  await expect(
+    page.getByRole("heading", { level: 2, name: "项目版本" }),
+  ).toBeVisible();
+  await expect(
+    page.getByText("许可证与预览资产", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByText("当前没有可核对的项目图片。", { exact: true }),
   ).toBeVisible();
 });
 

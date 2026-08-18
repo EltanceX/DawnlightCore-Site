@@ -1815,7 +1815,286 @@ html > body[data-scroll-locked] {
   font-size: 0.76rem;
 }
 
+.dl-directory-controls {
+  display: grid;
+  grid-template-columns: minmax(15rem, 1.5fr) minmax(12rem, 0.9fr) repeat(
+      3,
+      minmax(9rem, 0.7fr)
+    );
+  gap: 0.75rem;
+  align-items: end;
+  margin-top: 2rem;
+  border: 1px solid var(--dl-line);
+  border-radius: 0.85rem;
+  background: var(--dl-surface-muted);
+  padding: 1rem;
+}
+
+.dl-directory-field {
+  display: grid;
+  min-width: 0;
+  gap: 0.38rem;
+  color: var(--dl-muted);
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.dl-directory-field input,
+.dl-directory-field select {
+  width: 100%;
+  min-width: 0;
+  height: 2.45rem;
+  border: 1px solid var(--dl-line);
+  border-radius: 0.5rem;
+  background: var(--dl-surface);
+  padding-inline: 0.7rem;
+  color: var(--dl-ink);
+  font: inherit;
+  font-size: 0.78rem;
+}
+
+.dl-directory-field input:focus-visible,
+.dl-directory-field select:focus-visible {
+  outline: 2px solid var(--dl-focus);
+  outline-offset: 2px;
+}
+
+.dl-directory-field--search {
+  grid-column: span 2;
+}
+
+.dl-directory-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.dl-directory-input-wrap svg {
+  position: absolute;
+  left: 0.7rem;
+  color: var(--dl-muted);
+  pointer-events: none;
+}
+
+.dl-directory-input-wrap input {
+  padding-left: 2.05rem;
+}
+
+.dl-directory-controls > button {
+  height: 2.45rem;
+  white-space: nowrap;
+}
+
+.dl-directory-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.7rem;
+  margin-top: 0.85rem;
+  color: var(--dl-muted);
+  font-size: 0.78rem;
+}
+
+.dl-directory-summary strong {
+  color: var(--dl-ink);
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+}
+
+.dl-directory-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 21rem), 1fr));
+  gap: 1rem;
+  margin-top: 1.25rem;
+}
+
+.dl-directory-card {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  border: 1px solid var(--dl-line);
+  border-radius: 0.85rem;
+  background: var(--dl-surface);
+  padding: 1.15rem;
+}
+
+.dl-directory-card__topline,
+.dl-directory-card__id,
+.dl-directory-card__link,
+.dl-directory-compatibility,
+.dl-directory-version > div,
+.dl-directory-license p {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.dl-directory-card__topline {
+  justify-content: space-between;
+  color: var(--dl-muted);
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 0.72rem;
+}
+
+.dl-directory-card h2 {
+  margin-top: 1rem;
+  font-size: 1.35rem;
+}
+
+.dl-directory-card > p {
+  min-height: 2.8rem;
+  margin: 0.6rem 0 0;
+  color: var(--dl-muted);
+  font-size: 0.84rem;
+  line-height: 1.6;
+}
+
+.dl-directory-card__id {
+  justify-content: space-between;
+  min-width: 0;
+  margin-top: 0.85rem;
+  border-top: 1px solid var(--dl-line);
+  padding-top: 0.7rem;
+}
+
+.dl-directory-card__id code,
+.dl-directory-version > code {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: var(--dl-ink);
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 0.7rem;
+}
+
+.dl-directory-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+  margin: 1rem 0;
+}
+
+.dl-directory-facts > div {
+  display: grid;
+  min-width: 0;
+  gap: 0.25rem;
+  border-top: 1px solid var(--dl-line);
+  padding-top: 0.5rem;
+}
+
+.dl-directory-facts dt {
+  color: var(--dl-muted);
+  font-size: 0.68rem;
+}
+
+.dl-directory-facts dd {
+  overflow-wrap: anywhere;
+  margin: 0;
+  color: var(--dl-ink);
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 0.74rem;
+}
+
+.dl-directory-compatibility {
+  align-items: flex-start;
+  border-left: 2px solid var(--dl-cool);
+  background: color-mix(in srgb, var(--dl-cool) 8%, var(--dl-surface));
+  padding: 0.6rem 0.7rem;
+  color: var(--dl-muted);
+  font-size: 0.73rem;
+  line-height: 1.5;
+}
+
+.dl-directory-recommendation {
+  display: grid;
+  gap: 0.25rem;
+  align-items: start;
+  margin-top: 0.75rem;
+  border-top: 1px solid var(--dl-line);
+  padding-top: 0.7rem;
+}
+
+.dl-directory-recommendation a,
+.dl-directory-card__link {
+  color: var(--dl-accent-strong);
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.dl-directory-recommendation > span,
+.dl-directory-recommendation small {
+  color: var(--dl-muted);
+  font-size: 0.7rem;
+  line-height: 1.5;
+}
+
+.dl-directory-card__link {
+  justify-content: flex-start;
+  margin-top: auto;
+  padding-top: 1rem;
+}
+
+.dl-directory-version-list {
+  display: grid;
+  gap: 0.65rem;
+  margin-top: 1rem;
+}
+
+.dl-directory-version {
+  display: grid;
+  grid-template-columns: minmax(10rem, 1fr) minmax(10rem, 1fr) minmax(
+      12rem,
+      1.2fr
+    );
+  gap: 0.75rem;
+  align-items: center;
+  border: 1px solid var(--dl-line);
+  border-radius: 0.65rem;
+  background: var(--dl-surface);
+  padding: 0.75rem;
+}
+
+.dl-directory-version > div {
+  flex-wrap: wrap;
+}
+
+.dl-directory-version > span,
+.dl-directory-license p {
+  color: var(--dl-muted);
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+
+.dl-directory-license {
+  display: grid;
+  gap: 0.2rem;
+  margin-top: 1rem;
+  border: 1px solid var(--dl-line);
+  border-radius: 0.65rem;
+  background: var(--dl-surface);
+  padding: 0.85rem;
+}
+
+.dl-directory-license p {
+  margin: 0;
+}
+
 @media (max-width: 900px) {
+  .dl-directory-controls {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .dl-directory-field--search {
+    grid-column: span 2;
+  }
+
+  .dl-directory-version {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .dl-directory-version > code {
+    grid-column: 1 / -1;
+  }
+
   .dl-tool-controls {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -1850,6 +2129,31 @@ html > body[data-scroll-locked] {
 
   .dl-v2-project-card__facts {
     grid-template-columns: 1fr;
+  }
+
+  .dl-directory-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .dl-directory-field--search {
+    grid-column: auto;
+  }
+
+  .dl-directory-controls > button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .dl-directory-facts {
+    grid-template-columns: 1fr;
+  }
+
+  .dl-directory-version {
+    grid-template-columns: 1fr;
+  }
+
+  .dl-directory-version > code {
+    grid-column: auto;
   }
 
   .dl-tool-controls,

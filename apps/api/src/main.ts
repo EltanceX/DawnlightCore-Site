@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { parseServerEnv, formatEnvIssues } from "@dawnlight/config";
 import {
   closeDatabase,
@@ -6,6 +8,7 @@ import {
 } from "@dawnlight/database";
 import {
   createContractDataService,
+  createDirectoryDataService,
   type ContractDataService,
 } from "@dawnlight/contract-data";
 import { loadContractBundle } from "@dawnlight/contract-data/node";
@@ -34,7 +37,18 @@ if (env.CONTRACT_DATA_SOURCE === "database") {
   });
   contracts = createContractDataService([bundle.fixture]);
 }
-const app = await createApp(env, { database, contracts });
+const app = await createApp(env, {
+  database,
+  contracts,
+  directory: createDirectoryDataService(
+    JSON.parse(
+      readFileSync(
+        resolve(env.CONTRACT_FIXTURE_ROOT, "directory-fixture.json"),
+        "utf8",
+      ),
+    ),
+  ),
+});
 
 const close = async () => {
   await app.close();

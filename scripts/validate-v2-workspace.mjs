@@ -13,12 +13,15 @@ const requiredFiles = [
   "packages/config/src/env.ts",
   "packages/database/migrations/0001_runtime.sql",
   "packages/database/migrations/0002_contract_ingest.sql",
+  "packages/database/migrations/0003_directory.sql",
+  "packages/database/scripts/seed-directory.mjs",
   "packages/api-client/src/index.ts",
   "packages/contract-data/src/index.ts",
   "packages/contract-data/src/node.ts",
   "contracts/dawnlight/preview/contract-manifest.json",
   "contracts/dawnlight/preview/contract-ingest-lock.json",
   "contracts/dawnlight/preview/ingest-fixture.json",
+  "contracts/dawnlight/preview/directory-fixture.json",
   "contracts/openapi/v1.yaml",
   "infra/compose/v2-dev.compose.yml",
   "apps/web/src/components/developer-tools/tool-shared.tsx",
@@ -29,6 +32,8 @@ const requiredFiles = [
   "apps/web/src/components/developer-tools/variant-explorer.tsx",
   "apps/web/src/components/developer-tools/contract-diff-explorer.tsx",
   "apps/web/src/app/[locale]/tools/contract-diff/page.tsx",
+  "apps/web/src/components/directory/directory-explorer.tsx",
+  "apps/api/src/directory.ts",
 ];
 
 const missing = requiredFiles.filter((file) => !existsSync(resolve(file)));
@@ -86,5 +91,5 @@ for (const key of [
 }
 
 console.log(
-  "V2 workspace validation passed (WP1 skeleton, WP2 contract data, and WP3 developer tools).",
+  "V2 workspace validation passed (WP1 skeleton, WP2 contract data, WP3 tools, and WP4 directory).",
 );

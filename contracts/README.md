@@ -7,6 +7,7 @@
 - `contract-lock.json`：记录来源仓库、commit、Core/Manifest 版本和输入 hash。
 - `contract-manifest.json`：WP2 ingest 输入合同、数据集 hash、可用性和签名 envelope；
 - `ingest-fixture.json`：API 与静态工具页共同消费的规范化只读数据；
+- `directory-fixture.json`：V2-WP4 的 Project、Version、Artifact、Compatibility、Image 和 License 只读候选快照；
 - `contract-ingest-lock.json`：规范化 fixture、manifest hash、行数和原子激活策略锁定记录。
 
 `contracts/dawnlight/preview/contract-lock.json` 当前是 `preview-validated`，不是稳定公共 ABI。它明确记录了当前工作树脏状态，并由 `git show <commit>:<path>` 生成，避免网站构建意外读取开发者本机路径或未提交修改。

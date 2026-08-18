@@ -1,6 +1,12 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { ArrowLeft, Download, FileCheck2, ShieldAlert } from "lucide-react";
+import {
+  ArrowLeft,
+  Download,
+  FileCheck2,
+  ImageOff,
+  ShieldAlert,
+} from "lucide-react";
 import { notFound } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Callout } from "@/components/ui/callout";
@@ -31,7 +37,7 @@ export async function generateMetadata({
   const project = resolveProject(await params);
   return {
     title: project.name,
-    description: project.description,
+    description: project.summary,
   };
 }
 
@@ -55,23 +61,23 @@ export default async function ShaderProjectPage({
             <Badge>{project.status}</Badge>
           </div>
         </div>
-        <p className="dl-v2-lede">{project.description}</p>
+        <p className="dl-v2-lede">{project.summary}</p>
         <div className="dl-v2-fact-grid">
           <div>
             <span>Shader Pack ID</span>
-            <strong>{project.shaderPackId}</strong>
+            <strong>{project.id}</strong>
           </div>
           <div>
             <span>版本</span>
-            <strong>{project.latestVersion}</strong>
+            <strong>{project.latestVersion?.version ?? "—"}</strong>
           </div>
           <div>
             <span>Contract</span>
-            <strong>{project.contractVersion}</strong>
+            <strong>{project.latestVersion?.contractVersion ?? "—"}</strong>
           </div>
           <div>
             <span>Core commit</span>
-            <strong>{project.coreCommit}</strong>
+            <strong>{project.latestVersion?.coreCommit ?? "—"}</strong>
           </div>
         </div>
         <section
@@ -84,26 +90,90 @@ export default async function ShaderProjectPage({
             </div>
             <div>
               <h2 id="compatibility-title">兼容性记录</h2>
-              <Badge>{project.verification}</Badge>
+              <Badge>
+                {project.compatibilities[0]?.status ?? "unverified"}
+              </Badge>
             </div>
           </div>
           <div className="dl-v2-fact-grid">
             <div>
               <span>游戏 API</span>
-              <strong>{project.compatibility.gameApiTag}</strong>
+              <strong>{project.latestVersion?.gameApiTag ?? "—"}</strong>
             </div>
             <div>
               <span>Manifest</span>
-              <strong>v{project.compatibility.manifestVersion}</strong>
+              <strong>v{project.latestVersion?.manifestVersion ?? "—"}</strong>
             </div>
             <div>
               <span>Settings UI</span>
-              <strong>v{project.compatibility.settingsSchemaVersion}</strong>
+              <strong>
+                v{project.latestVersion?.settingsSchemaVersion ?? "—"}
+              </strong>
             </div>
+          </div>
+          <p className="dl-directory-compatibility">
+            <ShieldAlert size={15} aria-hidden="true" />
+            {project.compatibilities[0]?.reason ?? "暂无兼容性记录。"}
+          </p>
+        </section>
+        <section
+          className="dl-v2-detail-section"
+          aria-labelledby="versions-title"
+        >
+          <div className="dl-v2-section-heading">
+            <div className="dl-v2-card__icon">
+              <FileCheck2 size={18} aria-hidden="true" />
+            </div>
+            <div>
+              <h2 id="versions-title">项目版本</h2>
+              <Badge>{project.versions.length} 个版本</Badge>
+            </div>
+          </div>
+          <div className="dl-directory-version-list">
+            {project.versions.map((version) => (
+              <article className="dl-directory-version" key={version.id}>
+                <div>
+                  <strong>{version.version}</strong>
+                  <Badge>{version.channel}</Badge>
+                  <Badge>{version.status}</Badge>
+                </div>
+                <span>
+                  {version.verification} · {version.artifactIds.length}{" "}
+                  artifacts
+                </span>
+                <code>{version.coreCommit}</code>
+              </article>
+            ))}
+          </div>
+        </section>
+        <section
+          className="dl-v2-detail-section"
+          aria-labelledby="license-title"
+        >
+          <div className="dl-v2-section-heading">
+            <div className="dl-v2-card__icon">
+              <ShieldAlert size={18} aria-hidden="true" />
+            </div>
+            <div>
+              <h2 id="license-title">许可证与预览资产</h2>
+              <Badge>{project.license?.status ?? "unknown"}</Badge>
+            </div>
+          </div>
+          <div className="dl-directory-license">
+            <p>{project.license?.reason ?? "暂无许可证记录。"}</p>
+            <p>
+              <ImageOff size={15} aria-hidden="true" />
+              {project.images.length > 0
+                ? `${project.images.length} 张已核对图片`
+                : "当前没有可核对的项目图片。"}
+            </p>
           </div>
         </section>
         <Callout title="当前不能下载">
-          <span>{project.limitation}</span>
+          <span>
+            {project.recommendation.exclusions[0] ??
+              project.recommendation.reasons[0]}
+          </span>
           <span className="dl-v2-inline-icon">
             <Download size={15} aria-hidden="true" />
             等待真实 release artifact

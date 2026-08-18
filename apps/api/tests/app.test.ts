@@ -4,12 +4,25 @@ import { parseServerEnv } from "@dawnlight/config";
 import { resolve } from "node:path";
 import { loadContractBundle } from "@dawnlight/contract-data/node";
 import { createContractDataService } from "@dawnlight/contract-data";
+import { createDirectoryDataService } from "@dawnlight/contract-data";
+import { readFileSync } from "node:fs";
 
 const env = parseServerEnv({ APP_ENV: "test" });
 const contractFixture = loadContractBundle(
   resolve(process.cwd(), "../../contracts/dawnlight/preview"),
 ).fixture;
 const contracts = createContractDataService([contractFixture]);
+const directory = createDirectoryDataService(
+  JSON.parse(
+    readFileSync(
+      resolve(
+        process.cwd(),
+        "../../contracts/dawnlight/preview/directory-fixture.json",
+      ),
+      "utf8",
+    ),
+  ),
+);
 const apps: Awaited<ReturnType<typeof createApp>>[] = [];
 
 afterEach(async () => {
@@ -88,5 +101,28 @@ describe("API health shell", () => {
     });
     expect(missing.statusCode).toBe(404);
     expect(missing.json().error.code).toBe("ContractEntityNotFound");
+  });
+
+  it("serves public directory recommendations without private artifact fields", async () => {
+    const app = await createApp(env, { directory });
+    apps.push(app);
+    const list = await app.inject({
+      method: "GET",
+      url: "/api/v1/directory/projects?gameApi=API_1.9.2.1",
+    });
+    expect(list.statusCode).toBe(200);
+    expect(list.headers.etag).toMatch(/^"[0-9a-f]{64}"$/);
+    expect(list.json().data[0]).toMatchObject({
+      slug: "dawnlight-v3-1",
+      recommendation: { artifact: null },
+    });
+    expect(JSON.stringify(list.json())).not.toContain("objectKey");
+
+    const detail = await app.inject({
+      method: "GET",
+      url: "/api/v1/directory/projects/dawnlight-v3-1/versions/3.1",
+    });
+    expect(detail.statusCode).toBe(200);
+    expect(detail.json().data.latestVersion.status).toBe("metadata-only");
   });
 });

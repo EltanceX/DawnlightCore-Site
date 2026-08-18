@@ -217,6 +217,8 @@ export type ContractDataService = {
   diff(from: string, to: string): Promise<ContractDiff>;
 };
 
+export * from "./directory.js";
+
 function assertUsable<
   T extends { id: string; status: ContractStatus; deprecation: Deprecation },
 >(record: T): T {

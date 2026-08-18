@@ -13,6 +13,17 @@ export type CapabilityRecord = components["schemas"]["CapabilityRecord"];
 export type GraphRecord = components["schemas"]["GraphRecord"];
 export type VariantRecord = components["schemas"]["VariantRecord"];
 export type ContractDiff = components["schemas"]["ContractDiff"];
+export type DirectoryProjectView =
+  components["schemas"]["DirectoryProjectView"];
+export type DirectoryProjectVersion =
+  components["schemas"]["DirectoryProjectVersion"];
+export type DirectoryArtifact = components["schemas"]["DirectoryArtifact"];
+export type DirectoryCompatibility =
+  components["schemas"]["DirectoryCompatibility"];
+export type DirectoryImage = components["schemas"]["DirectoryImage"];
+export type DirectoryLicense = components["schemas"]["DirectoryLicense"];
+export type DirectoryRecommendation =
+  components["schemas"]["DirectoryRecommendation"];
 export type ApiError = components["schemas"]["ApiError"];
 
 export type { components, operations, paths } from "./generated.js";

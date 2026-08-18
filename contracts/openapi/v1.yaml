@@ -249,6 +249,70 @@ paths:
                 properties:
                   data: { $ref: '#/components/schemas/VariantRecord' }
         '404': { $ref: '#/components/responses/ApiError' }
+  /api/v1/directory/projects:
+    get:
+      operationId: listDirectoryProjects
+      parameters:
+        - { $ref: '#/components/parameters/DirectoryQuery' }
+        - { $ref: '#/components/parameters/DirectoryCore' }
+        - { $ref: '#/components/parameters/DirectoryGameApi' }
+        - { $ref: '#/components/parameters/DirectoryPlatform' }
+        - { $ref: '#/components/parameters/DirectoryArchitecture' }
+        - { $ref: '#/components/parameters/DirectoryGpu' }
+        - { $ref: '#/components/parameters/DirectoryChannel' }
+        - { $ref: '#/components/parameters/DirectoryLicense' }
+        - { $ref: '#/components/parameters/DirectoryStatus' }
+      responses:
+        '200':
+          description: Public directory project views and recommendation reasons.
+          headers:
+            ETag: { $ref: '#/components/headers/ETag' }
+            Cache-Control: { $ref: '#/components/headers/CacheControl' }
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/DirectoryProjectView' }
+  /api/v1/directory/projects/{slug}:
+    get:
+      operationId: getDirectoryProject
+      parameters:
+        - { $ref: '#/components/parameters/DirectorySlug' }
+      responses:
+        '200':
+          description: One public directory project view.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/DirectoryProjectView' }
+        '404': { $ref: '#/components/responses/ApiError' }
+  /api/v1/directory/projects/{slug}/versions/{version}:
+    get:
+      operationId: getDirectoryProjectVersion
+      parameters:
+        - { $ref: '#/components/parameters/DirectorySlug' }
+        - name: version
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: One public project version with compatibility and artifact recommendation.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/DirectoryProjectView' }
+        '404': { $ref: '#/components/responses/ApiError' }
 components:
   headers:
     ETag:
@@ -272,6 +336,47 @@ components:
       name: to
       in: query
       required: true
+      schema: { type: string }
+    DirectorySlug:
+      name: slug
+      in: path
+      required: true
+      schema: { type: string }
+    DirectoryQuery:
+      name: q
+      in: query
+      schema: { type: string }
+    DirectoryCore:
+      name: core
+      in: query
+      schema: { type: string }
+    DirectoryGameApi:
+      name: gameApi
+      in: query
+      schema: { type: string }
+    DirectoryPlatform:
+      name: platform
+      in: query
+      schema: { type: string }
+    DirectoryArchitecture:
+      name: architecture
+      in: query
+      schema: { type: string }
+    DirectoryGpu:
+      name: gpu
+      in: query
+      schema: { type: string }
+    DirectoryChannel:
+      name: channel
+      in: query
+      schema: { type: string }
+    DirectoryLicense:
+      name: license
+      in: query
+      schema: { type: string }
+    DirectoryStatus:
+      name: status
+      in: query
       schema: { type: string }
   responses:
     ApiError:
@@ -444,6 +549,120 @@ components:
         changed:
           type: array
           items: { $ref: '#/components/schemas/ContractDiffItem' }
+    DirectoryStatus:
+      type: string
+      enum: [preview, available, unverified, metadata-only, withdrawn, deprecated]
+    DirectoryProjectView:
+      type: object
+      required: [id, slug, name, summary, status, visibility, latestVersion, versions, artifacts, compatibilities, images, license, recommendation, sourceRef]
+      properties:
+        id: { type: string }
+        slug: { type: string }
+        name: { type: string }
+        summary: { type: string }
+        status: { $ref: '#/components/schemas/DirectoryStatus' }
+        visibility: { type: string, enum: [public-candidate, published] }
+        latestVersion:
+          oneOf:
+            - { $ref: '#/components/schemas/DirectoryProjectVersion' }
+            - { type: 'null' }
+        versions:
+          type: array
+          items: { $ref: '#/components/schemas/DirectoryProjectVersion' }
+        artifacts:
+          type: array
+          items: { $ref: '#/components/schemas/DirectoryArtifact' }
+        compatibilities:
+          type: array
+          items: { $ref: '#/components/schemas/DirectoryCompatibility' }
+        images:
+          type: array
+          items: { $ref: '#/components/schemas/DirectoryImage' }
+        license:
+          oneOf:
+            - { $ref: '#/components/schemas/DirectoryLicense' }
+            - { type: 'null' }
+        recommendation:
+          $ref: '#/components/schemas/DirectoryRecommendation'
+        sourceRef: { $ref: '#/components/schemas/SourceRef' }
+    DirectoryProjectVersion:
+      type: object
+      required: [id, projectId, version, channel, status, verification, contractVersion, coreCommit, gameApiTag, manifestVersion, settingsSchemaVersion, compatibilityIds, artifactIds, imageIds, sourceRef]
+      properties:
+        id: { type: string }
+        projectId: { type: string }
+        version: { type: string }
+        channel: { type: string, enum: [preview, stable, beta, alpha] }
+        status: { $ref: '#/components/schemas/DirectoryStatus' }
+        verification: { type: string, enum: [schema-only, loader-verified, device-verified] }
+        contractVersion: { type: string }
+        coreCommit: { type: string, pattern: '^[0-9a-f]{40}$' }
+        gameApiTag: { type: string }
+        manifestVersion: { type: integer }
+        settingsSchemaVersion: { type: integer }
+        compatibilityIds: { type: array, items: { type: string } }
+        artifactIds: { type: array, items: { type: string } }
+        imageIds: { type: array, items: { type: string } }
+        sourceRef: { $ref: '#/components/schemas/SourceRef' }
+    DirectoryArtifact:
+      type: object
+      required: [id, projectVersionId, status, platform, architecture, gpuClass, fileName, size, sha256, downloadUrl, sourceRef]
+      properties:
+        id: { type: string }
+        projectVersionId: { type: string }
+        status: { type: string, enum: [available, unverified, quarantine, withdrawn] }
+        platform: { type: string }
+        architecture: { type: string }
+        gpuClass: { type: string }
+        fileName: { type: string }
+        size: { type: integer }
+        sha256: { type: string, pattern: '^[0-9a-f]{64}$' }
+        downloadUrl: { type: string, format: uri }
+        sourceRef: { $ref: '#/components/schemas/SourceRef' }
+    DirectoryCompatibility:
+      type: object
+      required: [id, projectVersionId, status, coreRange, gameApiTag, platforms, architectures, gpuClasses, reason]
+      properties:
+        id: { type: string }
+        projectVersionId: { type: string }
+        status: { type: string, enum: [unverified, compatible, incompatible, partial] }
+        coreRange: { type: string }
+        gameApiTag: { type: string }
+        platforms: { type: array, items: { type: string } }
+        architectures: { type: array, items: { type: string } }
+        gpuClasses: { type: array, items: { type: string } }
+        reason: { type: string }
+    DirectoryImage:
+      type: object
+      required: [id, projectVersionId, status, url, alt, reason]
+      properties:
+        id: { type: string }
+        projectVersionId: { type: string }
+        status: { type: string, enum: [available, unavailable] }
+        url: { type: [string, 'null'], format: uri }
+        alt: { type: [string, 'null'] }
+        reason: { type: [string, 'null'] }
+    DirectoryLicense:
+      type: object
+      required: [id, projectId, status, spdxId, name, url, reason]
+      properties:
+        id: { type: string }
+        projectId: { type: string }
+        status: { type: string, enum: [declared, unknown, restricted] }
+        spdxId: { type: [string, 'null'] }
+        name: { type: [string, 'null'] }
+        url: { type: [string, 'null'], format: uri }
+        reason: { type: string }
+    DirectoryRecommendation:
+      type: object
+      required: [artifact, reasons, exclusions]
+      properties:
+        artifact:
+          oneOf:
+            - { $ref: '#/components/schemas/DirectoryArtifact' }
+            - { type: 'null' }
+        reasons: { type: array, items: { type: string } }
+        exclusions: { type: array, items: { type: string } }
     ApiError:
       type: object
       required: [error]

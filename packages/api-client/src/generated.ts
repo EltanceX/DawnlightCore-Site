@@ -212,6 +212,54 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/directory/projects": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations["listDirectoryProjects"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/directory/projects/{slug}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations["getDirectoryProject"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/directory/projects/{slug}/versions/{version}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations["getDirectoryProjectVersion"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -330,6 +378,103 @@ export interface components {
       removed: components["schemas"]["ContractDiffItem"][];
       changed: components["schemas"]["ContractDiffItem"][];
     };
+    /** @enum {string} */
+    DirectoryStatus:
+      | "preview"
+      | "available"
+      | "unverified"
+      | "metadata-only"
+      | "withdrawn"
+      | "deprecated";
+    DirectoryProjectView: {
+      id: string;
+      slug: string;
+      name: string;
+      summary: string;
+      status: components["schemas"]["DirectoryStatus"];
+      /** @enum {string} */
+      visibility: "public-candidate" | "published";
+      latestVersion: components["schemas"]["DirectoryProjectVersion"] | null;
+      versions: components["schemas"]["DirectoryProjectVersion"][];
+      artifacts: components["schemas"]["DirectoryArtifact"][];
+      compatibilities: components["schemas"]["DirectoryCompatibility"][];
+      images: components["schemas"]["DirectoryImage"][];
+      license: components["schemas"]["DirectoryLicense"] | null;
+      recommendation: components["schemas"]["DirectoryRecommendation"];
+      sourceRef: components["schemas"]["SourceRef"];
+    };
+    DirectoryProjectVersion: {
+      id: string;
+      projectId: string;
+      version: string;
+      /** @enum {string} */
+      channel: "preview" | "stable" | "beta" | "alpha";
+      status: components["schemas"]["DirectoryStatus"];
+      /** @enum {string} */
+      verification: "schema-only" | "loader-verified" | "device-verified";
+      contractVersion: string;
+      coreCommit: string;
+      gameApiTag: string;
+      manifestVersion: number;
+      settingsSchemaVersion: number;
+      compatibilityIds: string[];
+      artifactIds: string[];
+      imageIds: string[];
+      sourceRef: components["schemas"]["SourceRef"];
+    };
+    DirectoryArtifact: {
+      id: string;
+      projectVersionId: string;
+      /** @enum {string} */
+      status: "available" | "unverified" | "quarantine" | "withdrawn";
+      platform: string;
+      architecture: string;
+      gpuClass: string;
+      fileName: string;
+      size: number;
+      sha256: string;
+      /** Format: uri */
+      downloadUrl: string;
+      sourceRef: components["schemas"]["SourceRef"];
+    };
+    DirectoryCompatibility: {
+      id: string;
+      projectVersionId: string;
+      /** @enum {string} */
+      status: "unverified" | "compatible" | "incompatible" | "partial";
+      coreRange: string;
+      gameApiTag: string;
+      platforms: string[];
+      architectures: string[];
+      gpuClasses: string[];
+      reason: string;
+    };
+    DirectoryImage: {
+      id: string;
+      projectVersionId: string;
+      /** @enum {string} */
+      status: "available" | "unavailable";
+      /** Format: uri */
+      url: string | null;
+      alt: string | null;
+      reason: string | null;
+    };
+    DirectoryLicense: {
+      id: string;
+      projectId: string;
+      /** @enum {string} */
+      status: "declared" | "unknown" | "restricted";
+      spdxId: string | null;
+      name: string | null;
+      /** Format: uri */
+      url: string | null;
+      reason: string;
+    };
+    DirectoryRecommendation: {
+      artifact: components["schemas"]["DirectoryArtifact"] | null;
+      reasons: string[];
+      exclusions: string[];
+    };
     ApiError: {
       error: {
         code: string;
@@ -356,6 +501,16 @@ export interface components {
     ContractVersion: string;
     FromVersion: string;
     ToVersion: string;
+    DirectorySlug: string;
+    DirectoryQuery: string;
+    DirectoryCore: string;
+    DirectoryGameApi: string;
+    DirectoryPlatform: string;
+    DirectoryArchitecture: string;
+    DirectoryGpu: string;
+    DirectoryChannel: string;
+    DirectoryLicense: string;
+    DirectoryStatus: string;
   };
   requestBodies: never;
   headers: {
@@ -703,6 +858,91 @@ export interface operations {
         content: {
           "application/json": {
             data: components["schemas"]["VariantRecord"];
+          };
+        };
+      };
+      404: components["responses"]["ApiError"];
+    };
+  };
+  listDirectoryProjects: {
+    parameters: {
+      query?: {
+        q?: components["parameters"]["DirectoryQuery"];
+        core?: components["parameters"]["DirectoryCore"];
+        gameApi?: components["parameters"]["DirectoryGameApi"];
+        platform?: components["parameters"]["DirectoryPlatform"];
+        architecture?: components["parameters"]["DirectoryArchitecture"];
+        gpu?: components["parameters"]["DirectoryGpu"];
+        channel?: components["parameters"]["DirectoryChannel"];
+        license?: components["parameters"]["DirectoryLicense"];
+        status?: components["parameters"]["DirectoryStatus"];
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Public directory project views and recommendation reasons. */
+      200: {
+        headers: {
+          ETag: components["headers"]["ETag"];
+          "Cache-Control": components["headers"]["CacheControl"];
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            data: components["schemas"]["DirectoryProjectView"][];
+          };
+        };
+      };
+    };
+  };
+  getDirectoryProject: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        slug: components["parameters"]["DirectorySlug"];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description One public directory project view. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            data: components["schemas"]["DirectoryProjectView"];
+          };
+        };
+      };
+      404: components["responses"]["ApiError"];
+    };
+  };
+  getDirectoryProjectVersion: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        slug: components["parameters"]["DirectorySlug"];
+        version: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description One public project version with compatibility and artifact recommendation. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            data: components["schemas"]["DirectoryProjectView"];
           };
         };
       };
