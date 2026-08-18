@@ -7,6 +7,7 @@ import {
   loaderValidationDeadLetterQueueName,
   publicationQueueName,
   publicationDeadLetterQueueName,
+  downloadRetentionQueueName,
 } from "@dawnlight/database";
 
 export const validationQueueName = "dawnlight.validation.v1" as const;
@@ -75,5 +76,11 @@ export async function configureQueues(
     retryLimit: 3,
     retryDelay: 5,
     expireInSeconds: 120,
+  });
+  await boss.createQueue(downloadRetentionQueueName, {
+    retryLimit: 3,
+    retryDelay: 30,
+    retryBackoff: true,
+    expireInSeconds: 300,
   });
 }

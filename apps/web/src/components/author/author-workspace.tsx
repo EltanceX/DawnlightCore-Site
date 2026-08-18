@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import {
   useCallback,
   useEffect,
@@ -287,7 +288,12 @@ export function AuthorWorkspace() {
         </div>
         <div>
           {session.user.isPlatformAdmin && (
-            <StatusBadge status="platform-admin" />
+            <>
+              <StatusBadge status="platform-admin" />
+              <Link className="dl-button dl-button--quiet" href="/zh-CN/ops/">
+                运营控制台
+              </Link>
+            </>
           )}
           <Button
             onClick={() => void loadWorkspace()}
@@ -993,7 +999,7 @@ function ReviewQueuePanel({
     await onDecision(submission, decision, reason);
   };
   return (
-    <section className="dl-author-section">
+    <section className="dl-author-section" id="reviewer-queue">
       <div className="dl-author-section__heading">
         <div>
           <span>Reviewer</span>

@@ -50,6 +50,10 @@ export type LoaderValidationReport =
 export type ReviewSubmission = components["schemas"]["ReviewSubmission"];
 export type VersionWorkflow = components["schemas"]["VersionWorkflow"];
 export type ReviewDecisionInput = components["schemas"]["ReviewDecisionInput"];
+export type SearchItem = components["schemas"]["SearchItem"];
+export type SearchResponse = components["schemas"]["SearchResponse"];
+export type OperationsReport = components["schemas"]["OperationsReport"];
+export type OperationsOverview = components["schemas"]["OperationsOverview"];
 export type ApiError = components["schemas"]["ApiError"];
 
 export type { components, operations, paths } from "./generated.js";

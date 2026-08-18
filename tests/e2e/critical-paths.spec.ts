@@ -219,6 +219,21 @@ test("V2 author workspace preserves the private API boundary in static preview",
   ).toBeVisible();
 });
 
+test("V2 operations console does not expose private fixtures in static preview", async ({
+  page,
+}) => {
+  await page.goto("/zh-CN/ops/");
+  await expect(
+    page.getByRole("heading", { level: 1, name: "运营控制台" }),
+  ).toBeVisible();
+  await expect(
+    page.getByText("运营 API 尚未配置", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByText("静态 Preview 不加载运营 fixture", { exact: false }),
+  ).toBeVisible();
+});
+
 test("theme selection survives a reload", async ({ page }, testInfo) => {
   test.skip(
     testInfo.project.name.startsWith("mobile"),
@@ -264,6 +279,7 @@ for (const route of [
   "/zh-CN/shaders/",
   "/zh-CN/shaders/dawnlight-v3-1/",
   "/zh-CN/author/",
+  "/zh-CN/ops/",
   "/zh-CN/does-not-exist/",
 ]) {
   test(`axe has no serious or critical violations on ${route}`, async ({

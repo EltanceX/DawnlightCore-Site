@@ -17,8 +17,10 @@ const requiredFiles = [
   "packages/database/migrations/0004_authoring.sql",
   "packages/database/migrations/0005_upload_preflight.sql",
   "packages/database/migrations/0006_loader_review_publish.sql",
+  "packages/database/migrations/0007_search_operations.sql",
   "packages/database/scripts/seed-directory.mjs",
   "packages/database/scripts/seed-authoring.mjs",
+  "packages/database/scripts/smoke-search-operations.mjs",
   "packages/api-client/src/index.ts",
   "packages/contract-data/src/index.ts",
   "packages/contract-data/src/node.ts",
@@ -53,6 +55,13 @@ const requiredFiles = [
   "apps/worker/src/publication.test.ts",
   "packages/database/src/publishing.ts",
   "packages/database/src/directory.ts",
+  "packages/database/src/search.ts",
+  "packages/database/src/operations.ts",
+  "apps/api/src/search.ts",
+  "apps/api/src/operations.ts",
+  "apps/api/src/guards.ts",
+  "apps/web/src/components/operations/operations-console.tsx",
+  "apps/web/src/app/[locale]/ops/page.tsx",
   "infra/validator/Dockerfile",
   "infra/validator/Dockerfile.prepublished",
   "infra/validator/README.md",
@@ -111,10 +120,17 @@ if (
   !openapi?.paths?.[
     "/api/v1/author/projects/{projectId}/versions/{versionId}/submit"
   ] ||
-  !openapi?.paths?.["/api/v1/reviewer/submissions/{submissionId}/decision"]
+  !openapi?.paths?.["/api/v1/reviewer/submissions/{submissionId}/decision"] ||
+  !openapi?.paths?.["/api/v1/search"] ||
+  !openapi?.paths?.["/api/v1/downloads/artifacts/{artifactId}"] ||
+  !openapi?.paths?.["/api/v1/reports"] ||
+  !openapi?.paths?.["/api/v1/ops/overview"] ||
+  !openapi?.paths?.["/api/v1/ops/reports/{reportId}/resolve"] ||
+  !openapi?.paths?.["/api/v1/ops/versions/{versionId}/withdraw"] ||
+  !openapi?.paths?.["/api/v1/ops/projects/{projectId}/moderate"]
 ) {
   console.error(
-    "V2 OpenAPI bootstrap must define live and ready health paths.",
+    "V2 OpenAPI must define health, authoring, review, search and operations paths.",
   );
   process.exit(1);
 }
@@ -137,6 +153,12 @@ for (const key of [
   "RELEASE_FEED_SIGNING_KEY_ID",
   "PUBLICATION_RETRY_LIMIT",
   "PUBLICATION_TIMEOUT_SECONDS",
+  "RATE_LIMIT_SEARCH_PER_MINUTE",
+  "RATE_LIMIT_DOWNLOAD_PER_MINUTE",
+  "RATE_LIMIT_UPLOAD_PER_MINUTE",
+  "RATE_LIMIT_LOGIN_PER_TEN_MINUTES",
+  "RATE_LIMIT_REPORT_PER_HOUR",
+  "DOWNLOAD_EVENT_RETENTION_DAYS",
 ]) {
   if (!envExample.includes(`${key}=`)) {
     console.error(`.env.example is missing ${key}.`);
@@ -159,5 +181,5 @@ for (const boundary of [
 }
 
 console.log(
-  "V2 workspace validation passed through WP7 (isolated Loader, review and immutable publication).",
+  "V2 workspace validation passed through WP8 (public search, coarse download analytics and private operations).",
 );

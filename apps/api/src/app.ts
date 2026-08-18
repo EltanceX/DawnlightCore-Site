@@ -2,7 +2,7 @@ import cors from "@fastify/cors";
 import cookie from "@fastify/cookie";
 import formbody from "@fastify/formbody";
 import { trace } from "@opentelemetry/api";
-import Fastify, { type FastifyInstance } from "fastify";
+import Fastify, { type FastifyInstance, type FastifyRequest } from "fastify";
 import type {
   HealthLiveResponse,
   HealthReadyResponse,
@@ -23,6 +23,8 @@ import {
 import { registerContractRoutes } from "./contracts.js";
 import { registerDirectoryRoutes } from "./directory.js";
 import { registerAuthoringRoutes } from "./authoring.js";
+import { registerSearchRoutes } from "./search.js";
+import { registerOperationsRoutes } from "./operations.js";
 import type { OidcClient } from "./oidc.js";
 import type { QuarantineStorage } from "./storage.js";
 import type { PreflightQueue } from "./queue.js";
@@ -38,9 +40,80 @@ export type ApiDependencies = {
   quarantine?: QuarantineStorage;
   preflightQueue?: PreflightQueue;
   publishing?: import("@dawnlight/database").PublishingDataService;
+  search?: import("@dawnlight/database").SearchDataService;
+  operations?: import("@dawnlight/database").OperationsDataService;
 };
 
 const apiVersion = "0.1.0";
+
+function createRateLimiter(env: ServerEnv) {
+  const windows = new Map<string, { startedAt: number; count: number }>();
+  const rules = [
+    {
+      name: "search",
+      matches: (path: string) => path === "/api/v1/search",
+      windowMs: 60_000,
+      limit: env.RATE_LIMIT_SEARCH_PER_MINUTE,
+    },
+    {
+      name: "download",
+      matches: (path: string) => path.startsWith("/api/v1/downloads/"),
+      windowMs: 60_000,
+      limit: env.RATE_LIMIT_DOWNLOAD_PER_MINUTE,
+    },
+    {
+      name: "upload",
+      matches: (path: string) =>
+        path.includes("/versions/") && path.endsWith("/uploads"),
+      windowMs: 60_000,
+      limit: env.RATE_LIMIT_UPLOAD_PER_MINUTE,
+    },
+    {
+      name: "login",
+      matches: (path: string) => path.startsWith("/api/v1/auth/oidc"),
+      windowMs: 600_000,
+      limit: env.RATE_LIMIT_LOGIN_PER_TEN_MINUTES,
+    },
+    {
+      name: "report",
+      matches: (path: string) => path === "/api/v1/reports",
+      windowMs: 3_600_000,
+      limit: env.RATE_LIMIT_REPORT_PER_HOUR,
+    },
+  ];
+  return (request: FastifyRequest) => {
+    const path = request.url.split("?", 1)[0]!;
+    const rule = rules.find((candidate) => candidate.matches(path));
+    if (!rule) return;
+    const now = Date.now();
+    const key = `${rule.name}:${request.ip}`;
+    const prior = windows.get(key);
+    const entry =
+      !prior || now - prior.startedAt >= rule.windowMs
+        ? { startedAt: now, count: 0 }
+        : prior;
+    entry.count += 1;
+    windows.set(key, entry);
+    if (windows.size > 10_000) {
+      for (const [candidateKey, candidate] of windows) {
+        if (now - candidate.startedAt >= rule.windowMs)
+          windows.delete(candidateKey);
+      }
+    }
+    if (entry.count > rule.limit) {
+      throw new AuthoringError(
+        "RateLimited",
+        "请求过于频繁，请稍后重试。",
+        429,
+        {
+          retryAfterSeconds: Math.ceil(
+            (rule.windowMs - (now - entry.startedAt)) / 1000,
+          ),
+        },
+      );
+    }
+  };
+}
 
 function safeError(error: unknown): { message: string } {
   return {
@@ -67,6 +140,9 @@ export async function createApp(
       requestIdFromHeaders(request.headers) ?? crypto.randomUUID(),
     trustProxy: env.TRUST_PROXY,
   });
+
+  const rateLimit = createRateLimiter(env);
+  app.addHook("onRequest", async (request) => rateLimit(request));
 
   await app.register(cors, {
     origin: env.CORS_ORIGIN,
@@ -152,6 +228,9 @@ export async function createApp(
   if (dependencies.directory) {
     registerDirectoryRoutes(app, dependencies.directory);
   }
+  if (dependencies.search) {
+    registerSearchRoutes(app, dependencies.search);
+  }
   if (dependencies.authoring) {
     registerAuthoringRoutes(
       app,
@@ -164,6 +243,14 @@ export async function createApp(
       dependencies.publishing,
     );
   }
+  if (dependencies.operations && dependencies.authoring) {
+    registerOperationsRoutes(
+      app,
+      env,
+      dependencies.authoring,
+      dependencies.operations,
+    );
+  }
 
   app.setErrorHandler((error, request, reply) => {
     if (
@@ -171,6 +258,12 @@ export async function createApp(
       error instanceof DirectoryDataError ||
       error instanceof AuthoringError
     ) {
+      if (error instanceof AuthoringError && error.code === "RateLimited") {
+        reply.header(
+          "retry-after",
+          String(error.details.retryAfterSeconds ?? 60),
+        );
+      }
       request.log.info(
         { domainError: error.code, details: error.details },
         "api request rejected",

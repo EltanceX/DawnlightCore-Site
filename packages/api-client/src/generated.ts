@@ -260,6 +260,134 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/search": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations["searchPublicCatalog"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/downloads/artifacts/{artifactId}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations["redirectToArtifactDownload"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/reports": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations["createPublicReport"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/ops/overview": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations["getOperationsOverview"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/ops/reports": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations["listOperationsReports"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/ops/reports/{reportId}/resolve": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations["resolveOperationsReport"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/ops/versions/{versionId}/withdraw": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations["operatorWithdrawVersion"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/ops/projects/{projectId}/moderate": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations["moderateDirectoryProject"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/v1/auth/oidc/start": {
     parameters: {
       query?: never;
@@ -1103,6 +1231,81 @@ export interface components {
       decision: "approve" | "reject" | "request-changes";
       reason: string;
     };
+    SearchItem: {
+      /** @enum {string} */
+      kind: "project" | "version" | "diagnostic" | "catalog" | "capability";
+      id: string;
+      title: string;
+      summary: string;
+      url: string;
+      version: string | null;
+      status: string;
+      core: string | null;
+      gameApi: string | null;
+    };
+    SearchResponse: {
+      items: components["schemas"]["SearchItem"][];
+      nextCursor: string | null;
+      facets: {
+        [key: string]: string[];
+      };
+    };
+    PublicReportInput: {
+      resourceId?: string | null;
+      /** Format: email */
+      contact: string;
+      reason: string;
+    };
+    OperationsReport: {
+      /** Format: uuid */
+      id: string;
+      resourceId: string | null;
+      contact: string;
+      reason: string;
+      /** @enum {string} */
+      status: "received" | "in-review" | "resolved" | "rejected";
+      /** Format: date-time */
+      createdAt: string;
+    };
+    OperationsOverview: {
+      period: {
+        /** Format: date-time */
+        from: string;
+        /** Format: date-time */
+        to: string;
+      };
+      downloads: {
+        success: number;
+        errors: number;
+        uniqueArtifacts: number;
+      };
+      topArtifacts: {
+        artifactId: string;
+        fileName: string;
+        projectSlug: string | null;
+        count: number;
+      }[];
+      loader: {
+        [key: string]: number;
+      };
+      /** @description Completed Loader, security and timeout failures divided by passed plus failed validations; infrastructure errors are excluded. */
+      validationFailureRate: number | null;
+      queues: {
+        [key: string]: number;
+      };
+      reviewQueue: number;
+      downloadErrors: {
+        code: string;
+        count: number;
+      }[];
+      storage: {
+        publishedObjects: number;
+        publishedBytes: number;
+        quarantineObjects: number;
+        quarantineExpectedBytes: number;
+        capacityBytes: number | null;
+      };
+    };
     InvitationWithToken: {
       /** Format: uuid */
       id: string;
@@ -1604,6 +1807,237 @@ export interface operations {
         };
       };
       404: components["responses"]["ApiError"];
+    };
+  };
+  searchPublicCatalog: {
+    parameters: {
+      query?: {
+        q?: string;
+        kind?: "project" | "version" | "diagnostic" | "catalog" | "capability";
+        contractVersion?: string;
+        core?: string;
+        gameApi?: string;
+        platform?: string;
+        architecture?: string;
+        gpu?: string;
+        channel?: string;
+        license?: string;
+        cursor?: string;
+        limit?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Public project, version and active contract search results with facets. */
+      200: {
+        headers: {
+          ETag: components["headers"]["ETag"];
+          "Cache-Control": components["headers"]["CacheControl"];
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            data: components["schemas"]["SearchResponse"];
+          };
+        };
+      };
+    };
+  };
+  redirectToArtifactDownload: {
+    parameters: {
+      query?: never;
+      header?: {
+        "X-Download-Event-Id"?: string;
+      };
+      path: {
+        artifactId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Redirect to the immutable published artifact; the API records only a coarse event bucket. */
+      302: {
+        headers: {
+          Location?: string;
+          "X-Content-SHA256"?: string;
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      404: components["responses"]["ApiError"];
+      429: components["responses"]["ApiError"];
+    };
+  };
+  createPublicReport: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["PublicReportInput"];
+      };
+    };
+    responses: {
+      /** @description Report accepted into the private operations queue. */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            data: components["schemas"]["OperationsReport"];
+          };
+        };
+      };
+      400: components["responses"]["ApiError"];
+      429: components["responses"]["ApiError"];
+    };
+  };
+  getOperationsOverview: {
+    parameters: {
+      query?: {
+        days?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Private aggregate dashboard; no raw package or personal identifiers. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            data: components["schemas"]["OperationsOverview"];
+          };
+        };
+      };
+      401: components["responses"]["ApiError"];
+      403: components["responses"]["ApiError"];
+    };
+  };
+  listOperationsReports: {
+    parameters: {
+      query?: {
+        status?: "received" | "in-review" | "resolved" | "rejected";
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Private copyright and abuse report queue. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            data: components["schemas"]["OperationsReport"][];
+          };
+        };
+      };
+      401: components["responses"]["ApiError"];
+      403: components["responses"]["ApiError"];
+    };
+  };
+  resolveOperationsReport: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        reportId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          /** @enum {string} */
+          status: "in-review" | "resolved" | "rejected";
+          reason: string;
+        };
+      };
+    };
+    responses: {
+      /** @description Report updated. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      401: components["responses"]["ApiError"];
+      403: components["responses"]["ApiError"];
+    };
+  };
+  operatorWithdrawVersion: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        versionId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          reason: string;
+        };
+      };
+    };
+    responses: {
+      /** @description Published version withdrawn while immutable history is retained. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      401: components["responses"]["ApiError"];
+      403: components["responses"]["ApiError"];
+    };
+  };
+  moderateDirectoryProject: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        projectId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          /** @enum {string} */
+          action: "hide" | "unhide" | "ban" | "unban";
+          reason: string;
+        };
+      };
+    };
+    responses: {
+      /** @description Project moderation action recorded. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      401: components["responses"]["ApiError"];
+      403: components["responses"]["ApiError"];
     };
   };
   startOidcLogin: {

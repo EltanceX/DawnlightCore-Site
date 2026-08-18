@@ -21,6 +21,7 @@ const required = [
   "zh-CN/shaders/index.html",
   "zh-CN/shaders/dawnlight-v3-1/index.html",
   "zh-CN/author/index.html",
+  "zh-CN/ops/index.html",
   "api/search",
   "feeds/releases-v1.json",
 ];
@@ -193,6 +194,21 @@ if (
 ) {
   console.error(
     "Static author output does not preserve the WP5 private-workspace boundary.",
+  );
+  process.exit(1);
+}
+
+const operationsHtml = readFileSync(
+  resolve(output, "zh-CN/ops/index.html"),
+  "utf8",
+);
+if (
+  !operationsHtml.includes("运营控制台") ||
+  !operationsHtml.includes("运营 API 尚未配置") ||
+  !operationsHtml.includes("静态 Preview 不加载运营 fixture")
+) {
+  console.error(
+    "Static operations output does not preserve the private API boundary.",
   );
   process.exit(1);
 }

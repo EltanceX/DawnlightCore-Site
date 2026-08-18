@@ -13,7 +13,8 @@
     "seed": "node scripts/seed.mjs",
     "contract:ingest": "node scripts/ingest-contract.mjs",
     "directory:seed": "node scripts/seed-directory.mjs",
-    "authoring:seed": "node scripts/seed-authoring.mjs"
+    "authoring:seed": "node scripts/seed-authoring.mjs",
+    "operations:smoke": "pnpm build && node scripts/smoke-search-operations.mjs"
   },
   "dependencies": {
     "@dawnlight/contract-data": "workspace:*",

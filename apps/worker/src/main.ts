@@ -4,6 +4,8 @@ import {
   createDatabasePool,
   createPostgresUploadDataService,
   createPostgresPublishingDataService,
+  createPostgresOperationsDataService,
+  downloadRetentionQueueName,
   loaderValidationQueueName,
   publicationQueueName,
   preflightQueueName,
@@ -28,6 +30,7 @@ const database = createDatabasePool({
 });
 const uploads = createPostgresUploadDataService(database);
 const publishing = createPostgresPublishingDataService(database);
+const operations = createPostgresOperationsDataService(database);
 const storage = createWorkerQuarantineStorage(env);
 const boss = createQueue(env.DATABASE_URL);
 
@@ -43,6 +46,7 @@ await configureQueues(
 );
 await boss.schedule(quarantineCleanupQueueName, "*/15 * * * *", {});
 await boss.schedule(workflowDispatchQueueName, "* * * * *", {});
+await boss.schedule(downloadRetentionQueueName, "0 * * * *", {});
 for (const uploadId of await uploads.listPendingPreflightUploads()) {
   try {
     await boss.send(
@@ -294,6 +298,17 @@ await boss.work<{ submissionId: string }>(
       );
       throw error;
     }
+  },
+);
+
+await boss.work(
+  downloadRetentionQueueName,
+  { localConcurrency: 1, batchSize: 1 },
+  async () => {
+    const deleted = await operations.purgeExpiredDownloadEvents(
+      env.DOWNLOAD_EVENT_RETENTION_DAYS,
+    );
+    logger.info({ deleted }, "expired download events purged");
   },
 );
 

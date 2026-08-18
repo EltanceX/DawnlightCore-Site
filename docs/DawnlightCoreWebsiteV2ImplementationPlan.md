@@ -8,7 +8,7 @@
 
 当前基线：[V1 当前进度与剩余项](./V1-Progress.md)
 
-实现进度：V2-WP0～WP6 已完成，V2-WP7 的 Loader/审核/发布代码已完成并在 arch-vm 验证真实 CLI 隔离运行；生产 Validator 镜像 provenance、Registry digest 和 staging 端到端发布仍是未完成门禁，详见 [V2-WP7 实现记录](./V2-WP7-Implementation.md)。
+实现进度：V2-WP0～WP8 的工程实现已完成。WP7 的真实 CLI 隔离链路和 WP8 的 PostgreSQL 搜索/运营数据层均已在 arch-vm 验证；生产 Validator provenance、Registry digest、多实例限流、数据权利 SOP 和 staging 端到端演练仍是未完成门禁，详见 [V2-WP7 实现记录](./V2-WP7-Implementation.md)与 [V2-WP8 实现记录](./V2-WP8-Implementation.md)。
 
 适用范围：从静态 Preview 开发者门户演进为受控的开发工具、光影目录和邀请制发布平台
 

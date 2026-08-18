@@ -23,3 +23,5 @@ export * from "./authoring.js";
 export * from "./uploads.js";
 export * from "./publishing.js";
 export * from "./directory.js";
+export * from "./search.js";
+export * from "./operations.js";

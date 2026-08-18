@@ -14,6 +14,8 @@ import type {
   SessionPrincipal,
   PublishingDataService,
   ReviewSubmission,
+  SearchDataService,
+  OperationsDataService,
 } from "@dawnlight/database";
 import type { OidcClient } from "../src/oidc.js";
 
@@ -134,6 +136,114 @@ describe("API health shell", () => {
     });
     expect(detail.statusCode).toBe(200);
     expect(detail.json().data.latestVersion.status).toBe("metadata-only");
+  });
+
+  it("serves faceted search, coarse download redirects and an admin-only operations view", async () => {
+    const search: SearchDataService = {
+      async search(query) {
+        return {
+          items: [
+            {
+              kind: "project",
+              id: "community:project-1",
+              title: "Dawnlight",
+              summary: `query=${query.q ?? ""}`,
+              url: "/shaders/dawnlight",
+              version: "3.1",
+              status: "available",
+              core: "de780e826a1a8537cf120600caf68e9d890737ac",
+              gameApi: "API_1.9.2.1",
+            },
+          ],
+          nextCursor: null,
+          facets: { platform: ["windows"] },
+        };
+      },
+    };
+    const operations = createOperationsFixture();
+    const authoring = createAdminAuthoringFixture();
+    const app = await createApp(env, { search, operations, authoring });
+    apps.push(app);
+
+    const found = await app.inject({
+      method: "GET",
+      url: "/api/v1/search?q=dawnlight&platform=windows",
+    });
+    expect(found.statusCode).toBe(200);
+    expect(found.headers.etag).toMatch(/^"[0-9a-f]{64}"$/);
+    expect(found.json().data.items[0]).toMatchObject({ kind: "project" });
+
+    const redirect = await app.inject({
+      method: "GET",
+      url: "/api/v1/downloads/artifacts/community-artifact:version-1",
+      headers: { "x-download-event-id": "download-test-1" },
+    });
+    expect(redirect.statusCode).toBe(302);
+    expect(redirect.headers.location).toBe(
+      "https://cdn.example.test/shaderpacks/test.zip",
+    );
+    expect(redirect.headers["x-content-sha256"]).toBe("a".repeat(64));
+
+    const report = await app.inject({
+      method: "POST",
+      url: "/api/v1/reports",
+      payload: {
+        resourceId: "community:project-1",
+        contact: "reporter@example.test",
+        reason: "This fixture report has enough detail.",
+      },
+    });
+    expect(report.statusCode).toBe(201);
+    expect(report.headers["cache-control"]).toBe("no-store");
+
+    const unauthorized = await app.inject({
+      method: "GET",
+      url: "/api/v1/ops/overview",
+    });
+    expect(unauthorized.statusCode).toBe(401);
+
+    const cookie = `dawnlight_session=${app.signCookie("ops-session-token")}`;
+    const overview = await app.inject({
+      method: "GET",
+      url: "/api/v1/ops/overview?days=7",
+      headers: { cookie },
+    });
+    expect(overview.statusCode).toBe(200);
+    expect(overview.headers["cache-control"]).toBe("private, no-store");
+    expect(overview.json().data).toMatchObject({ reviewQueue: 1 });
+
+    const rejectedMutation = await app.inject({
+      method: "POST",
+      url: "/api/v1/ops/projects/11111111-1111-4111-8111-111111111111/moderate",
+      headers: { cookie },
+      payload: { action: "hide", reason: "policy test" },
+    });
+    expect(rejectedMutation.statusCode).toBe(403);
+    expect(rejectedMutation.json().error.code).toBe("OriginRejected");
+  });
+
+  it("rate limits public search without persisting client addresses", async () => {
+    const search: SearchDataService = {
+      async search() {
+        return { items: [], nextCursor: null, facets: {} };
+      },
+    };
+    const app = await createApp(
+      { ...env, RATE_LIMIT_SEARCH_PER_MINUTE: 1 },
+      { search },
+    );
+    apps.push(app);
+
+    const first = await app.inject({ method: "GET", url: "/api/v1/search" });
+    const limited = await app.inject({
+      method: "GET",
+      url: "/api/v1/search?q=second",
+    });
+
+    expect(first.statusCode).toBe(200);
+    expect(limited.statusCode).toBe(429);
+    expect(limited.headers["retry-after"]).toBe("60");
+    expect(limited.json().error.code).toBe("RateLimited");
   });
 
   it("completes an injected OIDC flow and protects author writes", async () => {
@@ -427,6 +537,103 @@ function createPublishingFixture(): PublishingDataService {
         },
         submission: null,
       };
+    },
+  };
+}
+
+function createAdminAuthoringFixture(): AuthoringDataService {
+  const unsupported = async (): Promise<never> => {
+    throw new Error("unsupported test operation");
+  };
+  return {
+    createLoginTransaction: unsupported,
+    consumeLoginTransaction: unsupported,
+    completeOidcLogin: unsupported,
+    async getSession() {
+      return {
+        sessionId: "ops-session",
+        csrfToken: "ops-csrf-token",
+        expiresAt: new Date(Date.now() + 60_000).toISOString(),
+        user: {
+          id: "77777777-7777-4777-8777-777777777777",
+          displayName: "Operator",
+          email: "operator@example.test",
+          status: "active",
+          isPlatformAdmin: true,
+        },
+      };
+    },
+    revokeSession: unsupported,
+    createAccountInvitation: unsupported,
+    disableUser: unsupported,
+    listProjects: unsupported,
+    createProject: unsupported,
+    updateProject: unsupported,
+    createVersion: unsupported,
+    updateVersion: unsupported,
+    createProjectInvitation: unsupported,
+    acceptProjectInvitation: unsupported,
+    revokeProjectInvitation: unsupported,
+    listAuditEvents: unsupported,
+  };
+}
+
+function createOperationsFixture(): OperationsDataService {
+  const report = {
+    id: "88888888-8888-4888-8888-888888888888",
+    resourceId: "community:project-1",
+    contact: "reporter@example.test",
+    reason: "This fixture report has enough detail.",
+    status: "received",
+    createdAt: new Date(0).toISOString(),
+  };
+  return {
+    async resolveDownload(artifactId) {
+      return {
+        artifactId,
+        projectVersionId: "community-version:version-1",
+        url: "https://cdn.example.test/shaderpacks/test.zip",
+        fileName: "test.zip",
+        size: 1024,
+        sha256: "a".repeat(64),
+      };
+    },
+    async recordDownloadError() {},
+    async getOverview() {
+      return {
+        period: {
+          from: new Date(0).toISOString(),
+          to: new Date(1).toISOString(),
+        },
+        downloads: { success: 2, errors: 0, uniqueArtifacts: 1 },
+        topArtifacts: [],
+        loader: { "loader-passed": 1 },
+        validationFailureRate: 0,
+        queues: { preflight: 0, loader: 0, publication: 0, review: 1 },
+        reviewQueue: 1,
+        downloadErrors: [],
+        storage: {
+          publishedObjects: 1,
+          publishedBytes: 1024,
+          quarantineObjects: 0,
+          quarantineExpectedBytes: 0,
+          capacityBytes: null,
+        },
+      };
+    },
+    async createReport() {
+      return report;
+    },
+    async listReports() {
+      return [report];
+    },
+    async resolveReport() {
+      return { ...report, status: "resolved" };
+    },
+    async withdrawVersion() {},
+    async moderateProject() {},
+    async purgeExpiredDownloadEvents() {
+      return 0;
     },
   };
 }

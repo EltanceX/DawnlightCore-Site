@@ -9,6 +9,8 @@ import {
   createPostgresUploadDataService,
   createPostgresPublishingDataService,
   createPostgresDirectoryDataService,
+  createPostgresSearchDataService,
+  createPostgresOperationsDataService,
 } from "@dawnlight/database";
 import {
   createContractDataService,
@@ -82,6 +84,8 @@ const app = await createApp(env, {
   authoring: createPostgresAuthoringDataService(database),
   uploads,
   publishing: createPostgresPublishingDataService(database),
+  search: createPostgresSearchDataService(database),
+  operations: createPostgresOperationsDataService(database),
   quarantine,
   preflightQueue,
   oidc: env.OIDC_ENABLED
