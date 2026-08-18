@@ -91,7 +91,7 @@ Invoke-WebRequest http://127.0.0.1:4100/health/ready
 pnpm --filter @dawnlight/worker check:config
 ```
 
-当前开发机没有 Docker CLI，因此本轮只完成 Compose/YAML 结构校验，没有声称 PostgreSQL/MinIO 已经运行或完成迁移演练。
+本机开发环境没有 Docker CLI；本轮已在授权的 `arch-vm`（`192.168.137.202`）完成远端 Compose 运行演练，未在仓库或日志中保存登录凭据。
 
 ## 4. 环境隔离规则
 
@@ -117,12 +117,20 @@ pnpm --filter @dawnlight/worker check:config
 - `pnpm check`：全量格式、类型、构建、契约、静态输出、安全、E2E 和 Lighthouse 检查通过；
 - Prettier 和 OpenAPI/Compose YAML 结构校验。
 
-未在当前环境执行：
+远端 `arch-vm` 运行记录（2026-08-18）：
 
-- Docker Compose 启动；
-- PostgreSQL migration/seed 实际连接；
-- MinIO S3 探针；
-- API/Worker staging 部署和真实 OpenTelemetry exporter。
+- `docker compose -f infra/compose/v2-dev.compose.yml up -d` 成功；PostgreSQL 和 MinIO 均为 `healthy`；
+- `pnpm db:migrate` 首次应用 `0001_runtime`、`0002_contract_ingest`，第二次幂等通过；
+- `pnpm db:seed` 成功；
+- `pnpm db:contract:ingest` 首次返回 `activated`，第二次返回 `unchanged`；
+- PostgreSQL 记录为：2 migrations、1 runtime instance、1 contract version、2 schemas、4 diagnostics、62 catalog entries、2 capabilities、1 graph、1 variant、2 ingest runs；
+- MinIO `/minio/health/live` 和 `/minio/health/ready` 均返回 HTTP 200；
+- API `CONTRACT_DATA_SOURCE=database` 模式启动成功，live 200、ready 200、contract diagnostics 200。
+
+仍未执行：
+
+- Worker staging 部署和真实 OpenTelemetry exporter；
+- 生产环境签名和真实对象存储 bucket 策略。
 
 ## 6. 退出条件
 

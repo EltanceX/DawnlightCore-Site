@@ -162,10 +162,17 @@ Pipeline/Variant 页面读取数据层的 unavailable 记录；页面不会自�
 - `pnpm format:check`；
 - OpenAPI YAML、manifest、fixture 和 ingest lock 校验。
 
-未在当前环境执行：
+本机没有 Docker CLI，但已在授权的 `arch-vm`（`192.168.137.202`）完成远端运行验证，未保存登录凭据：
 
-- Docker Compose、PostgreSQL migration/seed 和真实 `db:contract:ingest`；
-- MinIO、staging API 和生产签名验证；
+- PostgreSQL/MinIO Compose 服务均为 `healthy`；
+- migration、seed 和 contract ingest 实际连接成功；
+- ingest 首次 `activated`、第二次 `unchanged`，验证了幂等和激活路径；
+- database-mode API 的 health 和 diagnostics endpoint 已通过；
+- MinIO live/ready healthcheck 已通过 HTTP 200。
+
+仍未执行：
+
+- staging API 和生产签名验证；
 - 真实 CLI 的 Graph/Variant/Loader JSON 输出。
 
 ## 8. 退出条件
@@ -182,4 +189,3 @@ Pipeline/Variant 页面读取数据层的 unavailable 记录；页面不会自�
 ## 9. 下一工作包
 
 V2-WP3 继续完成 Developer Tools 前端：版本切换、搜索、筛选、URL 深链、API 优先/fallback、Graph/Variant 空状态、Contract Diff 页面、响应式和键盘验收。WP3 不得把当前 unavailable 数据升级为推断结果。
-
