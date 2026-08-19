@@ -1,0 +1,345 @@
+name: dawnlight-wp9-a
+
+x-image-build: &image-build
+  context: ../..
+  args:
+    IMAGE_CREATED: ${WP9_IMAGE_CREATED:?run create-wp9-a-env.mjs}
+    IMAGE_REVISION: ${WP9_IMAGE_REVISION:?run create-wp9-a-env.mjs}
+    IMAGE_SOURCE: ${WP9_IMAGE_SOURCE:-https://github.com/EltanceX/dawnlight-core}
+    IMAGE_VERSION: ${WP9_IMAGE_VERSION:-0.1.0}
+    SOURCE_DATE_EPOCH: ${WP9_SOURCE_DATE_EPOCH:?run create-wp9-a-env.mjs}
+
+x-service-environment: &service-environment
+  APP_ENV: staging
+  API_HOST: 0.0.0.0
+  API_PORT: 4100
+  DATABASE_URL: postgres://dawnlight:${WP9_POSTGRES_PASSWORD:?required}@postgres:5432/dawnlight_wp9_a
+  DATABASE_POOL_MAX: 5
+  CONTRACT_DATA_SOURCE: database
+  CONTRACT_FIXTURE_ROOT: /opt/dawnlight/contracts/preview
+  OBJECT_STORAGE_ENDPOINT: http://minio:9000
+  OBJECT_STORAGE_REGION: us-east-1
+  OBJECT_STORAGE_ACCESS_KEY: ${WP9_MINIO_ROOT_USER:?required}
+  OBJECT_STORAGE_SECRET_KEY: ${WP9_MINIO_ROOT_PASSWORD:?required}
+  OBJECT_STORAGE_BUCKET_QUARANTINE: dawnlight-wp9-a-quarantine
+  OBJECT_STORAGE_BUCKET_PUBLISHED: dawnlight-wp9-a-published
+  OBJECT_STORAGE_BUCKET_DERIVED: dawnlight-wp9-a-derived
+  CORS_ORIGIN: ${WP9_PUBLIC_ORIGIN:?required}
+  OTEL_SERVICE_NAME: dawnlight-wp9-a
+  LOG_LEVEL: info
+  TRUST_PROXY: "true"
+  OIDC_ENABLED: "true"
+  OIDC_ISSUER_URL: ${WP9_OIDC_ORIGIN:?required}/dawnlight
+  OIDC_CLIENT_ID: dawnlight-web
+  OIDC_CLIENT_SECRET: ${WP9_OIDC_CLIENT_SECRET:?required}
+  OIDC_REDIRECT_URI: ${WP9_PUBLIC_ORIGIN:?required}/api/v1/auth/oidc/callback
+  OIDC_WEB_RETURN_ORIGIN: ${WP9_PUBLIC_ORIGIN:?required}
+  AUTH_COOKIE_SECRET: ${WP9_AUTH_COOKIE_SECRET:?required}
+  AUTH_SESSION_TTL_SECONDS: 28800
+  AUTH_LOGIN_TTL_SECONDS: 600
+  UPLOAD_URL_TTL_SECONDS: 900
+  UPLOAD_SESSION_TTL_SECONDS: 3600
+  UPLOAD_MAX_BYTES: 536870912
+  PREFLIGHT_MAX_EXTRACTED_BYTES: 805306368
+  PREFLIGHT_MAX_FILES: 4096
+  PREFLIGHT_MAX_JSON_BYTES: 2097152
+  PREFLIGHT_MAX_IMAGE_BYTES: 16777216
+  PREFLIGHT_MAX_IMAGE_PIXELS: 67108864
+  PREFLIGHT_MAX_COMPRESSION_RATIO: 200
+  PREFLIGHT_TIMEOUT_SECONDS: 120
+  PREFLIGHT_RETRY_LIMIT: 2
+  QUARANTINE_FAILED_RETENTION_SECONDS: 86400
+  LOADER_VALIDATOR_ENABLED: ${WP9_VALIDATOR_ENABLED:-false}
+  LOADER_VALIDATOR_IMAGE: ${WP9_VALIDATOR_IMAGE:-}
+  LOADER_CLI_VERSION: ${WP9_LOADER_CLI_VERSION:-unconfigured-wp9-a}
+  LOADER_CORE_COMMIT: ${WP9_LOADER_CORE_COMMIT:-0000000000000000000000000000000000000000}
+  LOADER_TIMEOUT_SECONDS: 120
+  LOADER_RETRY_LIMIT: 1
+  LOADER_MEMORY_MB: 768
+  LOADER_CPU_LIMIT: 1
+  PUBLICATION_RETRY_LIMIT: 3
+  PUBLICATION_TIMEOUT_SECONDS: 600
+  RATE_LIMIT_SEARCH_PER_MINUTE: 60
+  RATE_LIMIT_DOWNLOAD_PER_MINUTE: 30
+  RATE_LIMIT_UPLOAD_PER_MINUTE: 10
+  RATE_LIMIT_LOGIN_PER_TEN_MINUTES: 10
+  RATE_LIMIT_REPORT_PER_HOUR: 5
+  DOWNLOAD_EVENT_RETENTION_DAYS: 90
+  PUBLISHED_PUBLIC_BASE_URL: ${WP9_PUBLIC_ORIGIN:?required}/artifacts
+  RELEASE_FEED_SIGNING_KEY_ID: ${WP9_RELEASE_FEED_SIGNING_KEY_ID:?required}
+  RELEASE_FEED_SIGNING_PRIVATE_KEY_PEM_BASE64: ${WP9_RELEASE_FEED_SIGNING_PRIVATE_KEY_PEM_BASE64:?required}
+
+services:
+  postgres:
+    image: postgres:16.4-alpine@sha256:5660c2cbfea50c7a9127d17dc4e48543eedd3d7a41a595a2dfa572471e37e64c
+    environment:
+      POSTGRES_USER: dawnlight
+      POSTGRES_PASSWORD: ${WP9_POSTGRES_PASSWORD:?required}
+      POSTGRES_DB: dawnlight_wp9_a
+    volumes:
+      - wp9-a-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dawnlight -d dawnlight_wp9_a"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+    networks: [private]
+
+  minio:
+    image: minio/minio:RELEASE.2024-06-13T22-53-53Z@sha256:c7175077d39a8cc10c9fd611cdcc68b6a5b365793e9ac6f4198ffff1ef0fe555
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${WP9_MINIO_ROOT_USER:?required}
+      MINIO_ROOT_PASSWORD: ${WP9_MINIO_ROOT_PASSWORD:?required}
+    volumes:
+      - wp9-a-minio:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+    networks: [private]
+
+  minio-init:
+    image: minio/mc:RELEASE.2024-11-21T17-21-54Z@sha256:993e8c454a7ec632923f7e3e61adf1d473261da6354cefd641aedd33a2cfe112
+    depends_on:
+      minio:
+        condition: service_healthy
+    environment:
+      MINIO_ROOT_USER: ${WP9_MINIO_ROOT_USER:?required}
+      MINIO_ROOT_PASSWORD: ${WP9_MINIO_ROOT_PASSWORD:?required}
+    entrypoint: ["/bin/sh", "-ec"]
+    command:
+      - >-
+        mc alias set local http://minio:9000 "$${MINIO_ROOT_USER}" "$${MINIO_ROOT_PASSWORD}";
+        mc mb --ignore-existing local/dawnlight-wp9-a-quarantine;
+        mc mb --ignore-existing local/dawnlight-wp9-a-published;
+        mc mb --ignore-existing local/dawnlight-wp9-a-derived;
+        mc anonymous set none local/dawnlight-wp9-a-quarantine;
+        mc anonymous set none local/dawnlight-wp9-a-published;
+        mc anonymous set none local/dawnlight-wp9-a-derived
+    restart: "no"
+    networks: [private]
+
+  oidc:
+    image: ghcr.io/navikt/mock-oauth2-server:4.0.0@sha256:79f51f412caddb1e2120a5ae10d1f203e134f6e8328f1bc63c444acba33c9086
+    ports:
+      - "${WP9_OIDC_BIND_ADDRESS:-127.0.0.1}:${WP9_OIDC_PORT:-58082}:8080"
+    environment:
+      JSON_CONFIG: >-
+        {"interactiveLogin":true,"tokenCallbacks":[{"issuerId":"dawnlight","requestMappings":[{"requestParam":"subject","match":".*","claims":{"sub":"$${subject}","name":"$${subject}","email":"$${subject}@example.test","email_verified":true,"aud":["dawnlight-web"]}}]}]}
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://127.0.0.1:8080/isalive",
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+    networks: [public, private]
+
+  web:
+    image: ${WP9_WEB_IMAGE:-dawnlight-web:wp9-a}
+    build:
+      <<: *image-build
+      dockerfile: infra/images/Dockerfile.web
+      target: web
+      args:
+        IMAGE_CREATED: ${WP9_IMAGE_CREATED:?run create-wp9-a-env.mjs}
+        IMAGE_REVISION: ${WP9_IMAGE_REVISION:?run create-wp9-a-env.mjs}
+        IMAGE_SOURCE: ${WP9_IMAGE_SOURCE:-https://github.com/EltanceX/dawnlight-core}
+        IMAGE_VERSION: ${WP9_IMAGE_VERSION:-0.1.0}
+        SOURCE_DATE_EPOCH: ${WP9_SOURCE_DATE_EPOCH:?run create-wp9-a-env.mjs}
+        NEXT_PUBLIC_SITE_MODE: preview
+        NEXT_PUBLIC_SITE_ORIGIN: ${WP9_PUBLIC_ORIGIN:?required}
+        NEXT_PUBLIC_API_ORIGIN: ${WP9_PUBLIC_ORIGIN:?required}
+    read_only: true
+    tmpfs:
+      - /tmp:rw,nosuid,nodev,noexec,size=32m,uid=65532,gid=65532
+    cap_drop: [ALL]
+    cap_add: [NET_BIND_SERVICE]
+    security_opt: [no-new-privileges:true]
+    healthcheck:
+      test: ["CMD", "caddy", "validate", "--config", "/etc/caddy/Caddyfile"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks: [public]
+
+  migrate:
+    image: ${WP9_API_IMAGE:-dawnlight-api:wp9-a}
+    build:
+      <<: *image-build
+      dockerfile: infra/images/Dockerfile.services
+      target: api
+    environment:
+      <<: *service-environment
+      DAWNLIGHT_CONTRACT_ROOT: /opt/dawnlight/contracts/preview
+      DAWNLIGHT_DIRECTORY_FIXTURE: /opt/dawnlight/contracts/preview/directory-fixture.json
+    command:
+      - /bin/sh
+      - -ec
+      - >-
+        node /opt/dawnlight/database/scripts/migrate-up.mjs;
+        node /opt/dawnlight/database/scripts/ingest-contract.mjs;
+        node /opt/dawnlight/database/scripts/seed-directory.mjs
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio-init:
+        condition: service_completed_successfully
+    read_only: true
+    tmpfs: ["/tmp:rw,nosuid,nodev,noexec,size=16m,uid=10001,gid=10001"]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    restart: "no"
+    networks: [private]
+
+  validator-workspace-init:
+    image: ${WP9_WORKER_IMAGE:-dawnlight-worker:wp9-a}
+    build:
+      <<: *image-build
+      dockerfile: infra/images/Dockerfile.services
+      target: worker
+    user: "0:0"
+    command:
+      - /bin/sh
+      - -ec
+      - >-
+        test -d "${WP9_VALIDATOR_WORKSPACE_ROOT:?required}";
+        test -w "${WP9_VALIDATOR_WORKSPACE_ROOT:?required}"
+    volumes:
+      - type: bind
+        source: ${WP9_VALIDATOR_WORKSPACE_ROOT:?required}
+        target: ${WP9_VALIDATOR_WORKSPACE_ROOT:?required}
+        bind:
+          create_host_path: false
+    group_add: ["${WP9_DOCKER_GID:?required}"]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    restart: "no"
+    networks: [private]
+
+  api:
+    image: ${WP9_API_IMAGE:-dawnlight-api:wp9-a}
+    build:
+      <<: *image-build
+      dockerfile: infra/images/Dockerfile.services
+      target: api
+    environment: *service-environment
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      oidc:
+        condition: service_healthy
+    read_only: true
+    tmpfs: ["/tmp:rw,nosuid,nodev,noexec,size=32m,uid=10001,gid=10001"]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    init: true
+    stop_grace_period: 20s
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - fetch('http://127.0.0.1:4100/health/ready').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    restart: unless-stopped
+    networks: [public, private]
+
+  worker:
+    image: ${WP9_WORKER_IMAGE:-dawnlight-worker:wp9-a}
+    build:
+      <<: *image-build
+      dockerfile: infra/images/Dockerfile.services
+      target: worker
+    environment:
+      <<: *service-environment
+      TMPDIR: ${WP9_VALIDATOR_WORKSPACE_ROOT:?required}
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      validator-workspace-init:
+        condition: service_completed_successfully
+    read_only: true
+    volumes:
+      - type: bind
+        source: ${WP9_VALIDATOR_WORKSPACE_ROOT:?required}
+        target: ${WP9_VALIDATOR_WORKSPACE_ROOT:?required}
+        bind:
+          create_host_path: false
+      - type: bind
+        source: /var/run/docker.sock
+        target: /var/run/docker.sock
+    group_add: ["${WP9_DOCKER_GID:?required}"]
+    tmpfs: ["/tmp:rw,nosuid,nodev,noexec,size=32m,uid=10001,gid=10001"]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    init: true
+    stop_grace_period: 30s
+    healthcheck:
+      test: ["CMD", "node", "dist/check-config.js"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+    networks: [private]
+
+  bootstrap-admin:
+    profiles: [operator]
+    image: ${WP9_API_IMAGE:-dawnlight-api:wp9-a}
+    environment:
+      <<: *service-environment
+      WP5_BOOTSTRAP_ADMIN_EMAIL: ${WP9_BOOTSTRAP_ADMIN_EMAIL:-author@example.test}
+    command: ["node", "/opt/dawnlight/database/scripts/seed-authoring.mjs"]
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    read_only: true
+    tmpfs: ["/tmp:rw,nosuid,nodev,noexec,size=16m,uid=10001,gid=10001"]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    restart: "no"
+    networks: [private]
+
+  edge:
+    image: caddy:2-alpine@sha256:5f5c8640aae01df9654968d946d8f1a56c497f1dd5c5cda4cf95ab7c14d58648
+    depends_on:
+      web:
+        condition: service_healthy
+      api:
+        condition: service_healthy
+    ports:
+      - "${WP9_BIND_ADDRESS:-127.0.0.1}:${WP9_HTTP_PORT:-58080}:8080"
+    volumes:
+      - ./wp9-a.Caddyfile:/etc/caddy/Caddyfile:ro
+    read_only: true
+    tmpfs:
+      - /tmp:rw,nosuid,nodev,noexec,size=32m,uid=65532,gid=65532
+    user: "65532:65532"
+    cap_drop: [ALL]
+    cap_add: [NET_BIND_SERVICE]
+    security_opt: [no-new-privileges:true]
+    restart: unless-stopped
+    networks: [public]
+
+volumes:
+  wp9-a-postgres:
+  wp9-a-minio:
+
+networks:
+  public:
+  private:
+    internal: true

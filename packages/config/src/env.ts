@@ -7,6 +7,14 @@ const booleanFromEnv = z.preprocess((value) => {
   return value;
 }, z.boolean().optional());
 
+const optionalDigestFromEnv = z.preprocess(
+  (value) => (value === "" ? undefined : value),
+  z
+    .string()
+    .regex(/^.+@sha256:[0-9a-f]{64}$/)
+    .optional(),
+);
+
 export const serverEnvSchema = z
   .object({
     APP_ENV: z.enum(["development", "test", "staging", "production"]),
@@ -58,10 +66,7 @@ export const serverEnvSchema = z
       .min(60)
       .max(2592000),
     LOADER_VALIDATOR_ENABLED: booleanFromEnv,
-    LOADER_VALIDATOR_IMAGE: z
-      .string()
-      .regex(/^.+@sha256:[0-9a-f]{64}$/)
-      .optional(),
+    LOADER_VALIDATOR_IMAGE: optionalDigestFromEnv,
     LOADER_CLI_VERSION: z.string().min(1).max(120),
     LOADER_CORE_COMMIT: z.string().regex(/^[0-9a-f]{40}$/),
     LOADER_TIMEOUT_SECONDS: z.coerce.number().int().min(10).max(1800),

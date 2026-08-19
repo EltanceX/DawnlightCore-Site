@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "pnpm --filter @dawnlight/config build && pnpm --filter @dawnlight/database build && tsc -p tsconfig.build.json",
     "dev": "tsx watch src/main.ts",

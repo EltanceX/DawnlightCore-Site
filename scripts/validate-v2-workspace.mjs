@@ -31,6 +31,15 @@ const requiredFiles = [
   "contracts/openapi/v1.yaml",
   "docs/V2-WP9-DecisionRegister.md",
   "infra/compose/v2-dev.compose.yml",
+  "infra/compose/wp9-a.compose.yml",
+  "infra/compose/wp9-a.Caddyfile",
+  "infra/compose/wp9-a.env.example",
+  "infra/images/Dockerfile.services",
+  "infra/images/Dockerfile.web",
+  "scripts/create-wp9-a-env.mjs",
+  "scripts/validate-wp9-deployment.mjs",
+  "scripts/capture-wp9-image-manifest.mjs",
+  "scripts/smoke-wp9-a.mjs",
   "apps/web/src/components/developer-tools/tool-shared.tsx",
   "apps/web/src/components/developer-tools/diagnostic-explorer.tsx",
   "apps/web/src/components/developer-tools/catalog-explorer.tsx",
@@ -218,5 +227,5 @@ if (
 }
 
 console.log(
-  "V2 workspace validation passed through WP9-0 (Beta supply chain, takedown, topology and ownership decisions frozen).",
+  "V2 workspace validation passed through WP9-1 (decisions frozen and deployment artifacts defined).",
 );

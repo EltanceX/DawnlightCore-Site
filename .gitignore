@@ -11,6 +11,7 @@ dist/
 .env
 .env.*
 !.env.example
+infra/compose/wp9-a.env
 
 # Local source assets stay outside the publishable website tree until licensing
 # and optimization metadata are complete.

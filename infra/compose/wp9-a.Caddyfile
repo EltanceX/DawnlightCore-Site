@@ -1,0 +1,23 @@
+{
+	auto_https off
+	admin off
+}
+:8080 {
+	log {
+		output stdout
+		format json
+	}
+
+	@api path /api/* /health/*
+	handle @api {
+		reverse_proxy api:4100 {
+			health_uri /health/live
+			health_interval 15s
+			health_timeout 3s
+		}
+	}
+
+	handle {
+		reverse_proxy web:8080
+	}
+}

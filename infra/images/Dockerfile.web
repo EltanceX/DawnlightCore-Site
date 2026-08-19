@@ -1,0 +1,49 @@
+# syntax=docker/dockerfile:1.7
+
+ARG NODE_IMAGE=node:26-bookworm-slim@sha256:cd565714d4da3e84bfd341e31448f81d47c6362198f152345297c9c1154e6341
+ARG CADDY_IMAGE=caddy:2-alpine@sha256:5f5c8640aae01df9654968d946d8f1a56c497f1dd5c5cda4cf95ab7c14d58648
+
+FROM ${NODE_IMAGE} AS build
+ARG IMAGE_REVISION
+ARG SOURCE_DATE_EPOCH
+ARG NEXT_PUBLIC_SITE_MODE=preview
+ARG NEXT_PUBLIC_SITE_ORIGIN
+ARG NEXT_PUBLIC_API_ORIGIN
+ENV NODE_ENV=production \
+    PNPM_HOME=/opt/pnpm \
+    PATH=/opt/pnpm:$PATH \
+    NEXT_PUBLIC_SITE_MODE=${NEXT_PUBLIC_SITE_MODE} \
+    NEXT_PUBLIC_SITE_ORIGIN=${NEXT_PUBLIC_SITE_ORIGIN} \
+    NEXT_PUBLIC_API_ORIGIN=${NEXT_PUBLIC_API_ORIGIN} \
+    DEPLOY_PROVIDER=wp9-a-compose
+WORKDIR /workspace
+RUN test -n "${IMAGE_REVISION}" && test -n "${SOURCE_DATE_EPOCH}" && \
+    test -n "${NEXT_PUBLIC_SITE_ORIGIN}" && test -n "${NEXT_PUBLIC_API_ORIGIN}" && \
+    npm install --global --ignore-scripts pnpm@11.19.0
+COPY . .
+RUN pnpm install --frozen-lockfile && \
+    pnpm --filter @dawnlight/contract-data build && \
+    pnpm --filter @dawnlight/api-client build && \
+    pnpm build && \
+    GITHUB_SHA="${IMAGE_REVISION}" SOURCE_DATE_EPOCH="${SOURCE_DATE_EPOCH}" \
+      pnpm deploy:prepare:preview
+
+FROM ${CADDY_IMAGE} AS web
+ARG IMAGE_CREATED
+ARG IMAGE_REVISION
+ARG IMAGE_SOURCE=https://github.com/EltanceX/dawnlight-core
+ARG IMAGE_VERSION=0.1.0
+LABEL org.opencontainers.image.created="${IMAGE_CREATED}" \
+      org.opencontainers.image.revision="${IMAGE_REVISION}" \
+      org.opencontainers.image.source="${IMAGE_SOURCE}" \
+      org.opencontainers.image.version="${IMAGE_VERSION}" \
+      org.opencontainers.image.vendor="DawnlightCore" \
+      org.opencontainers.image.licenses="UNLICENSED" \
+      org.opencontainers.image.title="Dawnlight Web" \
+      org.opencontainers.image.description="Immutable DawnlightCore static developer portal"
+ENV XDG_CONFIG_HOME=/tmp/caddy/config \
+    XDG_DATA_HOME=/tmp/caddy/data
+COPY --chown=65532:65532 infra/images/web.Caddyfile /etc/caddy/Caddyfile
+COPY --from=build --chown=65532:65532 /workspace/apps/web/out/ /srv/
+USER 65532:65532
+EXPOSE 8080
