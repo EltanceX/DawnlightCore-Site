@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -13,5 +13,6 @@ const sorted = {
   ),
 };
 
+mkdirSync(dirname(outputPath), { recursive: true });
 writeFileSync(outputPath, `${JSON.stringify(sorted, null, 2)}\n`, "utf8");
 console.log(`Generated ${outputPath} (${sorted.releases.length} releases).`);
