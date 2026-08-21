@@ -8,7 +8,7 @@
 		format json
 	}
 
-	@api path /api/* /health/*
+	@api path /api/* /health/* /artifacts/*
 	handle @api {
 		reverse_proxy api:4100 {
 			health_uri /health/live

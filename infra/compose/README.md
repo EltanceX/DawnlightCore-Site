@@ -34,3 +34,5 @@ pnpm check
 ```
 
 Validator 在模板中默认禁用。不得用 tag、空 digest 或本机开发制品启用 Loader 验证。
+
+WP9-2 起，`/artifacts/*` 必须经过 API 状态门禁；不要为 MinIO 增加宿主机端口或匿名 published bucket。第一层 takedown 演练见 `docs/V2-WP9-2-Implementation.md`。

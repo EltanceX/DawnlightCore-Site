@@ -8,6 +8,7 @@ import {
   publicationQueueName,
   publicationDeadLetterQueueName,
   downloadRetentionQueueName,
+  takedownEvidenceQueueName,
 } from "@dawnlight/database";
 
 export const validationQueueName = "dawnlight.validation.v1" as const;
@@ -82,5 +83,12 @@ export async function configureQueues(
     retryDelay: 30,
     retryBackoff: true,
     expireInSeconds: 300,
+  });
+  await boss.createQueue(takedownEvidenceQueueName, {
+    retryLimit: 2,
+    retryDelay: 10,
+    retryBackoff: true,
+    expireInSeconds: 300,
+    policy: "key_strict_fifo",
   });
 }

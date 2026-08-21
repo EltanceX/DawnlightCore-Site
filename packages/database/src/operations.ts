@@ -4,6 +4,41 @@ import { AuthoringError, type MutationContext } from "./authoring.js";
 
 export const downloadRetentionQueueName =
   "dawnlight.download-retention.v1" as const;
+export const takedownEvidenceQueueName =
+  "dawnlight.takedown-evidence.v1" as const;
+
+export type TakedownCategory =
+  | "malicious-package"
+  | "credential-exposure"
+  | "copyright"
+  | "legal"
+  | "security";
+
+export type TakedownDecision = {
+  id: string;
+  versionId: string;
+  category: TakedownCategory;
+  publicNotice: string | null;
+  publicUrl: string;
+  blockedAt: string;
+  evidenceStatus: "pending" | "retained" | "failed";
+};
+
+export type PublishedArtifactAccess = {
+  objectKey: string;
+  fileName: string;
+  size: number;
+  sha256: string;
+  disposition: "available" | "withdrawn";
+};
+
+export type TakedownEvidenceCandidate = {
+  decisionId: string;
+  sourceObjectKey: string;
+  evidenceObjectKey: string;
+  sha256: string;
+  size: number;
+};
 
 export type DownloadResolution = {
   artifactId: string;
@@ -80,6 +115,30 @@ export interface OperationsDataService {
     context: MutationContext,
     versionId: string,
     reason: string,
+  ): Promise<void>;
+  takedownVersion(
+    context: MutationContext,
+    versionId: string,
+    input: {
+      category: TakedownCategory;
+      privateReason: string;
+      publicNotice: string | null;
+    },
+  ): Promise<TakedownDecision>;
+  resolvePublishedArtifact(objectKey: string): Promise<PublishedArtifactAccess>;
+  listPendingTakedownEvidence(): Promise<TakedownEvidenceCandidate[]>;
+  getTakedownEvidenceCandidate(
+    decisionId: string,
+  ): Promise<TakedownEvidenceCandidate | null>;
+  markTakedownEvidenceDispatched(decisionId: string): Promise<void>;
+  completeTakedownEvidence(
+    decisionId: string,
+    evidenceObjectKey: string,
+  ): Promise<void>;
+  recordTakedownEvidenceFailure(
+    decisionId: string,
+    failureSummary: string,
+    finalAttempt: boolean,
   ): Promise<void>;
   moderateProject(
     context: MutationContext,
@@ -230,7 +289,9 @@ export class PostgresOperationsDataService implements OperationsDataService {
           `select 'preflight' as queue, count(*) from upload_job_outbox where dispatched_at is null
            union all select 'loader', count(*) from loader_job_outbox where dispatched_at is null
            union all select 'publication', count(*) from publish_job_outbox where dispatched_at is null
-           union all select 'review', count(*) from review_submissions where status = 'awaiting-review'`,
+           union all select 'review', count(*) from review_submissions where status = 'awaiting-review'
+           union all select 'takedown-evidence', count(*) from takedown_evidence_outbox
+             where status in ('pending','failed')`,
         ),
         this.pool.query<{ count: string }>(
           "select count(*) from review_submissions where status = 'awaiting-review'",
@@ -426,6 +487,268 @@ export class PostgresOperationsDataService implements OperationsDataService {
         );
         return { withdrawn: true };
       },
+    );
+  }
+
+  async takedownVersion(
+    context: MutationContext,
+    versionId: string,
+    input: {
+      category: TakedownCategory;
+      privateReason: string;
+      publicNotice: string | null;
+    },
+  ) {
+    await this.requireAdmin(context.actorId);
+    return this.withIdempotency(
+      context,
+      "ops.version.takedown",
+      async (client) => {
+        const existing = await client.query<{
+          id: string;
+          category: TakedownCategory;
+          public_notice: string | null;
+          public_url: string;
+          blocked_at: Date;
+          evidence_status: "pending" | "retained" | "failed";
+        }>(
+          `select d.id, d.category, d.public_notice, d.public_url, d.blocked_at,
+             e.status as evidence_status
+           from takedown_decisions d
+           join takedown_evidence_outbox e on e.decision_id = d.id
+           where d.project_version_id = $1`,
+          [versionId],
+        );
+        if (existing.rows[0]) {
+          const row = existing.rows[0];
+          return {
+            id: row.id,
+            versionId,
+            category: row.category,
+            publicNotice: row.public_notice,
+            publicUrl: row.public_url,
+            blockedAt: row.blocked_at.toISOString(),
+            evidenceStatus: row.evidence_status,
+          } satisfies TakedownDecision;
+        }
+
+        const artifact = await client.query<{
+          id: string;
+          object_key: string;
+          public_url: string;
+          sha256: string;
+          size: string | number;
+        }>(
+          `select id, object_key, public_url, sha256, size
+           from published_artifacts
+           where project_version_id = $1 and status in ('available','withdrawn')
+           for update`,
+          [versionId],
+        );
+        const row = artifact.rows[0];
+        if (!row) {
+          throw new AuthoringError(
+            "TakedownTargetNotFound",
+            "没有可紧急下架的已发布 artifact。",
+            409,
+          );
+        }
+
+        const decision = await client.query<{
+          id: string;
+          blocked_at: Date;
+        }>(
+          `insert into takedown_decisions
+           (project_version_id, published_artifact_id, actor_id, category,
+            private_reason, public_notice, object_key, public_url, sha256,
+            size, request_id)
+           values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+           returning id, blocked_at`,
+          [
+            versionId,
+            row.id,
+            context.actorId,
+            input.category,
+            input.privateReason,
+            input.publicNotice,
+            row.object_key,
+            row.public_url,
+            row.sha256,
+            row.size,
+            context.requestId,
+          ],
+        );
+        const decisionRow = decision.rows[0]!;
+
+        await client.query(
+          `update published_artifacts set status = 'taken-down', withdrawn_at = now()
+           where id = $1`,
+          [row.id],
+        );
+        await client.query(
+          `update author_project_versions set status = 'taken-down',
+             withdrawn_at = now(), updated_at = now() where id = $1`,
+          [versionId],
+        );
+        await client.query(
+          `update review_submissions set status = 'taken-down'
+           where project_version_id = $1 and status in ('published','withdrawn')`,
+          [versionId],
+        );
+        await client.query(
+          `update directory_project_versions set status = 'taken-down'
+           where id = $1`,
+          [`community-version:${versionId}`],
+        );
+        await client.query(
+          `update directory_artifacts set status = 'taken-down'
+           where project_version_id = $1`,
+          [`community-version:${versionId}`],
+        );
+        await client.query(
+          "insert into takedown_evidence_outbox(decision_id) values ($1)",
+          [decisionRow.id],
+        );
+        await client.query(
+          `insert into moderation_actions
+             (actor_id, resource_type, resource_id, action, reason)
+           values ($1,'version',$2,'takedown',$3)`,
+          [context.actorId, versionId, input.privateReason],
+        );
+        await this.audit(
+          client,
+          context,
+          "version.takedown",
+          "project-version",
+          versionId,
+          {
+            category: input.category,
+            decisionId: decisionRow.id,
+            publicNotice: input.publicNotice,
+          },
+        );
+        return {
+          id: decisionRow.id,
+          versionId,
+          category: input.category,
+          publicNotice: input.publicNotice,
+          publicUrl: row.public_url,
+          blockedAt: decisionRow.blocked_at.toISOString(),
+          evidenceStatus: "pending",
+        } satisfies TakedownDecision;
+      },
+    );
+  }
+
+  async resolvePublishedArtifact(objectKey: string) {
+    const result = await this.pool.query<{
+      object_key: string;
+      file_name: string;
+      size: string | number;
+      sha256: string;
+      status: "available" | "withdrawn" | "taken-down";
+    }>(
+      `select object_key, file_name, size, sha256, status
+       from published_artifacts where object_key = $1`,
+      [objectKey],
+    );
+    const row = result.rows[0];
+    if (!row) {
+      throw new AuthoringError("ArtifactNotFound", "artifact 不存在。", 404);
+    }
+    if (row.status === "taken-down") {
+      throw new AuthoringError(
+        "ArtifactTakenDown",
+        "artifact 已因安全、法律或版权事件被紧急下架。",
+        410,
+      );
+    }
+    return {
+      objectKey: row.object_key,
+      fileName: row.file_name,
+      size: Number(row.size),
+      sha256: row.sha256,
+      disposition: row.status,
+    } satisfies PublishedArtifactAccess;
+  }
+
+  async listPendingTakedownEvidence() {
+    const result = await this.pool.query<{
+      decision_id: string;
+      object_key: string;
+      sha256: string;
+      size: string | number;
+    }>(
+      `select d.id as decision_id, d.object_key, d.sha256, d.size
+       from takedown_decisions d
+       join takedown_evidence_outbox e on e.decision_id = d.id
+       where e.status in ('pending','failed') and e.dispatched_at is null
+       order by e.created_at limit 100`,
+    );
+    return result.rows.map((row) => ({
+      decisionId: row.decision_id,
+      sourceObjectKey: row.object_key,
+      evidenceObjectKey: `takedown-evidence/${row.decision_id}/${row.sha256}.zip`,
+      sha256: row.sha256,
+      size: Number(row.size),
+    }));
+  }
+
+  async getTakedownEvidenceCandidate(decisionId: string) {
+    const result = await this.pool.query<{
+      decision_id: string;
+      object_key: string;
+      sha256: string;
+      size: string | number;
+    }>(
+      `select d.id as decision_id, d.object_key, d.sha256, d.size
+       from takedown_decisions d
+       join takedown_evidence_outbox e on e.decision_id = d.id
+       where d.id = $1 and e.status in ('pending','failed')`,
+      [decisionId],
+    );
+    const row = result.rows[0];
+    return row
+      ? {
+          decisionId: row.decision_id,
+          sourceObjectKey: row.object_key,
+          evidenceObjectKey: `takedown-evidence/${row.decision_id}/${row.sha256}.zip`,
+          sha256: row.sha256,
+          size: Number(row.size),
+        }
+      : null;
+  }
+
+  async markTakedownEvidenceDispatched(decisionId: string) {
+    await this.pool.query(
+      `update takedown_evidence_outbox set dispatched_at = now(),
+       dispatch_attempts = dispatch_attempts + 1 where decision_id = $1`,
+      [decisionId],
+    );
+  }
+
+  async completeTakedownEvidence(
+    decisionId: string,
+    evidenceObjectKey: string,
+  ) {
+    await this.pool.query(
+      `update takedown_evidence_outbox set status = 'retained',
+       evidence_object_key = $2, completed_at = now(), failure_summary = ''
+       where decision_id = $1`,
+      [decisionId, evidenceObjectKey],
+    );
+  }
+
+  async recordTakedownEvidenceFailure(
+    decisionId: string,
+    failureSummary: string,
+    finalAttempt: boolean,
+  ) {
+    await this.pool.query(
+      `update takedown_evidence_outbox set status = 'failed',
+       failure_summary = $2, dispatched_at = case when $3 then now() else null end
+       where decision_id = $1`,
+      [decisionId, failureSummary.slice(0, 1000), finalAttempt],
     );
   }
 

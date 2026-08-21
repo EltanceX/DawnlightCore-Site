@@ -1,4 +1,5 @@
 import {
+  GetObjectCommand,
   HeadBucketCommand,
   HeadObjectCommand,
   PutObjectCommand,
@@ -24,7 +25,16 @@ export interface QuarantineStorage {
   check(): Promise<void>;
 }
 
-export function createQuarantineStorage(env: ServerEnv): QuarantineStorage {
+export interface PublishedArtifactStorage {
+  getPublished(objectKey: string): Promise<AsyncIterable<Uint8Array>>;
+}
+
+export type DawnlightObjectStorage = QuarantineStorage &
+  PublishedArtifactStorage;
+
+export function createQuarantineStorage(
+  env: ServerEnv,
+): DawnlightObjectStorage {
   const client = new S3Client({
     endpoint: env.OBJECT_STORAGE_ENDPOINT,
     region: env.OBJECT_STORAGE_REGION,
@@ -35,6 +45,7 @@ export function createQuarantineStorage(env: ServerEnv): QuarantineStorage {
     forcePathStyle: true,
   });
   const bucket = env.OBJECT_STORAGE_BUCKET_QUARANTINE;
+  const publishedBucket = env.OBJECT_STORAGE_BUCKET_PUBLISHED;
   return {
     async createUploadUrl(objectKey, contentType, expiresInSeconds) {
       return getSignedUrl(
@@ -75,6 +86,15 @@ export function createQuarantineStorage(env: ServerEnv): QuarantineStorage {
     },
     async check() {
       await client.send(new HeadBucketCommand({ Bucket: bucket }));
+    },
+    async getPublished(objectKey) {
+      const result = await client.send(
+        new GetObjectCommand({ Bucket: publishedBucket, Key: objectKey }),
+      );
+      if (!result.Body) {
+        throw new Error("published object storage returned an empty body");
+      }
+      return result.Body as AsyncIterable<Uint8Array>;
     },
   };
 }

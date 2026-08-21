@@ -19,6 +19,7 @@ const checks = [
   [publicOrigin, "/health/ready", 200],
   [publicOrigin, "/api/v1/contracts", 200],
   [publicOrigin, "/api/v1/search?q=dawnlight", 200],
+  [publicOrigin, "/artifacts/wp9-a-missing.zip", 404],
   [oidcOrigin, "/isalive", 200],
   [oidcOrigin, "/dawnlight/.well-known/openid-configuration", 200],
 ];

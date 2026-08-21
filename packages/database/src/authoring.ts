@@ -14,7 +14,8 @@ export type DraftVersionStatus =
   | "publishing"
   | "publish-failed"
   | "published"
-  | "withdrawn";
+  | "withdrawn"
+  | "taken-down";
 
 export type AuthUser = {
   id: string;

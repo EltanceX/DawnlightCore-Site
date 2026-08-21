@@ -145,9 +145,9 @@ WP9-A 不接触现有 production/preview bucket，不复用 bootstrap token，�
 | 条件 | 结果 |
 | --- | --- |
 | Validator 构建、证明、Registry 和部署引用方式冻结 | 已冻结；WP9-1 已实现服务部署制品，实际 Validator GHCR package/digest 与证明仍是 WP9-B 外部门禁 |
-| withdraw/delist 与 takedown 语义冻结 | 已冻结；takedown 数据/API/CDN 实现待 WP9-2 |
+| withdraw/delist 与 takedown 语义冻结 | 已冻结；WP9-2 第一层已实现数据/API/已知 URL 阻断和 evidence Worker，真实 CDN purge/deny 仍待 WP9-B |
 | Beta 单实例拓扑和扩容触发器冻结 | 已冻结 |
 | 运营角色、分离和实名清单规则冻结 | 已冻结；实名 primary/backup 待 WP9-B 前指派 |
 | 未决外部项被错误标为完成 | 无；均保留显式门禁 |
 
-WP9-0 的工程决策退出条件已满足。WP9-1 已落地可复现服务镜像与 arch-vm WP9-A staging 编排；下一步进入 WP9-2 takedown 实现与演练。
+WP9-0 的工程决策退出条件已满足。WP9-1 已落地部署制品，WP9-2 已落地两级 staging 第一层的 takedown 闭环；下一步进入 WP9-3 第一层完整工作流和故障演练。

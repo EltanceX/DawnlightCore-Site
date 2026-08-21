@@ -5,6 +5,7 @@ import { resolve } from "node:path";
 import { loadContractBundle } from "@dawnlight/contract-data/node";
 import { createContractDataService } from "@dawnlight/contract-data";
 import { createDirectoryDataService } from "@dawnlight/contract-data";
+import { AuthoringError } from "@dawnlight/database";
 import { readFileSync } from "node:fs";
 import type {
   AuthoringDataService,
@@ -162,7 +163,18 @@ describe("API health shell", () => {
     };
     const operations = createOperationsFixture();
     const authoring = createAdminAuthoringFixture();
-    const app = await createApp(env, { search, operations, authoring });
+    const app = await createApp(env, {
+      search,
+      operations,
+      authoring,
+      publishedArtifacts: {
+        async getPublished() {
+          return (async function* () {
+            yield Buffer.from("fixture artifact");
+          })();
+        },
+      },
+    });
     apps.push(app);
 
     const found = await app.inject({
@@ -183,6 +195,13 @@ describe("API health shell", () => {
       "https://cdn.example.test/shaderpacks/test.zip",
     );
     expect(redirect.headers["x-content-sha256"]).toBe("a".repeat(64));
+
+    const knownUrl = await app.inject({
+      method: "GET",
+      url: "/artifacts/shaderpacks/test.zip",
+    });
+    expect(knownUrl.statusCode).toBe(200);
+    expect(knownUrl.headers["cache-control"]).toBe("no-store");
 
     const report = await app.inject({
       method: "POST",
@@ -220,6 +239,36 @@ describe("API health shell", () => {
     });
     expect(rejectedMutation.statusCode).toBe(403);
     expect(rejectedMutation.json().error.code).toBe("OriginRejected");
+
+    const takenDown = await app.inject({
+      method: "POST",
+      url: "/api/v1/ops/versions/22222222-2222-4222-8222-222222222222/takedown",
+      headers: {
+        cookie,
+        origin: env.CORS_ORIGIN,
+        "x-csrf-token": "ops-csrf-token",
+        "idempotency-key": "takedown-test-1",
+      },
+      payload: {
+        category: "security",
+        privateReason: "Confirmed security incident in the fixture artifact.",
+        publicNotice: "This version is unavailable after a security review.",
+        confirmation: "TAKEDOWN 22222222-2222-4222-8222-222222222222",
+      },
+    });
+    expect(takenDown.statusCode).toBe(200);
+    expect(takenDown.json().data).toMatchObject({
+      category: "security",
+      evidenceStatus: "pending",
+    });
+
+    const blockedKnownUrl = await app.inject({
+      method: "GET",
+      url: "/artifacts/shaderpacks/test.zip",
+    });
+    expect(blockedKnownUrl.statusCode).toBe(410);
+    expect(blockedKnownUrl.headers["cache-control"]).toBe("no-store");
+    expect(blockedKnownUrl.json().error.code).toBe("ArtifactTakenDown");
   });
 
   it("rate limits public search without persisting client addresses", async () => {
@@ -579,6 +628,7 @@ function createAdminAuthoringFixture(): AuthoringDataService {
 }
 
 function createOperationsFixture(): OperationsDataService {
+  let takenDown = false;
   const report = {
     id: "88888888-8888-4888-8888-888888888888",
     resourceId: "community:project-1",
@@ -589,6 +639,13 @@ function createOperationsFixture(): OperationsDataService {
   };
   return {
     async resolveDownload(artifactId) {
+      if (takenDown) {
+        throw new AuthoringError(
+          "ArtifactNotFound",
+          "artifact unavailable",
+          404,
+        );
+      }
       return {
         artifactId,
         projectVersionId: "community-version:version-1",
@@ -631,6 +688,43 @@ function createOperationsFixture(): OperationsDataService {
       return { ...report, status: "resolved" };
     },
     async withdrawVersion() {},
+    async takedownVersion(_context, versionId, input) {
+      takenDown = true;
+      return {
+        id: "99999999-9999-4999-8999-999999999999",
+        versionId,
+        category: input.category,
+        publicNotice: input.publicNotice,
+        publicUrl: "https://cdn.example.test/shaderpacks/test.zip",
+        blockedAt: new Date(0).toISOString(),
+        evidenceStatus: "pending",
+      };
+    },
+    async resolvePublishedArtifact(objectKey) {
+      if (takenDown) {
+        throw new AuthoringError(
+          "ArtifactTakenDown",
+          "artifact taken down",
+          410,
+        );
+      }
+      return {
+        objectKey,
+        fileName: "test.zip",
+        size: Buffer.byteLength("fixture artifact"),
+        sha256: "a".repeat(64),
+        disposition: "available",
+      };
+    },
+    async listPendingTakedownEvidence() {
+      return [];
+    },
+    async getTakedownEvidenceCandidate() {
+      return null;
+    },
+    async markTakedownEvidenceDispatched() {},
+    async completeTakedownEvidence() {},
+    async recordTakedownEvidenceFailure() {},
     async moderateProject() {},
     async purgeExpiredDownloadEvents() {
       return 0;

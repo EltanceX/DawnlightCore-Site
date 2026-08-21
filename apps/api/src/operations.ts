@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { Readable } from "node:stream";
 import type { FastifyInstance, FastifyRequest } from "fastify";
 import type { ServerEnv } from "@dawnlight/config";
 import type {
@@ -7,6 +8,7 @@ import type {
 } from "@dawnlight/database";
 import { AuthoringError } from "@dawnlight/database";
 import { createSessionGuards } from "./guards.js";
+import type { PublishedArtifactStorage } from "./storage.js";
 
 const reportSchema = z.object({
   resourceId: z.string().min(1).max(160).nullable().default(null),
@@ -18,6 +20,18 @@ const reportDecisionSchema = z.object({
   reason: z.string().min(3).max(4000),
 });
 const withdrawSchema = z.object({ reason: z.string().min(3).max(4000) });
+const takedownSchema = z.object({
+  category: z.enum([
+    "malicious-package",
+    "credential-exposure",
+    "copyright",
+    "legal",
+    "security",
+  ]),
+  privateReason: z.string().min(10).max(4000),
+  publicNotice: z.string().min(10).max(1000).nullable().default(null),
+  confirmation: z.string().min(1).max(200),
+});
 const moderationSchema = z.object({
   action: z.enum(["hide", "unhide", "ban", "unban"]),
   reason: z.string().min(3).max(4000),
@@ -67,6 +81,7 @@ export function registerOperationsRoutes(
   env: ServerEnv,
   authoring: AuthoringDataService,
   operations: OperationsDataService,
+  publishedArtifacts?: PublishedArtifactStorage,
 ) {
   const guards = createSessionGuards(env, authoring);
 
@@ -155,6 +170,62 @@ export function registerOperationsRoutes(
         .send({ data: { withdrawn: true } });
     },
   );
+
+  app.post<{ Params: { versionId: string }; Body: unknown }>(
+    "/api/v1/ops/versions/:versionId/takedown",
+    async (request, reply) => {
+      const principal = await guards.requireMutation(request);
+      const body = parseBody(takedownSchema, request.body);
+      if (body.confirmation !== `TAKEDOWN ${request.params.versionId}`) {
+        throw new AuthoringError(
+          "TakedownConfirmationRequired",
+          "紧急下架必须逐字确认目标版本。",
+          400,
+        );
+      }
+      const decision = await operations.takedownVersion(
+        guards.mutationContext(request, principal),
+        request.params.versionId,
+        body,
+      );
+      return reply
+        .header("cache-control", "private, no-store")
+        .send({ data: decision });
+    },
+  );
+
+  if (publishedArtifacts) {
+    app.get<{ Params: { "*": string } }>(
+      "/artifacts/*",
+      async (request, reply) => {
+        reply.header("cache-control", "no-store");
+        const objectKey = request.params["*"];
+        if (
+          !objectKey ||
+          objectKey.includes("\\") ||
+          objectKey.includes("..")
+        ) {
+          throw new AuthoringError(
+            "ArtifactPathRejected",
+            "artifact 路径无效。",
+            400,
+          );
+        }
+        const artifact = await operations.resolvePublishedArtifact(objectKey);
+        const body = await publishedArtifacts.getPublished(artifact.objectKey);
+        return reply
+          .header("content-type", "application/zip")
+          .header("content-length", String(artifact.size))
+          .header("x-content-sha256", artifact.sha256)
+          .header("x-dawnlight-disposition", artifact.disposition)
+          .header(
+            "content-disposition",
+            `attachment; filename*=UTF-8''${encodeURIComponent(artifact.fileName)}`,
+          )
+          .send(Readable.from(body));
+      },
+    );
+  }
 
   app.post<{ Params: { projectId: string }; Body: unknown }>(
     "/api/v1/ops/projects/:projectId/moderate",

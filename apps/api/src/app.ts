@@ -26,7 +26,7 @@ import { registerAuthoringRoutes } from "./authoring.js";
 import { registerSearchRoutes } from "./search.js";
 import { registerOperationsRoutes } from "./operations.js";
 import type { OidcClient } from "./oidc.js";
-import type { QuarantineStorage } from "./storage.js";
+import type { PublishedArtifactStorage, QuarantineStorage } from "./storage.js";
 import type { PreflightQueue } from "./queue.js";
 
 export type ApiDependencies = {
@@ -38,6 +38,7 @@ export type ApiDependencies = {
   oidc?: OidcClient;
   uploads?: import("@dawnlight/database").UploadDataService;
   quarantine?: QuarantineStorage;
+  publishedArtifacts?: PublishedArtifactStorage;
   preflightQueue?: PreflightQueue;
   publishing?: import("@dawnlight/database").PublishingDataService;
   search?: import("@dawnlight/database").SearchDataService;
@@ -249,6 +250,7 @@ export async function createApp(
       env,
       dependencies.authoring,
       dependencies.operations,
+      dependencies.publishedArtifacts,
     );
   }
 

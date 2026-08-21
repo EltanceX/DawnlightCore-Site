@@ -455,6 +455,52 @@ paths:
         '200': { description: Published version withdrawn while immutable history is retained. }
         '401': { $ref: '#/components/responses/ApiError' }
         '403': { $ref: '#/components/responses/ApiError' }
+  /api/v1/ops/versions/{versionId}/takedown:
+    post:
+      operationId: emergencyTakedownVersion
+      description: Platform-admin-only emergency block. The known artifact URL becomes unavailable before evidence retention runs.
+      security: [{ sessionCookie: [], csrfToken: [], idempotencyKey: [] }]
+      parameters:
+        - { name: versionId, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [category, privateReason, publicNotice, confirmation]
+              properties:
+                category:
+                  type: string
+                  enum: [malicious-package, credential-exposure, copyright, legal, security]
+                privateReason: { type: string, minLength: 10, maxLength: 4000 }
+                publicNotice: { type: [string, 'null'], minLength: 10, maxLength: 1000 }
+                confirmation:
+                  type: string
+                  description: Exact text `TAKEDOWN {versionId}`.
+      responses:
+        '200':
+          description: Public access blocked and restricted evidence retention queued.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties: { data: { $ref: '#/components/schemas/TakedownDecision' } }
+        '400': { $ref: '#/components/responses/ApiError' }
+        '401': { $ref: '#/components/responses/ApiError' }
+        '403': { $ref: '#/components/responses/ApiError' }
+        '409': { $ref: '#/components/responses/ApiError' }
+  /artifacts/{artifactPath}:
+    get:
+      operationId: downloadKnownPublishedArtifact
+      description: First-stage artifact gateway. Withdrawn known URLs remain available; emergency takedowns return 410.
+      parameters:
+        - { name: artifactPath, in: path, required: true, schema: { type: string }, description: Slash-delimited immutable object key. }
+      responses:
+        '200': { description: Immutable artifact bytes, served with `Cache-Control: no-store` in WP9-A. }
+        '404': { $ref: '#/components/responses/ApiError' }
+        '410': { $ref: '#/components/responses/ApiError' }
   /api/v1/ops/projects/{projectId}/moderate:
     post:
       operationId: moderateDirectoryProject
@@ -1245,7 +1291,7 @@ components:
           items: { $ref: '#/components/schemas/ContractDiffItem' }
     DirectoryStatus:
       type: string
-      enum: [preview, available, unverified, metadata-only, withdrawn, deprecated]
+      enum: [preview, available, unverified, metadata-only, withdrawn, taken-down, deprecated]
     DirectoryProjectView:
       type: object
       required: [id, slug, name, summary, status, visibility, latestVersion, versions, artifacts, compatibilities, images, license, recommendation, sourceRef]
@@ -1304,7 +1350,7 @@ components:
       properties:
         id: { type: string }
         projectVersionId: { type: string }
-        status: { type: string, enum: [available, unverified, quarantine, withdrawn] }
+        status: { type: string, enum: [available, unverified, quarantine, withdrawn, taken-down] }
         platform: { type: string }
         architecture: { type: string }
         gpuClass: { type: string }
@@ -1406,7 +1452,7 @@ components:
         channel: { type: string, enum: [preview, alpha, beta, stable] }
         status:
           type: string
-          enum: [draft, validating, loader-failed, awaiting-review, changes-requested, rejected, approved, publishing, publish-failed, published, withdrawn]
+          enum: [draft, validating, loader-failed, awaiting-review, changes-requested, rejected, approved, publishing, publish-failed, published, withdrawn, taken-down]
         changelog: { type: string }
         licenseSpdx: { type: [string, 'null'] }
         compatibility:
@@ -1598,7 +1644,7 @@ components:
         revision: { type: integer, minimum: 1 }
         status:
           type: string
-          enum: [awaiting-review, changes-requested, rejected, approved, publishing, publish-failed, published, withdrawn]
+          enum: [awaiting-review, changes-requested, rejected, approved, publishing, publish-failed, published, withdrawn, taken-down]
         uploadId: { type: string, format: uuid }
         validationRunId: { type: string, format: uuid }
         submittedBy: { type: string, format: uuid }
@@ -1665,6 +1711,19 @@ components:
         reason: { type: string }
         status: { type: string, enum: [received, in-review, resolved, rejected] }
         createdAt: { type: string, format: date-time }
+    TakedownDecision:
+      type: object
+      required: [id, versionId, category, publicNotice, publicUrl, blockedAt, evidenceStatus]
+      properties:
+        id: { type: string, format: uuid }
+        versionId: { type: string, format: uuid }
+        category:
+          type: string
+          enum: [malicious-package, credential-exposure, copyright, legal, security]
+        publicNotice: { type: [string, 'null'] }
+        publicUrl: { type: string, format: uri }
+        blockedAt: { type: string, format: date-time }
+        evidenceStatus: { type: string, enum: [pending, retained, failed] }
     OperationsOverview:
       type: object
       required: [period, downloads, topArtifacts, loader, validationFailureRate, queues, reviewQueue, downloadErrors, storage]

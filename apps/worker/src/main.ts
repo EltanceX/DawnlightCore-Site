@@ -6,6 +6,7 @@ import {
   createPostgresPublishingDataService,
   createPostgresOperationsDataService,
   downloadRetentionQueueName,
+  takedownEvidenceQueueName,
   loaderValidationQueueName,
   publicationQueueName,
   preflightQueueName,
@@ -21,6 +22,7 @@ import { createWorkerQuarantineStorage } from "./storage.js";
 import { PreflightRejected, runPreflight } from "./preflight.js";
 import { runLoaderValidation } from "./validator.js";
 import { publishCandidate } from "./publication.js";
+import { retainTakedownEvidence } from "./takedown.js";
 
 const env = parseServerEnv();
 const logger = pino({ level: env.LOG_LEVEL });
@@ -86,6 +88,21 @@ for (const submissionId of await publishing.listPendingPublications()) {
     logger.warn(
       { error, submissionId },
       "could not dispatch publication outbox item",
+    );
+  }
+}
+for (const candidate of await operations.listPendingTakedownEvidence()) {
+  try {
+    await boss.send(
+      takedownEvidenceQueueName,
+      { decisionId: candidate.decisionId },
+      { singletonKey: candidate.decisionId },
+    );
+    await operations.markTakedownEvidenceDispatched(candidate.decisionId);
+  } catch (error) {
+    logger.warn(
+      { error, decisionId: candidate.decisionId },
+      "could not dispatch takedown evidence outbox item",
     );
   }
 }
@@ -196,6 +213,14 @@ await boss.work(
         { singletonKey: submissionId },
       );
       await publishing.markPublicationDispatched(submissionId);
+    }
+    for (const candidate of await operations.listPendingTakedownEvidence()) {
+      await boss.send(
+        takedownEvidenceQueueName,
+        { decisionId: candidate.decisionId },
+        { singletonKey: candidate.decisionId },
+      );
+      await operations.markTakedownEvidenceDispatched(candidate.decisionId);
     }
   },
 );
@@ -309,6 +334,30 @@ await boss.work(
       env.DOWNLOAD_EVENT_RETENTION_DAYS,
     );
     logger.info({ deleted }, "expired download events purged");
+  },
+);
+
+await boss.work<{ decisionId: string }>(
+  takedownEvidenceQueueName,
+  { localConcurrency: 1, batchSize: 1, includeMetadata: true },
+  async (jobs) => {
+    const job = jobs[0]!;
+    const attempt =
+      (job as unknown as JobWithMetadata<{ decisionId: string }>).retryCount +
+      1;
+    const candidate = await operations.getTakedownEvidenceCandidate(
+      job.data.decisionId,
+    );
+    if (!candidate) return;
+    try {
+      await retainTakedownEvidence(candidate, storage, operations, attempt > 2);
+      logger.info(
+        { decisionId: candidate.decisionId },
+        "takedown evidence retained and public object removed",
+      );
+    } catch (error) {
+      throw error;
+    }
   },
 );
 

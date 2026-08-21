@@ -22,9 +22,21 @@ export interface WorkerQuarantineStorage {
   check(): Promise<void>;
 }
 
+export interface TakedownEvidenceStorage {
+  retainPublishedEvidence(
+    sourceObjectKey: string,
+    evidenceObjectKey: string,
+    sha256: string,
+    expectedSize: number,
+  ): Promise<void>;
+}
+
+export type WorkerObjectStorage = WorkerQuarantineStorage &
+  TakedownEvidenceStorage;
+
 export function createWorkerQuarantineStorage(
   env: ServerEnv,
-): WorkerQuarantineStorage {
+): WorkerObjectStorage {
   const client = new S3Client({
     endpoint: env.OBJECT_STORAGE_ENDPOINT,
     region: env.OBJECT_STORAGE_REGION,
@@ -36,6 +48,7 @@ export function createWorkerQuarantineStorage(
   });
   const bucket = env.OBJECT_STORAGE_BUCKET_QUARANTINE;
   const publishedBucket = env.OBJECT_STORAGE_BUCKET_PUBLISHED;
+  const evidenceBucket = env.OBJECT_STORAGE_BUCKET_DERIVED;
   return {
     async get(objectKey) {
       const result = await client.send(
@@ -83,6 +96,63 @@ export function createWorkerQuarantineStorage(
     },
     async check() {
       await client.send(new HeadBucketCommand({ Bucket: bucket }));
+    },
+    async retainPublishedEvidence(
+      sourceObjectKey,
+      evidenceObjectKey,
+      sha256,
+      expectedSize,
+    ) {
+      let retained = null;
+      try {
+        retained = await client.send(
+          new HeadObjectCommand({
+            Bucket: evidenceBucket,
+            Key: evidenceObjectKey,
+          }),
+        );
+      } catch (error) {
+        const status = (error as { $metadata?: { httpStatusCode?: number } })
+          .$metadata?.httpStatusCode;
+        if (status !== 404) throw error;
+      }
+      const copySource = `${publishedBucket}/${sourceObjectKey
+        .split("/")
+        .map(encodeURIComponent)
+        .join("/")}`;
+      if (!retained) {
+        await client.send(
+          new CopyObjectCommand({
+            Bucket: evidenceBucket,
+            Key: evidenceObjectKey,
+            CopySource: copySource,
+            MetadataDirective: "REPLACE",
+            Metadata: {
+              sha256,
+              disposition: "restricted-takedown-evidence",
+            },
+            ContentType: "application/zip",
+          }),
+        );
+        retained = await client.send(
+          new HeadObjectCommand({
+            Bucket: evidenceBucket,
+            Key: evidenceObjectKey,
+          }),
+        );
+      }
+      if (
+        retained.ContentLength !== expectedSize ||
+        retained.Metadata?.sha256 !== sha256
+      ) {
+        throw new Error("TakedownEvidenceVerificationFailed");
+      }
+      await client.send(
+        new DeleteObjectCommand({
+          Bucket: publishedBucket,
+          Key: sourceObjectKey,
+        }),
+      );
     },
   };
 }

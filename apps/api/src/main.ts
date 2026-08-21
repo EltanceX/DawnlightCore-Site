@@ -87,6 +87,7 @@ const app = await createApp(env, {
   search: createPostgresSearchDataService(database),
   operations: createPostgresOperationsDataService(database),
   quarantine,
+  publishedArtifacts: quarantine,
   preflightQueue,
   oidc: env.OIDC_ENABLED
     ? createOidcClient({

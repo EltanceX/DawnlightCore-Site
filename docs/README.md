@@ -21,6 +21,7 @@
 - [V2-WP8 实现记录](./V2-WP8-Implementation.md)
 - [V2-WP9-0 Beta 关键决策登记](./V2-WP9-DecisionRegister.md)
 - [V2-WP9-1 部署制品实现记录](./V2-WP9-1-Implementation.md)
+- [V2-WP9-2 两级 staging 第一层](./V2-WP9-2-Implementation.md)
 
 ## WP0：决策冻结与资产盘点
 
