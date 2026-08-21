@@ -43,6 +43,10 @@ const requiredFiles = [
   "scripts/validate-wp9-first-stage.mjs",
   "packages/database/migrations/0008_takedown_staging.sql",
   "docs/V2-WP9-2-Implementation.md",
+  "docs/V2-WP9-3-Implementation.md",
+  "docs/V2-FirstRealRelease-Gate.md",
+  "packages/database/scripts/smoke-release-staging.mjs",
+  "scripts/run-wp9-a-release-drill.mjs",
   "apps/web/src/components/developer-tools/tool-shared.tsx",
   "apps/web/src/components/developer-tools/diagnostic-explorer.tsx",
   "apps/web/src/components/developer-tools/catalog-explorer.tsx",
@@ -230,5 +234,5 @@ if (
 }
 
 console.log(
-  "V2 workspace validation passed through WP9-2 (first-stage takedown and evidence boundaries defined).",
+  "V2 workspace validation passed through WP9-3 (first-stage release lifecycle and fault evidence defined).",
 );

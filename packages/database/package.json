@@ -20,7 +20,8 @@
     "directory:seed": "node scripts/seed-directory.mjs",
     "authoring:seed": "node scripts/seed-authoring.mjs",
     "operations:smoke": "pnpm build && node scripts/smoke-search-operations.mjs",
-    "takedown:smoke": "pnpm build && node scripts/smoke-takedown-staging.mjs"
+    "takedown:smoke": "pnpm build && node scripts/smoke-takedown-staging.mjs",
+    "release:smoke": "pnpm build && node scripts/smoke-release-staging.mjs"
   },
   "dependencies": {
     "@dawnlight/contract-data": "workspace:*",

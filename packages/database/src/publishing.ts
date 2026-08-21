@@ -440,9 +440,21 @@ export class PostgresPublishingDataService
       );
       await client.query(
         `update directory_project_versions set status = 'withdrawn'
-         where id = $1; update directory_artifacts set status = 'withdrawn'
+         where id = $1`,
+        [`community-version:${versionId}`],
+      );
+      await client.query(
+        `update directory_artifacts set status = 'withdrawn'
          where project_version_id = $1`,
         [`community-version:${versionId}`],
+      );
+      await client.query(
+        `update directory_projects set status = 'withdrawn', updated_at = now()
+         where id = $1 and not exists (
+           select 1 from directory_project_versions
+           where project_id = $1 and status = 'available'
+         )`,
+        [`community:${projectId}`],
       );
       await client.query(
         `insert into withdrawal_announcements(project_version_id, reason, created_by)
@@ -696,8 +708,11 @@ export class PostgresPublishingDataService
       await client.query("begin");
       await client.query(
         `update review_submissions set status = 'publishing'
-         where id = $1 and status in ('approved','publishing','publish-failed');
-       update author_project_versions set status = 'publishing' where id =
+         where id = $1 and status in ('approved','publishing','publish-failed')`,
+        [submissionId],
+      );
+      await client.query(
+        `update author_project_versions set status = 'publishing' where id =
          (select project_version_id from review_submissions where id = $1)
          and status in ('approved','publishing','publish-failed')`,
         [submissionId],
@@ -736,8 +751,11 @@ export class PostgresPublishingDataService
       if (finalAttempt) {
         await client.query(
           `update review_submissions set status = 'publish-failed'
-           where id = $1 and status = 'publishing';
-           update author_project_versions set status = 'publish-failed', updated_at = now()
+           where id = $1 and status = 'publishing'`,
+          [submissionId],
+        );
+        await client.query(
+          `update author_project_versions set status = 'publish-failed', updated_at = now()
            where id = (select project_version_id from review_submissions where id = $1)
              and status = 'publishing'`,
           [submissionId],
@@ -802,9 +820,13 @@ export class PostgresPublishingDataService
       );
       await client.query(
         `update review_submissions set status = 'published', published_at = now()
-         where id = $1; update author_project_versions set status = 'published',
-         published_at = now(), updated_at = now() where id = $2`,
-        [candidate.submissionId, candidate.versionId],
+         where id = $1`,
+        [candidate.submissionId],
+      );
+      await client.query(
+        `update author_project_versions set status = 'published',
+         published_at = now(), updated_at = now() where id = $1`,
+        [candidate.versionId],
       );
       await client.query("commit");
     } catch (error) {

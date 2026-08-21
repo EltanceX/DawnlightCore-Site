@@ -470,6 +470,14 @@ export class PostgresOperationsDataService implements OperationsDataService {
           [`community-version:${versionId}`],
         );
         await client.query(
+          `update directory_projects set status = 'withdrawn', updated_at = now()
+           where id = $1 and not exists (
+             select 1 from directory_project_versions
+             where project_id = $1 and status = 'available'
+           )`,
+          [`community:${changed.rows[0].project_id}`],
+        );
+        await client.query(
           "insert into withdrawal_announcements(project_version_id, reason, created_by) values ($1,$2,$3)",
           [versionId, reason, context.actorId],
         );
@@ -604,6 +612,17 @@ export class PostgresOperationsDataService implements OperationsDataService {
           `update directory_artifacts set status = 'taken-down'
            where project_version_id = $1`,
           [`community-version:${versionId}`],
+        );
+        await client.query(
+          `update directory_projects set status = 'taken-down', updated_at = now()
+           where id = (
+             select 'community:' || project_id::text
+             from author_project_versions where id = $1
+           ) and not exists (
+             select 1 from directory_project_versions
+             where project_id = directory_projects.id and status = 'available'
+           )`,
+          [versionId],
         );
         await client.query(
           "insert into takedown_evidence_outbox(decision_id) values ($1)",

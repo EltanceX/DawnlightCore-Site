@@ -36,3 +36,11 @@ pnpm check
 Validator 在模板中默认禁用。不得用 tag、空 digest 或本机开发制品启用 Loader 验证。
 
 WP9-2 起，`/artifacts/*` 必须经过 API 状态门禁；不要为 MinIO 增加宿主机端口或匿名 published bucket。第一层 takedown 演练见 `docs/V2-WP9-2-Implementation.md`。
+
+WP9-3 的完整发布、ordinary withdraw、队列积压、MinIO 故障和重试恢复演练见 `docs/V2-WP9-3-Implementation.md`。该脚本只允许 disposable WP9-A Compose，并要求显式确认：
+
+```bash
+pnpm wp9:release:drill -- --confirm DISPOSABLE-STAGING
+```
+
+生成的 `reports/wp9-a-release-drill.json` 是 engineering-only 证据，不得作为真实 Validator 或候选发布证明。

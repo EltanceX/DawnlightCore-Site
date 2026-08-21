@@ -8,7 +8,7 @@
 
 当前基线：[V1 当前进度与剩余项](./V1-Progress.md)
 
-实现进度：V2-WP0～WP8 的工程实现已完成；V2-WP9-0 已冻结四项关键决策；V2-WP9-1 已实现可复现部署制品和 WP9-A Compose；V2-WP9-2 已实现两级 staging 第一层的紧急 takedown、已知 URL 410、不可变决定、证据 outbox/Worker 和 disposable 数据库演练。下一步为 WP9-3 第一层完整发布/撤回/故障演练；真实 Registry digest、实名责任清单和 WP9-B 真实 staging 仍是 Beta 门禁，详见 [WP9 决策登记](./V2-WP9-DecisionRegister.md)、[WP9-1 实现记录](./V2-WP9-1-Implementation.md)和 [WP9-2 实现记录](./V2-WP9-2-Implementation.md)。
+实现进度：V2-WP0～WP8 的工程实现已完成；V2-WP9-0 已冻结四项关键决策；V2-WP9-1 已实现可复现部署制品和 WP9-A Compose；V2-WP9-2 已实现第一层 takedown 闭环；V2-WP9-3 已实现第一层完整发布、普通撤回、队列积压、对象存储故障、可见性回滚、重试恢复和脱敏报告。arch-vm 结果仍须登记；真实 Registry digest、可信 Validator、实名责任清单和 WP9-B 真实 staging 仍是 Beta 门禁，详见 [WP9-3 实现记录](./V2-WP9-3-Implementation.md)与 [第一次真实发布门禁](./V2-FirstRealRelease-Gate.md)。
 
 适用范围：从静态 Preview 开发者门户演进为受控的开发工具、光影目录和邀请制发布平台
 

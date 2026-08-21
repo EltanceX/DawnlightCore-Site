@@ -106,7 +106,7 @@ export class PostgresSearchDataService implements SearchDataService {
           order by v.version desc limit 1
         ) v on true
         left join directory_licenses l on l.id = p.license_id
-        where p.visibility = 'published' and p.status = 'available'
+        where p.visibility = 'published' and p.status = 'available' and v.id is not null
           and ($1::text is null or (p.slug || ' ' || p.name || ' ' || p.summary || ' ' || coalesce(v.version, '') || ' ' || coalesce(v.core_commit, '')) ilike $1 escape '\\')
           and ($2::text is null or $2 = 'project')
           and ($3::text is null or v.contract_version = $3)

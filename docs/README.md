@@ -22,6 +22,8 @@
 - [V2-WP9-0 Beta 关键决策登记](./V2-WP9-DecisionRegister.md)
 - [V2-WP9-1 部署制品实现记录](./V2-WP9-1-Implementation.md)
 - [V2-WP9-2 两级 staging 第一层](./V2-WP9-2-Implementation.md)
+- [V2-WP9-3 第一层发布、撤回与故障演练](./V2-WP9-3-Implementation.md)
+- [V2 第一次真实发布门禁](./V2-FirstRealRelease-Gate.md)
 
 ## WP0：决策冻结与资产盘点
 

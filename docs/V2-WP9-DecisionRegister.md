@@ -150,4 +150,4 @@ WP9-A 不接触现有 production/preview bucket，不复用 bootstrap token，�
 | 运营角色、分离和实名清单规则冻结 | 已冻结；实名 primary/backup 待 WP9-B 前指派 |
 | 未决外部项被错误标为完成 | 无；均保留显式门禁 |
 
-WP9-0 的工程决策退出条件已满足。WP9-1 已落地部署制品，WP9-2 已落地两级 staging 第一层的 takedown 闭环；下一步进入 WP9-3 第一层完整工作流和故障演练。
+WP9-0 的工程决策退出条件已满足。WP9-1 已落地部署制品，WP9-2 已落地两级 staging 第一层的 takedown 闭环，WP9-3 已实现第一层完整工作流与故障演练自动化；arch-vm 证据登记后进入 WP9-B 真实 staging 准备。
