@@ -40,8 +40,14 @@ for (const marker of [
   "redir https://{$WP9_PUBLIC_HOST}{uri} permanent",
   "@docs_search path /api/search",
   "@api path /api/* /health/* /artifacts/*",
+  'X-Content-Type-Options "nosniff"',
+  'X-Robots-Tag "noindex, nofollow"',
+  "Content-Security-Policy-Report-Only",
 ]) {
   if (!tlsCaddy.includes(marker)) fail(`TLS edge config is missing ${marker}`);
+}
+if (tlsCaddy.includes("Strict-Transport-Security")) {
+  fail("disposable Preview TLS edge must not emit Production HSTS");
 }
 if (
   tlsCaddy.indexOf("@docs_search path /api/search") >

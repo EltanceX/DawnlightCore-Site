@@ -137,7 +137,7 @@ node scripts/create-wp9-a-env.mjs \
   --tls-key-file /srv/dawnlight-test/secrets/core.example.test.key
 ```
 
-HTTPS 模式会把原始 `:58080` Edge 限制到 `127.0.0.1`。公网 TLS Edge 以固定 digest 的非 root Caddy 监听 80/443，80 永久重定向到 HTTPS，443 直接按与原 Edge 相同的顺序分发文档搜索、API、artifact gateway 和静态页面：
+HTTPS 模式会把原始 `:58080` Edge 限制到 `127.0.0.1`。公网 TLS Edge 以固定 digest 的非 root Caddy 监听 80/443，80 永久重定向到 HTTPS，443 直接按与原 Edge 相同的顺序分发文档搜索、API、artifact gateway 和静态页面。TLS Edge 同时翻译 Preview `_headers` 中的 `nosniff`、Referrer Policy、Permissions Policy、防 framing、COOP、`noindex` 和 CSP Report-Only；第一层不会发送 Production HSTS：
 
 ```bash
 docker compose --env-file infra/compose/wp9-a.env \
