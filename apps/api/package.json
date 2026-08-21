@@ -14,7 +14,7 @@
     "test": "pnpm --filter @dawnlight/config build && pnpm --filter @dawnlight/contract-data build && pnpm --filter @dawnlight/api-client build && pnpm --filter @dawnlight/database build && vitest run"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.1111.0",
+    "@aws-sdk/client-s3": "^3.1112.0",
     "@aws-sdk/s3-request-presigner": "^3.1111.0",
     "@dawnlight/api-client": "workspace:*",
     "@dawnlight/config": "workspace:*",
