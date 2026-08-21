@@ -37,7 +37,7 @@
     "smoke:deploy": "node scripts/smoke-deployment.mjs",
     "verify:static": "node scripts/verify-static-output.mjs",
     "validate:content": "node scripts/validate-docs.mjs",
-    "validate:releases": "node scripts/validate-releases.mjs",
+    "validate:releases": "pnpm releases:generate && node scripts/validate-releases.mjs",
     "releases:generate": "node scripts/generate-release-feed.mjs",
     "contract:sync": "node scripts/sync-dawnlight-contract.mjs",
     "contract:ingest:build": "node scripts/build-contract-ingest.mjs",
