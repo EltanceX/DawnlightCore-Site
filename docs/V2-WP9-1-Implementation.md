@@ -114,6 +114,42 @@ docker compose --env-file infra/compose/wp9-a.env \
 
 仅在确认不再需要测试数据时附加 `-v` 删除本项目的命名卷。
 
+### 5.1 可选公网 TLS Edge
+
+需要在一次性测试主机上验证域名、TLS 和 80→443 跳转时，使用独立覆盖文件，避免把证书或私钥放入仓库、镜像和 Compose 环境值。证书与私钥必须预先拆分到 Docker host 的受控目录，并让非 root Caddy 用户只读：
+
+```bash
+install -d -m 0750 -o root -g 65532 /srv/dawnlight-test/secrets
+chown root:65532 /srv/dawnlight-test/secrets/core.example.test.crt \
+  /srv/dawnlight-test/secrets/core.example.test.key
+chmod 0440 /srv/dawnlight-test/secrets/core.example.test.crt \
+  /srv/dawnlight-test/secrets/core.example.test.key
+```
+
+生成 HTTPS 环境文件时显式提供宿主机绝对路径：
+
+```bash
+node scripts/create-wp9-a-env.mjs \
+  --public-origin https://core.example.test \
+  --oidc-origin http://192.0.2.10:58082 \
+  --docker-gid "$(stat -c '%g' /var/run/docker.sock)" \
+  --tls-cert-file /srv/dawnlight-test/secrets/core.example.test.crt \
+  --tls-key-file /srv/dawnlight-test/secrets/core.example.test.key
+```
+
+HTTPS 模式会把原始 `:58080` Edge 限制到 `127.0.0.1`。公网 TLS Edge 以固定 digest 的非 root Caddy 监听 80/443，80 永久重定向到 HTTPS，443 直接按与原 Edge 相同的顺序分发文档搜索、API、artifact gateway 和静态页面：
+
+```bash
+docker compose --env-file infra/compose/wp9-a.env \
+  -f infra/compose/wp9-a.compose.yml \
+  -f infra/compose/wp9-a-tls.compose.yml config --quiet
+docker compose --env-file infra/compose/wp9-a.env \
+  -f infra/compose/wp9-a.compose.yml \
+  -f infra/compose/wp9-a-tls.compose.yml up -d --wait tls-edge
+```
+
+Cloudflare Origin Certificate 只应用于 Cloudflare 到源站的连接；公开浏览器验证必须通过已启用代理的域名进行。此覆盖层仍可搭配 mock OIDC 和 disposable 数据，因此只能作为 WP9-A 公网测试证据，不替代 WP9-B 的独立 provider、secret manager、真实 OIDC、CDN purge/deny 和供应链门禁。
+
 ## 6. 运营入口
 
 数据库迁移、Contract ingest 和只读目录 seed 由 `migrate` 一次性任务完成，任务成功后 API 和 Worker 才启动。`bootstrap-admin` 放在 `operator` profile 中，不会随普通 `up` 自动执行；临时 token 只能由当班 Infrastructure Operator 在受控终端生成和立即消费。

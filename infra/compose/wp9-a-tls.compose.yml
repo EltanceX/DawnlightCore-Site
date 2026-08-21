@@ -1,0 +1,41 @@
+services:
+  tls-edge:
+    image: caddy:2-alpine@sha256:5f5c8640aae01df9654968d946d8f1a56c497f1dd5c5cda4cf95ab7c14d58648
+    depends_on:
+      web:
+        condition: service_healthy
+      api:
+        condition: service_healthy
+    environment:
+      WP9_PUBLIC_HOST: ${WP9_PUBLIC_HOST:?required}
+    ports:
+      - "${WP9_TLS_BIND_ADDRESS:-0.0.0.0}:${WP9_TLS_HTTP_PORT:-80}:80"
+      - "${WP9_TLS_BIND_ADDRESS:-0.0.0.0}:${WP9_TLS_HTTPS_PORT:-443}:443"
+    volumes:
+      - ./wp9-a-tls.Caddyfile:/etc/caddy/Caddyfile:ro
+      - type: bind
+        source: ${WP9_TLS_CERT_FILE:?required}
+        target: /run/dawnlight-tls/tls.crt
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ${WP9_TLS_KEY_FILE:?required}
+        target: /run/dawnlight-tls/tls.key
+        read_only: true
+        bind:
+          create_host_path: false
+    read_only: true
+    tmpfs:
+      - /tmp:rw,nosuid,nodev,noexec,size=32m,uid=65532,gid=65532
+    user: "65532:65532"
+    cap_drop: [ALL]
+    cap_add: [NET_BIND_SERVICE]
+    security_opt: [no-new-privileges:true]
+    healthcheck:
+      test: ["CMD", "caddy", "validate", "--config", "/etc/caddy/Caddyfile"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks: [public]

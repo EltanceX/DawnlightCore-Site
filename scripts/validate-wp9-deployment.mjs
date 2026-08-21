@@ -12,7 +12,12 @@ const composePath = "infra/compose/wp9-a.compose.yml";
 const composeText = read(composePath);
 const compose = parseYaml(composeText);
 const services = compose?.services ?? {};
+const digestPattern = /@sha256:[0-9a-f]{64}$/;
 const caddy = read("infra/compose/wp9-a.Caddyfile");
+const tlsComposePath = "infra/compose/wp9-a-tls.compose.yml";
+const tlsComposeText = read(tlsComposePath);
+const tlsCompose = parseYaml(tlsComposeText);
+const tlsCaddy = read("infra/compose/wp9-a-tls.Caddyfile");
 const docsSearchRoute = caddy.indexOf("@docs_search path /api/search");
 const apiRoute = caddy.indexOf("@api path /api/*");
 if (
@@ -22,6 +27,47 @@ if (
   !caddy.slice(docsSearchRoute, apiRoute).includes("reverse_proxy web:8080")
 ) {
   fail("static documentation search must route to Web before the API wildcard");
+}
+const tlsEdge = tlsCompose?.services?.["tls-edge"];
+if (!tlsEdge) fail("TLS overlay is missing tls-edge");
+if (!digestPattern.test(tlsEdge.image ?? "")) {
+  fail("TLS edge must use a digest-pinned external image");
+}
+for (const marker of [
+  "http://{$WP9_PUBLIC_HOST}",
+  "https://{$WP9_PUBLIC_HOST}",
+  "tls /run/dawnlight-tls/tls.crt /run/dawnlight-tls/tls.key",
+  "redir https://{$WP9_PUBLIC_HOST}{uri} permanent",
+  "@docs_search path /api/search",
+  "@api path /api/* /health/* /artifacts/*",
+]) {
+  if (!tlsCaddy.includes(marker)) fail(`TLS edge config is missing ${marker}`);
+}
+if (
+  tlsCaddy.indexOf("@docs_search path /api/search") >
+  tlsCaddy.indexOf("@api path /api/*")
+) {
+  fail(
+    "TLS edge must route static documentation search before the API wildcard",
+  );
+}
+for (const target of [
+  "/run/dawnlight-tls/tls.crt",
+  "/run/dawnlight-tls/tls.key",
+]) {
+  const volume = tlsEdge.volumes?.find((entry) => entry?.target === target);
+  if (!volume?.read_only || volume.bind?.create_host_path !== false) {
+    fail(`TLS edge must bind existing ${target} read-only`);
+  }
+}
+if (
+  tlsEdge.read_only !== true ||
+  tlsEdge.user !== "65532:65532" ||
+  !tlsEdge.cap_drop?.includes("ALL") ||
+  !tlsEdge.cap_add?.includes("NET_BIND_SERVICE") ||
+  !tlsEdge.security_opt?.includes("no-new-privileges:true")
+) {
+  fail("TLS edge must retain the non-root read-only Caddy boundary");
 }
 const requiredServices = [
   "postgres",
@@ -40,7 +86,6 @@ for (const name of requiredServices) {
   if (!services[name]) fail(`compose is missing ${name}`);
 }
 
-const digestPattern = /@sha256:[0-9a-f]{64}$/;
 for (const name of ["postgres", "minio", "minio-init", "oidc", "edge"]) {
   if (!digestPattern.test(services[name].image ?? "")) {
     fail(`${name} must use a digest-pinned external image`);

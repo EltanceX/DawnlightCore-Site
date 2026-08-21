@@ -34,15 +34,36 @@ function parseOrigin(name) {
   ) {
     throw new Error(`--${name} must be an origin without credentials or path.`);
   }
-  return origin.origin;
+  return origin;
+}
+
+function optionalAbsolutePosixPath(name) {
+  const value = args.get(name);
+  if (value === undefined) return undefined;
+  if (typeof value !== "string" || !value.startsWith("/")) {
+    throw new Error(`--${name} must be an absolute POSIX path.`);
+  }
+  return value;
 }
 
 function git(...command) {
   return execFileSync("git", command, { encoding: "utf8" }).trim();
 }
 
-const publicOrigin = parseOrigin("public-origin");
-const oidcOrigin = parseOrigin("oidc-origin");
+const publicUrl = parseOrigin("public-origin");
+const oidcUrl = parseOrigin("oidc-origin");
+const publicOrigin = publicUrl.origin;
+const oidcOrigin = oidcUrl.origin;
+const tlsCertFile = optionalAbsolutePosixPath("tls-cert-file");
+const tlsKeyFile = optionalAbsolutePosixPath("tls-key-file");
+if (publicUrl.protocol === "https:" && (!tlsCertFile || !tlsKeyFile)) {
+  throw new Error(
+    "HTTPS --public-origin requires --tls-cert-file and --tls-key-file.",
+  );
+}
+if (publicUrl.protocol !== "https:" && (tlsCertFile || tlsKeyFile)) {
+  throw new Error("TLS files require an HTTPS --public-origin.");
+}
 const dockerGid = required("docker-gid");
 if (!/^\d+$/.test(dockerGid)) throw new Error("--docker-gid must be numeric.");
 
@@ -82,8 +103,9 @@ if (existsSync(output) && !args.has("force")) {
 
 const values = {
   WP9_PUBLIC_ORIGIN: publicOrigin,
+  WP9_PUBLIC_HOST: publicUrl.hostname,
   WP9_OIDC_ORIGIN: oidcOrigin,
-  WP9_BIND_ADDRESS: "0.0.0.0",
+  WP9_BIND_ADDRESS: publicUrl.protocol === "https:" ? "127.0.0.1" : "0.0.0.0",
   WP9_HTTP_PORT: "58080",
   WP9_OIDC_BIND_ADDRESS: "0.0.0.0",
   WP9_OIDC_PORT: "58082",
@@ -105,6 +127,16 @@ const values = {
   WP9_DOCKER_GID: dockerGid,
   WP9_BOOTSTRAP_ADMIN_EMAIL: "author@example.test",
 };
+
+if (tlsCertFile && tlsKeyFile) {
+  Object.assign(values, {
+    WP9_TLS_BIND_ADDRESS: "0.0.0.0",
+    WP9_TLS_HTTP_PORT: "80",
+    WP9_TLS_HTTPS_PORT: "443",
+    WP9_TLS_CERT_FILE: tlsCertFile,
+    WP9_TLS_KEY_FILE: tlsKeyFile,
+  });
+}
 
 writeFileSync(
   output,
