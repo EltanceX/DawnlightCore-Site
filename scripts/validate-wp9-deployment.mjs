@@ -12,6 +12,17 @@ const composePath = "infra/compose/wp9-a.compose.yml";
 const composeText = read(composePath);
 const compose = parseYaml(composeText);
 const services = compose?.services ?? {};
+const caddy = read("infra/compose/wp9-a.Caddyfile");
+const docsSearchRoute = caddy.indexOf("@docs_search path /api/search");
+const apiRoute = caddy.indexOf("@api path /api/*");
+if (
+  docsSearchRoute < 0 ||
+  apiRoute < 0 ||
+  docsSearchRoute > apiRoute ||
+  !caddy.slice(docsSearchRoute, apiRoute).includes("reverse_proxy web:8080")
+) {
+  fail("static documentation search must route to Web before the API wildcard");
+}
 const requiredServices = [
   "postgres",
   "minio",

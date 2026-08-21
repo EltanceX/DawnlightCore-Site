@@ -8,6 +8,11 @@
 		format json
 	}
 
+	@docs_search path /api/search
+	handle @docs_search {
+		reverse_proxy web:8080
+	}
+
 	@api path /api/* /health/* /artifacts/*
 	handle @api {
 		reverse_proxy api:4100 {
