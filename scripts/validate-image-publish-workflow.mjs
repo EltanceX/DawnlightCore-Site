@@ -50,6 +50,7 @@ for (const marker of [
   "push-to-registry: true",
   "severity: HIGH,CRITICAL",
   'exit-code: "0"',
+  "continue-on-error: true",
   "node scripts/check-image-vulnerabilities.mjs",
   "node scripts/create-ci-image-manifest.mjs",
 ]) {
@@ -107,5 +108,5 @@ for (const path of [
 }
 
 console.log(
-  "WP9 image publishing validation passed (quality-gated GHCR digests, SBOM, provenance, attestation and scan evidence).",
+  "WP9 image publishing validation passed (quality-gated GHCR digests, SBOM, provenance, attestation and fixable-critical scan gate).",
 );

@@ -1,4 +1,4 @@
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 
 const required = (name) => {
@@ -40,9 +40,16 @@ const image = (component, repository, digestName, attestationName) => {
 const repository = required("GITHUB_REPOSITORY");
 const serverUrl = required("GITHUB_SERVER_URL");
 const runId = required("GITHUB_RUN_ID");
+const vulnerabilityGateResult = required("VULNERABILITY_GATE_RESULT");
+if (!new Set(["success", "failure"]).has(vulnerabilityGateResult)) {
+  throw new Error("VULNERABILITY_GATE_RESULT must be success or failure");
+}
+const scanSummary = JSON.parse(
+  readFileSync(resolve("reports/image-scans/summary.json"), "utf8"),
+);
 const manifest = {
   schemaVersion: 1,
-  status: "candidate",
+  status: vulnerabilityGateResult === "success" ? "candidate" : "rejected",
   source: {
     repository,
     url: required("IMAGE_SOURCE"),
@@ -65,7 +72,10 @@ const manifest = {
   vulnerabilityPolicy: {
     scanner: "Trivy v0.74.0",
     reportedSeverities: ["HIGH", "CRITICAL"],
-    maximumAllowedCritical: 0,
+    maximumAllowedFixableCritical: 0,
+    manualReviewRequiredForUnfixedCritical: true,
+    gateResult: vulnerabilityGateResult,
+    results: scanSummary.images,
   },
   images: [
     image("web", required("WEB_IMAGE"), "WEB_DIGEST", "WEB_ATTESTATION_URL"),

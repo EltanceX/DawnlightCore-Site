@@ -204,7 +204,9 @@ jobs:
           exit-code: "0"
           timeout: 10m
 
-      - name: Enforce vulnerability policy
+      - name: Evaluate vulnerability policy
+        id: vulnerability-policy
+        continue-on-error: true
         run: node scripts/check-image-vulnerabilities.mjs
 
       - name: Write deployment manifest
@@ -221,7 +223,15 @@ jobs:
           WEB_ATTESTATION_URL: ${{ steps.attest-web.outputs.attestation-url }}
           API_ATTESTATION_URL: ${{ steps.attest-api.outputs.attestation-url }}
           WORKER_ATTESTATION_URL: ${{ steps.attest-worker.outputs.attestation-url }}
+          VULNERABILITY_GATE_RESULT: ${{ steps.vulnerability-policy.outcome }}
         run: node scripts/create-ci-image-manifest.mjs
+
+      - name: Enforce vulnerability policy
+        if: steps.vulnerability-policy.outcome != 'success'
+        shell: bash
+        run: |
+          echo "Vulnerability policy rejected this image set."
+          exit 1
 
       - name: Upload supply-chain evidence
         if: always()

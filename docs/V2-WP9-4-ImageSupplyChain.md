@@ -43,9 +43,9 @@ ghcr.io/eltancex/dawnlight-worker
 - `mode=max` build provenance；
 - GitHub OIDC keyless attestation，并推送为 OCI registry referrer；
 - Trivy `v0.74.0` High/Critical JSON 报告；
-- Critical 数量必须为 `0` 的候选门禁。
+- 有修复版本的 Critical 数量必须为 `0` 的候选门禁；没有修复版本的 Critical 必须完整记录并进入人工发布审查。
 
-High 不会在此阶段自动阻断，但必须进入发布审查；任何已知可利用 High、来源不明依赖或无法解释的扫描缺口都可以由 Release Owner 拒绝该候选。不得通过覆盖同一 tag 规避门禁。
+High 和无修复版本的 Critical 不会被工作流静默隐藏，也不会在此阶段被误写成“已修复”。它们必须进入发布审查；任何已知可利用 High/Critical、来源不明依赖或无法解释的扫描缺口都可以由 Release Owner 拒绝该候选。不得通过覆盖同一 tag 规避门禁。
 
 ## 4. 证据 artifact
 
@@ -55,7 +55,9 @@ High 不会在此阶段自动阻断，但必须进入发布审查；任何已知
 - Web/API/Worker 的原始 Trivy JSON；
 - `reports/image-scans/summary.json`。
 
-清单记录 source repository/ref/revision、workflow run、构建时间、平台、Web origin、tag、三个 manifest digest、不可变引用、attestation URL 和扫描策略。它是候选证据，不是部署批准单。
+清单记录 source repository/ref/revision、workflow run、构建时间、平台、Web origin、tag、三个 manifest digest、不可变引用、attestation URL、扫描策略和实际计数。门禁失败时仍生成清单，但状态为 `rejected`；通过时状态为 `candidate`。两者都只是证据，不是部署批准单。
+
+首次运行 `32559468711` 证明三个镜像、SBOM/provenance 和 OIDC attestation 均可发布，同时发现 API/Worker 的 Debian 12.15 层各有 4 个没有修复版本的 Critical（3 个 `perl-base`、1 个 `zlib1g`）。运行按最初“所有 Critical 为 0”的策略被正确拒绝。核对 Docker Hub Registry 后，仓库固定的 `node:26-bookworm-slim@sha256:cd5657…` 与官方当前 tag digest 一致，因此不能通过更新 digest 获得现成修复。后续策略明确区分可修复与无修复项，但无修复项仍阻断无人值守批准。
 
 验证示例：
 
