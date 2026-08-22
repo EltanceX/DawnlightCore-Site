@@ -28,7 +28,7 @@ RUN pnpm install --frozen-lockfile && \
 FROM ${NODE_IMAGE} AS runtime-base
 ARG IMAGE_CREATED
 ARG IMAGE_REVISION
-ARG IMAGE_SOURCE=https://github.com/EltanceX/dawnlight-core
+ARG IMAGE_SOURCE=https://github.com/EltanceX/DawnlightCore-Site
 ARG IMAGE_VERSION=0.1.0
 ENV NODE_ENV=production
 RUN groupadd --gid 10001 dawnlight && \

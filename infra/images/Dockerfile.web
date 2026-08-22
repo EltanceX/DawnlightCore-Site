@@ -31,7 +31,7 @@ RUN pnpm install --frozen-lockfile && \
 FROM ${CADDY_IMAGE} AS web
 ARG IMAGE_CREATED
 ARG IMAGE_REVISION
-ARG IMAGE_SOURCE=https://github.com/EltanceX/dawnlight-core
+ARG IMAGE_SOURCE=https://github.com/EltanceX/DawnlightCore-Site
 ARG IMAGE_VERSION=0.1.0
 LABEL org.opencontainers.image.created="${IMAGE_CREATED}" \
       org.opencontainers.image.revision="${IMAGE_REVISION}" \

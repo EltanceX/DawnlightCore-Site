@@ -46,12 +46,13 @@
     "v2:check": "node scripts/validate-v2-workspace.mjs",
     "wp9:env": "node scripts/create-wp9-a-env.mjs",
     "wp9:check": "node scripts/validate-wp9-deployment.mjs",
+    "wp9:images:check": "node scripts/validate-image-publish-workflow.mjs",
     "wp9:manifest": "node scripts/capture-wp9-image-manifest.mjs",
     "wp9:smoke": "node scripts/smoke-wp9-a.mjs",
     "wp9:takedown:smoke": "pnpm --filter @dawnlight/database takedown:smoke",
     "wp9:release:drill": "node scripts/run-wp9-a-release-drill.mjs",
     "wp9:stage-a:check": "node scripts/validate-wp9-first-stage.mjs",
-    "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm services:build && pnpm test && pnpm api:smoke && pnpm validate:contract && pnpm validate:contract:ingest && pnpm v2:check && pnpm wp9:check && pnpm wp9:stage-a:check && pnpm validate:content && pnpm validate:releases && pnpm build && pnpm verify:static && pnpm static:budget && pnpm security:scan && pnpm e2e:run && pnpm lighthouse"
+    "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm services:build && pnpm test && pnpm api:smoke && pnpm validate:contract && pnpm validate:contract:ingest && pnpm v2:check && pnpm wp9:check && pnpm wp9:images:check && pnpm wp9:stage-a:check && pnpm validate:content && pnpm validate:releases && pnpm build && pnpm verify:static && pnpm static:budget && pnpm security:scan && pnpm e2e:run && pnpm lighthouse"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",

@@ -5,7 +5,7 @@ x-image-build: &image-build
   args:
     IMAGE_CREATED: ${WP9_IMAGE_CREATED:?run create-wp9-a-env.mjs}
     IMAGE_REVISION: ${WP9_IMAGE_REVISION:?run create-wp9-a-env.mjs}
-    IMAGE_SOURCE: ${WP9_IMAGE_SOURCE:-https://github.com/EltanceX/dawnlight-core}
+    IMAGE_SOURCE: ${WP9_IMAGE_SOURCE:-https://github.com/EltanceX/DawnlightCore-Site}
     IMAGE_VERSION: ${WP9_IMAGE_VERSION:-0.1.0}
     SOURCE_DATE_EPOCH: ${WP9_SOURCE_DATE_EPOCH:?run create-wp9-a-env.mjs}
 
@@ -155,7 +155,7 @@ services:
       args:
         IMAGE_CREATED: ${WP9_IMAGE_CREATED:?run create-wp9-a-env.mjs}
         IMAGE_REVISION: ${WP9_IMAGE_REVISION:?run create-wp9-a-env.mjs}
-        IMAGE_SOURCE: ${WP9_IMAGE_SOURCE:-https://github.com/EltanceX/dawnlight-core}
+        IMAGE_SOURCE: ${WP9_IMAGE_SOURCE:-https://github.com/EltanceX/DawnlightCore-Site}
         IMAGE_VERSION: ${WP9_IMAGE_VERSION:-0.1.0}
         SOURCE_DATE_EPOCH: ${WP9_SOURCE_DATE_EPOCH:?run create-wp9-a-env.mjs}
         NEXT_PUBLIC_SITE_MODE: preview

@@ -84,7 +84,7 @@
 
 | 能力 | 当前状态 | 真实发布前缺口 |
 | --- | --- | --- |
-| Web/API/Worker 可复现容器定义 | 部分满足 | 仍缺 clean CI Registry digest、SBOM、provenance、attestation 和漏洞门禁 |
+| Web/API/Worker 可复现容器定义 | 工程已实现，运行证据待核验 | Quality 后 GHCR 发布、SBOM、provenance、attestation、Trivy 和候选清单已实现；仍须核验首次成功运行的真实 digest、package 策略和 staging 部署 |
 | 发布/撤回/takedown 数据与 API | 第一层已实现 | 需 WP9-B 真实 provider、真实 CDN 和候选制品复验 |
 | 队列积压/对象存储故障/可见性回滚 | WP9-A arch-vm 六项演练已通过 | 需在 WP9-B clean Registry 候选环境重跑 |
 | Validator/Loader | 不满足 | 缺可信 Validator digest、真实 Loader CLI/Core commit 和 timeout/OOM 证据 |

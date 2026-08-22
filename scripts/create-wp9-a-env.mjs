@@ -112,7 +112,7 @@ const values = {
   WP9_IMAGE_REVISION: revision,
   WP9_IMAGE_CREATED: imageCreated,
   WP9_SOURCE_DATE_EPOCH: sourceDateEpoch,
-  WP9_IMAGE_SOURCE: "https://github.com/EltanceX/dawnlight-core",
+  WP9_IMAGE_SOURCE: "https://github.com/EltanceX/DawnlightCore-Site",
   WP9_IMAGE_VERSION: "0.1.0",
   WP9_POSTGRES_PASSWORD: secret(),
   WP9_MINIO_ROOT_USER: "dawnlight-wp9-a",
