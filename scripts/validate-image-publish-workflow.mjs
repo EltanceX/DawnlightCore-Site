@@ -88,8 +88,20 @@ for (const path of [
   "scripts/check-image-vulnerabilities.mjs",
   "scripts/create-ci-image-manifest.mjs",
   "docs/V2-WP9-4-ImageSupplyChain.md",
+  "docs/V2-WP9-5-CandidateStagingEvidence.md",
 ]) {
   read(path);
+}
+const stagingEvidence = read("docs/V2-WP9-5-CandidateStagingEvidence.md");
+for (const marker of [
+  "68d13a80ba18ee042058ca4e52a2f26c348ea383",
+  "engineering-only",
+  "Release Owner acknowledgement: PENDING",
+  "Production disposition: NO-GO",
+]) {
+  if (!stagingEvidence.includes(marker)) {
+    fail(`candidate staging evidence must preserve boundary: ${marker}`);
+  }
 }
 for (const path of [
   "infra/images/Dockerfile.web",

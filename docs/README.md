@@ -24,6 +24,7 @@
 - [V2-WP9-2 两级 staging 第一层](./V2-WP9-2-Implementation.md)
 - [V2-WP9-3 第一层发布、撤回与故障演练](./V2-WP9-3-Implementation.md)
 - [V2-WP9-4 网站部署镜像供应链](./V2-WP9-4-ImageSupplyChain.md)
+- [V2-WP9-5 CI 候选镜像 staging 提升与演练证据](./V2-WP9-5-CandidateStagingEvidence.md)
 - [V2 第一次真实发布门禁](./V2-FirstRealRelease-Gate.md)
 
 ## WP0：决策冻结与资产盘点

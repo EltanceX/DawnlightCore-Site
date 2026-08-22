@@ -1,6 +1,6 @@
 # V2-WP9-4：网站部署镜像供应链
 
-状态：工程实现完成；首次 GitHub Runner 发布结果、GHCR package 可见性和真实 digest 以对应 Actions 运行及其 `deployment-images-*` 证据 artifact 为准
+状态：工程实现和首次候选发布完成；WP9-A digest 部署与演练已通过，WP9-B/Production 仍未批准
 
 ## 1. 目标与边界
 
@@ -88,8 +88,10 @@ Worker 只有在 Validator 执行隔离边界满足目标环境要求时才可�
 
 ## 6. 仍未满足的真实发布条件
 
-- GHCR package 的公开/私有可见性、只读拉取身份和保留策略尚须在首次发布后核验；
-- 实际 digest 必须从成功 workflow artifact 读取，不能提前写入文档或手工伪造；
+- 首次成功 workflow 已确认 GHCR 可匿名 pull；独立只读拉取身份、保留策略和 digest denylist 仍须核验；
+- 实际 digest 已从成功 workflow artifact 读取并在 WP9-A staging 验证；后续候选仍不得提前写入或手工伪造；
 - Validator package、Core commit、CLI version、SBOM/provenance/attestation 仍是独立门禁；
 - WP9-B 真实 staging、真实 OIDC、对象存储/CDN、secret manager 和实名责任清单仍未由本阶段完成；
 - Production Web 必须由 Production 模式的独立受控发布流程生成，不能把当前 Preview 镜像直接改名上线。
+
+首次成功候选、Critical 可达性审查、数据库恢复点、digest 部署、回滚和发布生命周期证据见 [V2-WP9-5](./V2-WP9-5-CandidateStagingEvidence.md)。
