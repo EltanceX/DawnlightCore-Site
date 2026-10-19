@@ -15,7 +15,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.1111.0",
+    "@aws-sdk/client-s3": "^3.1112.0",
     "@dawnlight/config": "workspace:*",
     "@dawnlight/database": "workspace:*",
     "pg-boss": "^12.5.0",
